@@ -1,0 +1,149 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&family=Great+Vibes&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-accent: #FF4D6D;
+  --color-accent-hover: #FF1E46;
+  --color-dark: #111111;
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Poppins', sans-serif;
+  --font-logo: 'Great Vibes', cursive;
+
+  --animate-fade-in-up: fade-in-up 0.5s ease-out forwards;
+  --animate-pulse-slow: pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-skeleton: skeleton-wave 1.5s infinite linear;
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes skeleton-wave {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+}
+
+:root {
+  --background: #FFFFFF;
+  --foreground: #111111;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  overflow-x: hidden;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+button {
+  border-radius: 0.375rem;
+}
+
+/* Premium Swiper Navigation Arrows */
+.swiper-button-next,
+.swiper-button-prev {
+  color: #111111 !important;
+  background: rgba(255, 255, 255, 0.90) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 50%;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14), 0 1px 4px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  transform: scale(1);
+}
+
+.swiper-button-prev {
+  left: 24px !important;
+}
+
+.swiper-button-next {
+  right: 24px !important;
+}
+
+@media (min-width: 768px) {
+  .swiper-button-prev {
+    left: 48px !important;
+  }
+  .swiper-button-next {
+    right: 48px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .swiper-button-next,
+  .swiper-button-prev {
+    display: none !important;
+  }
+}
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 11px !important;
+  font-weight: 700;
+  color: #111111 !important;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  background: rgba(255, 255, 255, 1) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  transform: scale(1.1);
+  color: #FF4D6D !important;
+}
+
+.swiper-button-next:hover::after,
+.swiper-button-prev:hover::after {
+  color: #FF4D6D !important;
+}
+
+.swiper-pagination-bullet-active {
+  background: #FF4D6D !important;
+  width: 24px !important;
+  border-radius: 4px !important;
+}
+
+/* Custom Scrollbar for premium aesthetic */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F9F9F9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #E2E2E2;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #FF4D6D;
+}
+
+/* Skeleton Loading Wave effect */
+.skeleton-bg {
+  background: linear-gradient(90deg, #F3F3F3 25%, #EBEBEB 37%, #F3F3F3 63%);
+  background-size: 400% 100%;
+}
