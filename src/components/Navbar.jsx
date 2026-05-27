@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useApp } from "../context/AppContext";
-import { Search, Heart, ShoppingBag, User, Menu, X, ChevronDown } from "lucide-react";
+import { Search, Heart, ShoppingBag, User, Menu, X, ChevronDown, Flame, Zap, Moon, Shirt, Link2, Gem, Layers } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const CATEGORY_GROUPS = [
@@ -41,11 +41,11 @@ const TRENDING_SEARCHES = [
 ];
 
 const HOT_CATEGORIES = [
-  { label: "🌙 Sleep", value: "Night Suit" },
-  { label: "👗 Dresses", value: "Dress" },
-  { label: "🤝 Co-ords", value: "Co-ords" },
-  { label: "🪡 Ethnic", value: "Ethnic Wear" },
-  { label: "👖 Denim", value: "Denim" },
+  { icon: Moon, label: "Sleep", value: "Night Suit" },
+  { icon: Shirt, label: "Dresses", value: "Dress" },
+  { icon: Link2, label: "Co-ords", value: "Co-ords" },
+  { icon: Gem, label: "Ethnic", value: "Ethnic Wear" },
+  { icon: Layers, label: "Denim", value: "Denim" },
 ];
 
 export default function Navbar({ currentPage, navigate, currentParams = {} }) {
@@ -224,7 +224,7 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
                       className="mx-5 mb-5 px-4 py-3 bg-neutral-50 border border-neutral-100 flex items-center justify-between cursor-pointer hover:bg-neutral-100 transition-colors"
                       onClick={() => { navigate("products", { badge: "Sale" }); setIsDropdownOpen(false); }}
                     >
-                      <span className="text-xs font-bold text-neutral-800 font-display tracking-wide">🔥 Sale — Up to 50% Off</span>
+                      <span className="text-xs font-bold text-neutral-800 font-display tracking-wide flex items-center gap-1.5"><Flame size={13} className="text-[#FF4D6D]" /> Sale — Up to 50% Off</span>
                       <span className="text-[10px] font-bold text-[#FF4D6D] tracking-widest uppercase">Shop Now →</span>
                     </div>
                   </motion.div>
@@ -291,8 +291,8 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
                   >
                     {/* Trending */}
                     <div className="px-4 pt-4 pb-2">
-                      <p className="text-[9px] font-bold tracking-[0.2em] uppercase text-neutral-400 mb-3">
-                        🔥 Trending Searches
+                      <p className="text-[9px] font-bold tracking-[0.2em] uppercase text-neutral-400 mb-3 flex items-center gap-1.5">
+                        <Flame size={11} className="text-[#FF4D6D]" /> Trending Searches
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {TRENDING_SEARCHES.map((term) => (
@@ -313,8 +313,8 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
 
                     {/* Hot Categories */}
                     <div className="px-4 pb-4">
-                      <p className="text-[9px] font-bold tracking-[0.2em] uppercase text-neutral-400 mb-3">
-                        ⚡ Hot Categories
+                      <p className="text-[9px] font-bold tracking-[0.2em] uppercase text-neutral-400 mb-3 flex items-center gap-1.5">
+                        <Zap size={11} className="text-[#FF4D6D]" /> Hot Categories
                       </p>
                       <div className="grid grid-cols-5 gap-1">
                         {HOT_CATEGORIES.map((cat) => (
@@ -322,10 +322,10 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
                             key={cat.value}
                             type="button"
                             onClick={() => handleHotCategoryClick(cat.value)}
-                            className="flex flex-col items-center justify-center text-center text-[10px] font-medium text-neutral-700 hover:text-[#FF4D6D] py-2 px-1 rounded-md hover:bg-neutral-50 transition-colors cursor-pointer focus:outline-none gap-0.5"
+                            className="flex flex-col items-center justify-center text-center text-[10px] font-medium text-neutral-700 hover:text-[#FF4D6D] py-2 px-1 rounded-md hover:bg-neutral-50 transition-colors cursor-pointer focus:outline-none gap-1"
                           >
-                            <span className="text-base leading-none">{cat.label.split(" ")[0]}</span>
-                            <span className="leading-tight">{cat.label.split(" ").slice(1).join(" ")}</span>
+                            <cat.icon size={15} strokeWidth={1.8} />
+                            <span className="leading-tight">{cat.label}</span>
                           </button>
                         ))}
                       </div>

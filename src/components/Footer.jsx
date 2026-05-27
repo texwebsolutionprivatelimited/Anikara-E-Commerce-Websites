@@ -1,5 +1,5 @@
 import React from "react";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, Shield } from "lucide-react";
 
 export default function Footer({ navigate }) {
   return (
@@ -114,6 +114,12 @@ export default function Footer({ navigate }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 flex flex-col md:flex-row items-center justify-between text-center md:text-left text-neutral-500 text-[10px] md:text-xs font-light gap-3 md:gap-6">
         <p>© {new Date().getFullYear()} Anikara Fashion. All Rights Reserved.</p>
         <p className="tracking-wide">Designed for the Modern Minimalist.</p>
+        <button
+          onClick={() => navigate("admin")}
+          className="flex items-center gap-1 text-neutral-600 hover:text-[#FF4D6D] transition-colors focus:outline-none text-[10px] font-bold uppercase tracking-widest"
+        >
+          <Shield size={11} /> Admin Panel
+        </button>
       </div>
     </footer>
   );

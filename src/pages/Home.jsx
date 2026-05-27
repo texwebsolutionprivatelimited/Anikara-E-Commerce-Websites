@@ -6,6 +6,7 @@ import Deals from "../sections/Deals";
 import Trending from "../sections/Trending";
 import ProductCard from "../components/ProductCard";
 import SkeletonLoader from "../components/SkeletonLoader";
+import CouponBanner from "../components/CouponBanner";
 import { Mail, Truck, RefreshCw, ShieldCheck, ArrowRight } from "lucide-react";
 
 export default function Home({ navigate }) {
@@ -68,8 +69,16 @@ export default function Home({ navigate }) {
         </div>
       </section>
 
-      {/* 3. DEALS OF THE DAY */}
+      {/* 3. COUPON OFFER BANNER */}
+      <section className="w-full py-5 md:py-7 bg-white border-b border-neutral-100">
+        <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16">
+          <CouponBanner navigate={navigate} />
+        </div>
+      </section>
+
+      {/* 4. DEALS OF THE DAY */}
       <Deals navigate={navigate} />
+
 
       {/* 4. CURATED DEPARTMENTS */}
       <Categories navigate={navigate} />

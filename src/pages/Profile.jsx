@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useApp } from "../context/AppContext";
-import { User, LogOut, Package, MapPin, Phone, Mail, ChevronDown, ChevronUp, PackageOpen } from "lucide-react";
+import { User, LogOut, Package, MapPin, Phone, Mail, ChevronDown, ChevronUp, PackageOpen, Check } from "lucide-react";
 
 export default function Profile({ navigate }) {
   const { user, orders, logoutUser, updateProfile } = useApp();
@@ -277,7 +277,7 @@ export default function Profile({ navigate }) {
                                   activeStep >= 1 ? "bg-emerald-500 border-emerald-500 text-white" : "bg-white border-neutral-200"
                                 }`}
                               >
-                                {activeStep > 1 ? "✓" : "1"}
+                                {activeStep > 1 ? <Check size={10} strokeWidth={3} /> : "1"}
                               </span>
                               <span>Placed</span>
                             </div>
@@ -290,7 +290,7 @@ export default function Profile({ navigate }) {
                                   activeStep >= 2 ? "bg-emerald-500 border-emerald-500 text-white" : "bg-white border-neutral-200"
                                 }`}
                               >
-                                {activeStep > 2 ? "✓" : "2"}
+                                {activeStep > 2 ? <Check size={10} strokeWidth={3} /> : "2"}
                               </span>
                               <span>Shipped</span>
                             </div>
@@ -303,7 +303,7 @@ export default function Profile({ navigate }) {
                                   activeStep >= 3 ? "bg-emerald-500 border-emerald-500 text-white" : "bg-white border-neutral-200"
                                 }`}
                               >
-                                {activeStep > 3 ? "✓" : "3"}
+                                {activeStep > 3 ? <Check size={10} strokeWidth={3} /> : "3"}
                               </span>
                               <span>Out for Delivery</span>
                             </div>
@@ -316,7 +316,7 @@ export default function Profile({ navigate }) {
                                   activeStep >= 4 ? "bg-emerald-500 border-emerald-500 text-white" : "bg-white border-neutral-200"
                                 }`}
                               >
-                                {activeStep >= 4 ? "✓" : "4"}
+                                {activeStep >= 4 ? <Check size={10} strokeWidth={3} /> : "4"}
                               </span>
                               <span>Delivered</span>
                             </div>

@@ -1,6 +1,88 @@
 import React, { createContext, useContext, useState } from "react";
 import { products as initialProducts } from "../data/products";
 
+const INITIAL_COUPONS = [
+  {
+    id: 1,
+    label: "1ST ORDER",
+    headline: "FLAT ₹300 OFF",
+    subtext: "On your 1st purchase",
+    code: "ANIKARA300",
+    condition: "Min. order ₹999 • New users only",
+    accent: "#FF4D6D",
+    bg: "from-[#fff5f7] to-[#fff0f3]",
+    badgeBg: "#FF4D6D",
+    active: true,
+  },
+  {
+    id: 2,
+    label: "APP EXCLUSIVE",
+    headline: "FLAT 20% OFF",
+    subtext: "Sitewide — limited time",
+    code: "ANIKARA20",
+    condition: "All categories • No min. order",
+    accent: "#111111",
+    bg: "from-[#f5f5f5] to-[#f0f0f0]",
+    badgeBg: "#111111",
+    active: true,
+  },
+  {
+    id: 3,
+    label: "FESTIVE SPECIAL",
+    headline: "BUY 2 GET 1 FREE",
+    subtext: "On selected ethnic wear",
+    code: "NIKFEST3",
+    condition: "Applies on Ethnic Wear category",
+    accent: "#c9860a",
+    bg: "from-[#fffbf0] to-[#fff8e6]",
+    badgeBg: "#c9860a",
+    active: true,
+  },
+];
+
+const INITIAL_SLIDES = [
+  {
+    id: 1,
+    title: "Summer Sale 50% OFF",
+    subtitle: "SEASONAL EDIT",
+    desc: "Luxe silhouettes for warmer days. Woven in French linen, soft organic cottons, and breezy satin silk fits.",
+    navigatePage: "products",
+    navigateParams: { badge: "50% OFF" },
+    image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1600&q=80",
+    active: true,
+  },
+  {
+    id: 2,
+    title: "Trending Co-word Sets",
+    subtitle: "MINIMAL MODERNIST",
+    desc: "Effortless coordinating sets crafted to transition seamlessly from morning lounge to sunset styling.",
+    navigatePage: "products",
+    navigateParams: { category: "Co-ords" },
+    image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1600&q=80",
+    active: true,
+  },
+  {
+    id: 3,
+    title: "New Ethnic Collection",
+    subtitle: "FESTIVE BLOCKPRINT",
+    desc: "Intricate handloom Chanderi silk sarees and detailed blockprint embroidered kurta sets.",
+    navigatePage: "products",
+    navigateParams: { category: "Ethnic Wear" },
+    image: "https://images.unsplash.com/photo-1610030469668-93535c17b6b3?auto=format&fit=crop&w=1600&q=80",
+    active: true,
+  },
+  {
+    id: 4,
+    title: "Cozy Sleepwear Deals",
+    subtitle: "NIGHT SUIT ESSENTIALS",
+    desc: "Indulge in nightly luxury. Liquid satin pajama sets and organic cotton sleep shirts starting from ₹1,899.",
+    navigatePage: "products",
+    navigateParams: { category: "Night Suit" },
+    image: "https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=1600&q=80",
+    active: true,
+  },
+];
+
 const AppContext = createContext();
 
 export const useApp = () => {
@@ -79,6 +161,8 @@ export const AppProvider = ({ children }) => {
   ]);
   const [promoDiscount, setPromoDiscount] = useState(null);
   const [toasts, setToasts] = useState([]);
+  const [coupons, setCoupons] = useState(INITIAL_COUPONS);
+  const [slides, setSlides] = useState(INITIAL_SLIDES);
 
   // Toast utilities
   const addToast = (message, type = "success") => {
@@ -188,6 +272,68 @@ export const AppProvider = ({ children }) => {
     addToast("Coupon Removed", "info");
   };
 
+  // Admin: Coupon CRUD
+  const adminAddCoupon = (coupon) => {
+    const newCoupon = {
+      ...coupon,
+      id: Date.now(),
+      active: true,
+    };
+    setCoupons((prev) => [...prev, newCoupon]);
+    addToast("Coupon added successfully!", "success");
+  };
+
+  const adminUpdateCoupon = (id, updated) => {
+    setCoupons((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, ...updated } : c))
+    );
+    addToast("Coupon updated!", "success");
+  };
+
+  const adminDeleteCoupon = (id) => {
+    setCoupons((prev) => prev.filter((c) => c.id !== id));
+    addToast("Coupon deleted.", "info");
+  };
+
+  const adminToggleCoupon = (id) => {
+    setCoupons((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, active: !c.active } : c))
+    );
+  };
+
+  // Admin: Slide CRUD
+  const adminAddSlide = (slide) => {
+    const newSlide = { ...slide, id: Date.now(), active: true };
+    setSlides((prev) => [...prev, newSlide]);
+    addToast("Slide added!", "success");
+  };
+
+  const adminUpdateSlide = (id, updated) => {
+    setSlides((prev) => prev.map((s) => (s.id === id ? { ...s, ...updated } : s)));
+    addToast("Slide updated!", "success");
+  };
+
+  const adminDeleteSlide = (id) => {
+    setSlides((prev) => prev.filter((s) => s.id !== id));
+    addToast("Slide deleted.", "info");
+  };
+
+  const adminToggleSlide = (id) => {
+    setSlides((prev) => prev.map((s) => (s.id === id ? { ...s, active: !s.active } : s)));
+  };
+
+  const adminMoveSlide = (id, direction) => {
+    setSlides((prev) => {
+      const idx = prev.findIndex((s) => s.id === id);
+      if (idx < 0) return prev;
+      const newIdx = direction === "up" ? idx - 1 : idx + 1;
+      if (newIdx < 0 || newIdx >= prev.length) return prev;
+      const arr = [...prev];
+      [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
+      return arr;
+    });
+  };
+
   // Checkout and orders
   const placeOrder = (addressDetails, paymentMethod) => {
     if (cart.length === 0) return null;
@@ -270,6 +416,8 @@ export const AppProvider = ({ children }) => {
         orders,
         promoDiscount,
         toasts,
+        coupons,
+        slides,
         addToast,
         removeToast,
         addToCart,
@@ -283,7 +431,16 @@ export const AppProvider = ({ children }) => {
         loginUser,
         registerUser,
         logoutUser,
-        updateProfile
+        updateProfile,
+        adminAddCoupon,
+        adminUpdateCoupon,
+        adminDeleteCoupon,
+        adminToggleCoupon,
+        adminAddSlide,
+        adminUpdateSlide,
+        adminDeleteSlide,
+        adminToggleSlide,
+        adminMoveSlide,
       }}
     >
       {children}

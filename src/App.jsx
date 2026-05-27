@@ -15,6 +15,7 @@ import Login from "./pages/Login";
 import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
 import OrderSuccess from "./pages/OrderSuccess";
+import AdminPanel from "./pages/AdminPanel";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState("home");
@@ -82,25 +83,29 @@ export default function App() {
         return <Profile navigate={navigate} goBack={goBack} />;
       case "order-success":
         return <OrderSuccess navigate={navigate} currentParams={currentParams} goBack={goBack} />;
+      case "admin":
+        return <AdminPanel navigate={navigate} />;
       default:
         return <Home navigate={navigate} />;
     }
   };
 
+  const isAdmin = currentPage === "admin";
+
   return (
     <AppProvider>
       <div className="min-h-screen flex flex-col bg-white text-[#111111] selection:bg-[#FF4D6D] selection:text-white">
         
-        {/* Core Layout fixed nodes */}
-        <AnnouncementBar />
-        <Navbar currentPage={currentPage} navigate={navigate} currentParams={currentParams} />
+        {/* Core Layout fixed nodes — hidden on admin */}
+        {!isAdmin && <AnnouncementBar />}
+        {!isAdmin && <Navbar currentPage={currentPage} navigate={navigate} currentParams={currentParams} />}
         
         {/* Page content window with sticky margins top offset */}
-        <main className="flex-grow pt-[104px] md:pt-[120px]">
+        <main className={`flex-grow ${!isAdmin ? "pt-[104px] md:pt-[120px]" : ""}`}>
           {renderPage()}
         </main>
         
-        <Footer navigate={navigate} />
+        {!isAdmin && <Footer navigate={navigate} />}
         <Toast />
 
       </div>

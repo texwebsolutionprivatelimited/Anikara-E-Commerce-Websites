@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
 import ProductCard from "../components/ProductCard";
-import { Star, Heart, ShoppingBag, CreditCard, ChevronRight, Plus, Minus, ArrowLeft } from "lucide-react";
+import { Star, Heart, ShoppingBag, CreditCard, ChevronRight, Plus, Minus, ArrowLeft, Package, RefreshCcw } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function ProductDetails({ navigate, currentParams = {}, goBack }) {
@@ -344,9 +344,15 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
                   <li>Imported premium quality yarns.</li>
                 </ul>
               ) : (
-                <div className="space-y-2 font-sans">
-                  <p>📦 **Standard Shipping:** Free across India on orders above ₹1,500. Takes 3-5 business days to deliver.</p>
-                  <p>🔄 **Return Policy:** Easy 15-day return and exchange on all unworn items with tags intact.</p>
+                <div className="space-y-3 font-sans">
+                  <div className="flex items-start gap-2">
+                    <Package size={14} className="text-[#FF4D6D] shrink-0 mt-0.5" />
+                    <p><span className="font-semibold text-neutral-800">Standard Shipping:</span> Free across India on orders above ₹1,500. Takes 3-5 business days to deliver.</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <RefreshCcw size={14} className="text-[#FF4D6D] shrink-0 mt-0.5" />
+                    <p><span className="font-semibold text-neutral-800">Return Policy:</span> Easy 15-day return and exchange on all unworn items with tags intact.</p>
+                  </div>
                 </div>
               )}
             </div>
