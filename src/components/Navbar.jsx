@@ -207,7 +207,7 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center space-x-8 font-sans">
+          <nav className="hidden lg:flex items-center space-x-10 font-sans">
             <button
               onClick={() => navigate("home")}
               className={`text-xs font-semibold tracking-wider uppercase transition-colors cursor-pointer focus:outline-none ${
@@ -320,7 +320,7 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setIsSearchFocused(true)}
-                  className="w-[220px] xl:w-[280px] h-[36px] text-xs bg-neutral-50 border border-neutral-200 rounded-full pl-9 pr-8 focus:outline-none focus:border-[#FF4D6D] focus:bg-white transition-all duration-300 font-sans placeholder:text-neutral-400"
+                  className="w-[220px] xl:w-[280px] h-10 text-sm bg-neutral-50 border border-neutral-200 rounded-full pl-9 pr-8 focus:outline-none focus:border-[#FF4D6D] focus:bg-white transition-all duration-300 font-sans placeholder:text-neutral-400"
                 />
                 {searchQuery && (
                   <button

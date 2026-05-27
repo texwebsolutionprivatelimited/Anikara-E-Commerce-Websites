@@ -1,91 +1,135 @@
-import React, { useState } from "react";
+import React from "react";
+import { motion } from "framer-motion";
 import CategoryCard from "../components/CategoryCard";
+import { useApp } from "../context/AppContext";
 
 const FEATURED_CATEGORIES = [
   {
-    name: "Dress",
-    itemsCount: "24 Items",
-    image: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=600&q=80"
+    displayName: "DRESSES",
+    dbCategory: "Dress",
+    image: "https://images.unsplash.com/photo-1618932260643-eee4a2f6c9d6?auto=format&fit=crop&w=600&q=80"
   },
   {
-    name: "Denim",
-    itemsCount: "14 Items",
-    image: "https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=600&q=80"
+    displayName: "TOPS & BLOUSES",
+    dbCategory: "Top & Blouse",
+    image: "https://images.unsplash.com/photo-1564227901-6b1d20bebe9d?auto=format&fit=crop&w=600&q=80"
   },
   {
-    name: "Night Suit",
-    itemsCount: "12 Items",
-    image: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=600&q=80"
+    displayName: "T-SHIRTS",
+    dbCategory: "T-Shirt",
+    image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=600&q=80"
   },
   {
-    name: "Ethnic Wear",
-    itemsCount: "18 Items",
-    image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=600&q=80"
+    displayName: "DENIM",
+    dbCategory: "Denim",
+    image: "https://images.unsplash.com/photo-1604176354204-9268737828e4?auto=format&fit=crop&w=600&q=80"
   },
   {
-    name: "Co-ords",
-    itemsCount: "10 Items",
+    displayName: "CO-ORDS",
+    dbCategory: "Co-ords",
     image: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=600&q=80"
   },
   {
-    name: "Lounge Suit",
-    itemsCount: "16 Items",
+    displayName: "BOTTOMS",
+    dbCategory: "Bottom Wear",
+    image: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    displayName: "LOUNGEWEAR",
+    dbCategory: "Night Suit",
     image: "https://images.unsplash.com/photo-1608231387042-66d1773070a5?auto=format&fit=crop&w=600&q=80"
   },
   {
-    name: "T-Shirt",
-    itemsCount: "15 Items",
-    image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80"
+    displayName: "LINGERIE",
+    dbCategory: "Lingerie",
+    image: "https://images.unsplash.com/photo-1569591159212-b02ea8a9f239?auto=format&fit=crop&w=600&q=80"
   },
   {
-    name: "Top & Blouse",
-    itemsCount: "20 Items",
-    image: "https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=600&q=80"
-  },
-  {
-    name: "Bottom Wear",
-    itemsCount: "22 Items",
-    image: "https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?auto=format&fit=crop&w=600&q=80"
-  },
-  {
-    name: "Suit",
-    itemsCount: "8 Items",
+    displayName: "SUITS",
+    dbCategory: "Suit",
     image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    displayName: "SPORTS WEAR",
+    dbCategory: "Sports Wear",
+    image: "https://images.unsplash.com/photo-1571008887538-b36bb32f4571?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    displayName: "FOOTWEAR",
+    dbCategory: "Footwear",
+    image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    displayName: "BAGS",
+    dbCategory: "Bags",
+    image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    displayName: "BEAUTY",
+    dbCategory: "Cosmetics",
+    image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    displayName: "ACCESSORIES",
+    dbCategory: "Accessories",
+    image: "https://images.unsplash.com/photo-1576243345690-4e4b79b63288?auto=format&fit=crop&w=600&q=80"
   }
 ];
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05
+    }
+  }
+};
+
 export default function Categories({ navigate }) {
-  const [visibleCount, setVisibleCount] = useState(8);
+  const { products } = useApp();
+
+  // Get dynamic count of items in each category
+  const categoriesWithCounts = FEATURED_CATEGORIES.map((cat) => {
+    const count = products.filter(
+      (p) => p.category.toLowerCase() === cat.dbCategory.toLowerCase()
+    ).length;
+    return {
+      ...cat,
+      itemsCount: `${count} ${count === 1 ? "Item" : "Items"}`
+    };
+  });
 
   return (
-    <section className="max-w-[1600px] mx-auto px-4 sm:px-10 lg:px-16 pt-4 pb-4 md:pt-6 md:pb-6 border-t border-neutral-100">
-      <div className="text-center mb-6 md:mb-8">
-        <span className="text-[10px] font-bold tracking-[0.2em] text-[#FF4D6D] uppercase font-display">
-          Curated Departments
-        </span>
-        <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#111111] mt-1 font-display">
-          Shop by Category
-        </h2>
-      </div>
+    <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#FFF5F8] via-white to-[#FFF9FA] pt-6 pb-10 border-t border-neutral-100/60">
+      {/* Soft Luxury Decorative Glow Blobs */}
+      <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-pink-200/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] bg-rose-200/15 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Categories Grid (2 Columns on mobile, 3 on tablet, 4 on desktop) */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-        {FEATURED_CATEGORIES.slice(0, visibleCount).map((cat) => (
-          <CategoryCard key={cat.name} category={cat} navigate={navigate} />
-        ))}
-      </div>
-
-      {/* Load More Button */}
-      {visibleCount < FEATURED_CATEGORIES.length && (
-        <div className="text-center mt-4 md:mt-6">
-          <button
-            onClick={() => setVisibleCount((prev) => Math.min(prev + 4, FEATURED_CATEGORIES.length))}
-            className="px-8 py-3.5 border border-[#111111] hover:bg-[#111111] hover:text-white text-[#111111] text-xs font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer focus:outline-none"
-          >
-            Load More Categories
-          </button>
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-10 lg:px-16 relative z-10">
+        <div className="text-center mb-8 md:mb-10">
+          <span className="text-[10px] font-bold tracking-[0.35em] text-[#FF4D6D] uppercase font-display block mb-1.5">
+            Curated Departments
+          </span>
+          <h2 className="text-2xl md:text-3.5xl font-extrabold tracking-tight text-[#111111] font-display">
+            Hot Categories
+          </h2>
+          <div className="w-12 h-[2px] bg-[#FF4D6D] mx-auto mt-3.5 rounded-full opacity-80" />
         </div>
-      )}
+
+        {/* Categories Flex Wrapper (centered, balanced, no trailing whitespace) */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+          className="flex flex-wrap items-center justify-center gap-x-5 gap-y-10 sm:gap-x-7 sm:gap-y-12 max-w-7xl mx-auto w-full"
+        >
+          {categoriesWithCounts.map((cat) => (
+            <CategoryCard key={cat.displayName} category={cat} navigate={navigate} />
+          ))}
+        </motion.div>
+      </div>
     </section>
   );
 }

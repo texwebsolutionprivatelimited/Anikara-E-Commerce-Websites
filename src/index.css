@@ -12,6 +12,7 @@
   --animate-fade-in-up: fade-in-up 0.5s ease-out forwards;
   --animate-pulse-slow: pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-skeleton: skeleton-wave 1.5s infinite linear;
+  --animate-sparkle-float: sparkle-float 4s ease-in-out infinite;
 
   @keyframes fade-in-up {
     from {
@@ -21,6 +22,17 @@
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @keyframes sparkle-float {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0.35;
+    }
+    50% {
+      transform: translate(3px, -4px) scale(1.25);
+      opacity: 0.95;
     }
   }
 

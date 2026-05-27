@@ -40,6 +40,7 @@ const COUPONS = [
 
 function SingleCoupon({ coupon, navigate, addToast }) {
   const [copied, setCopied] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleCopy = (e) => {
     e.stopPropagation();
@@ -52,9 +53,19 @@ function SingleCoupon({ coupon, navigate, addToast }) {
 
   return (
     <div
-      className={`relative flex items-stretch bg-gradient-to-r ${coupon.bg} border border-neutral-200/80 overflow-hidden group cursor-pointer select-none`}
-      style={{ borderRadius: "6px", minHeight: "72px" }}
+      className={`relative flex items-stretch bg-gradient-to-r ${coupon.bg} border overflow-hidden group cursor-pointer select-none transition-all duration-350 ease-out`}
+      style={{
+        borderRadius: "8px",
+        minHeight: "72px",
+        borderColor: isHovered ? coupon.accent : "rgba(229, 229, 229, 0.85)",
+        boxShadow: isHovered
+          ? `0 10px 25px -5px ${coupon.accent}22, 0 8px 10px -6px ${coupon.accent}22`
+          : "0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.01)",
+        transform: isHovered ? "translateY(-3px)" : "translateY(0)"
+      }}
       onClick={() => navigate("products", { badge: "Sale" })}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Shimmer sweep on hover */}
       <div
@@ -121,7 +132,7 @@ function SingleCoupon({ coupon, navigate, addToast }) {
 
       {/* CENTER — Offer text */}
       <div className="flex flex-col justify-center px-2 sm:px-4 py-3 flex-1 min-w-0">
-        <p className="text-[8px] sm:text-[10px] font-bold text-neutral-400 uppercase tracking-[0.15em] mb-0.5 flex items-center gap-1">
+        <p className="text-[8px] sm:text-[10px] font-bold text-neutral-500 uppercase tracking-[0.15em] mb-0.5 flex items-center gap-1">
           <Sparkles size={8} />
           {coupon.subtext}
         </p>
@@ -131,7 +142,7 @@ function SingleCoupon({ coupon, navigate, addToast }) {
         >
           {coupon.headline}
         </h3>
-        <p className="text-[8px] sm:text-[9px] text-neutral-400 mt-1 font-light leading-snug">{coupon.condition}</p>
+        <p className="text-[8px] sm:text-[9px] text-neutral-600 mt-1 font-medium leading-snug">{coupon.condition}</p>
       </div>
 
       {/* RIGHT — Code + Copy */}
@@ -140,7 +151,7 @@ function SingleCoupon({ coupon, navigate, addToast }) {
           className="border-2 border-dashed px-2 py-1 text-center"
           style={{ borderColor: coupon.accent }}
         >
-          <p className="text-[7px] sm:text-[9px] font-bold text-neutral-400 uppercase tracking-widest mb-0.5">
+          <p className="text-[7px] sm:text-[9px] font-bold text-neutral-500 uppercase tracking-widest mb-0.5">
             Use Code
           </p>
           <p
@@ -152,12 +163,14 @@ function SingleCoupon({ coupon, navigate, addToast }) {
         </div>
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1 text-[8px] sm:text-[9px] font-bold uppercase tracking-wider px-2 py-1 transition-all duration-200 rounded-sm focus:outline-none min-h-0"
+          className="flex items-center justify-center gap-1 text-[8px] sm:text-[9px] font-bold uppercase tracking-wider px-4 py-2 transition-all duration-200 focus:outline-none min-h-0"
           style={{
             background: copied ? "#22c55e" : coupon.accent,
             color: "white",
             minHeight: "unset",
             minWidth: "unset",
+            borderRadius: "12px",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.08)"
           }}
         >
           {copied ? (
@@ -188,27 +201,15 @@ export default function CouponBanner({ navigate }) {
   if (activeCoupons.length === 0) return null;
 
   return (
-    <div className="space-y-3">
-      {/* Section header */}
-      <div className="flex items-center gap-2 sm:gap-3 mb-1">
-        <Tag size={13} className="text-[#FF4D6D] shrink-0" />
-        <span className="text-[9px] sm:text-[10px] font-bold tracking-[0.2em] uppercase text-neutral-500">
-          Exclusive Offers & Coupons
-        </span>
-        <div className="flex-1 h-px bg-neutral-100" />
-      </div>
-
-      {/* Coupon grid — 1 col mobile, 2 col sm, 3 col lg */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
-        {activeCoupons.map((coupon) => (
-          <SingleCoupon
-            key={coupon.id}
-            coupon={coupon}
-            navigate={navigate}
-            addToast={addToast}
-          />
-        ))}
-      </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+      {activeCoupons.map((coupon) => (
+        <SingleCoupon
+          key={coupon.id}
+          coupon={coupon}
+          navigate={navigate}
+          addToast={addToast}
+        />
+      ))}
     </div>
   );
 }
