@@ -42,7 +42,7 @@ export default function Wishlist({ navigate }) {
       </h1>
 
       {/* Wishlist Grid */}
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] sm:grid-cols-3 lg:grid-cols-4 gap-x-3 sm:gap-x-4 gap-y-6 sm:gap-y-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 sm:gap-x-4 gap-y-6 sm:gap-y-8">
         {wishlist.map((product) => {
           const discountPercent = product.oldPrice
             ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
@@ -52,7 +52,7 @@ export default function Wishlist({ navigate }) {
             <div key={product.id} className="group relative flex flex-col w-full bg-white overflow-hidden border border-neutral-100 rounded-sm">
               
               {/* Product Image */}
-              <div className="relative aspect-[3/4] w-full bg-neutral-100 overflow-hidden">
+              <div className="relative aspect-[4/5] w-full bg-neutral-100 overflow-hidden">
                 <button
                   onClick={() => navigate("product-details", { productId: product.id })}
                   className="absolute inset-0 z-10 cursor-pointer focus:outline-none"

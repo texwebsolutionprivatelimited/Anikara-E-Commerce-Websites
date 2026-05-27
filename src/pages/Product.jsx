@@ -124,7 +124,7 @@ export default function Product({ navigate, currentParams = {}, goBack }) {
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-sans">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 font-sans">
       
       {/* Back Button */}
       <button
@@ -168,7 +168,7 @@ export default function Product({ navigate, currentParams = {}, goBack }) {
       <div className="flex gap-8 min-w-0">
         
         {/* DESKTOP SIDEBAR */}
-        <aside className="w-64 shrink-0 hidden lg:block border-r border-neutral-100 pr-6 h-fit sticky top-28">
+        <aside className="w-56 lg:w-64 shrink-0 hidden lg:block border-r border-neutral-100 pr-6 h-fit sticky top-[120px]">
           <FilterSidebar
             selectedCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
@@ -225,7 +225,7 @@ export default function Product({ navigate, currentParams = {}, goBack }) {
           {isLoading ? (
             <SkeletonLoader count={8} />
           ) : sortedProducts.length > 0 ? (
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] sm:grid-cols-2 md:grid-cols-3 gap-x-3 sm:gap-x-4 gap-y-6 sm:gap-y-8">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-x-3 sm:gap-x-4 gap-y-6 sm:gap-y-8">
               {sortedProducts.map((product) => (
                 <ProductCard key={product.id} product={product} navigate={navigate} />
               ))}

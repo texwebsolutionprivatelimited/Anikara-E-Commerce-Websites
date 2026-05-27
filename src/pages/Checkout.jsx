@@ -67,11 +67,11 @@ export default function Checkout({ navigate }) {
   if (cart.length === 0) return null;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-sans">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 font-sans">
       
       {/* 1. PROGRESS STEP INDICATOR */}
-      <div className="max-w-3xl mx-auto mb-8 md:mb-12 overflow-x-auto pb-2">
-        <div className="min-w-[520px] sm:min-w-0 flex items-center justify-between font-display text-[10px] md:text-xs font-bold uppercase tracking-wider text-neutral-400">
+      <div className="max-w-3xl mx-auto mb-6 md:mb-12 px-2">
+        <div className="w-full flex items-center justify-between font-display text-[8px] min-[360px]:text-[9px] sm:text-[10px] md:text-xs font-bold uppercase tracking-wider text-neutral-400">
           
           {/* Step 1 */}
           <div className="flex flex-col items-center gap-2 relative flex-1">
@@ -131,7 +131,7 @@ export default function Checkout({ navigate }) {
       </div>
 
       {/* Main Checkout Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-10 items-start">
         
         {/* Form Inputs */}
         <div className="lg:col-span-2 bg-white border border-neutral-200/60 p-4 sm:p-8 rounded-xs space-y-6 min-w-0">
@@ -427,7 +427,7 @@ export default function Checkout({ navigate }) {
           <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
             {cart.map((item) => (
               <div key={item.cartItemId} className="flex gap-3 text-xs min-w-0">
-                <div className="w-10 aspect-[3/4] bg-neutral-100 shrink-0 rounded-xs overflow-hidden border border-neutral-200">
+                <div className="w-10 aspect-[4/5] bg-neutral-100 shrink-0 rounded-xs overflow-hidden border border-neutral-200">
                   <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1 min-w-0 font-sans">

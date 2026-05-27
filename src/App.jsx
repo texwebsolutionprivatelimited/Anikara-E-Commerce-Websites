@@ -101,7 +101,7 @@ export default function App() {
         {!isAdmin && <Navbar currentPage={currentPage} navigate={navigate} currentParams={currentParams} />}
         
         {/* Page content window with sticky margins top offset */}
-        <main className={`flex-grow ${!isAdmin ? "pt-[104px] md:pt-[120px]" : ""}`}>
+        <main className={`flex-grow ${!isAdmin ? "pt-[104px] md:pt-[116px] lg:pt-[120px]" : ""}`}>
           {renderPage()}
         </main>
         

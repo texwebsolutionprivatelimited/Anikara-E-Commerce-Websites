@@ -21,8 +21,8 @@ export default function AnnouncementBar() {
   const { icon: Icon, text } = ANNOUNCEMENTS[index];
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-[#111111] text-white text-[10.5px] md:text-xs tracking-[0.12em] font-medium h-[32px] md:h-[36px] flex items-center justify-center overflow-hidden border-b border-white/10 font-display">
-      <div className="relative w-full max-w-4xl px-4 flex items-center justify-center">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-[#111111] text-white text-[9px] sm:text-[10.5px] md:text-xs tracking-[0.10em] sm:tracking-[0.12em] font-medium h-[32px] md:h-[36px] flex items-center justify-center overflow-hidden border-b border-white/10 font-display">
+      <div className="relative w-full max-w-4xl px-3 sm:px-4 flex items-center justify-center overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.p
             key={index}

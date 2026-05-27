@@ -353,7 +353,7 @@ function SlidesTab() {
   return (
     <>
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
         <StatCard label="Total Slides"    value={slides.length}  color="#111111" />
         <StatCard label="Active"          value={activeCount}    color="#22c55e" />
         <StatCard label="Hidden"          value={slides.length - activeCount} color="#FF4D6D" />
@@ -478,7 +478,7 @@ function CouponsTab() {
   return (
     <>
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
         <StatCard label="Total Coupons"   value={coupons.length} color="#111111" />
         <StatCard label="Active"          value={activeCount}    color="#22c55e" />
         <StatCard label="Inactive"        value={coupons.length - activeCount} color="#FF4D6D" />
@@ -574,7 +574,7 @@ export default function AdminPanel({ navigate }) {
     <div className="min-h-screen bg-neutral-50 font-sans">
 
       {/* ── Top Header ── */}
-      <header className="bg-white border-b border-neutral-200 px-6 py-4 flex items-center justify-between sticky top-0 z-40 shadow-sm">
+      <header className="bg-white border-b border-neutral-200 px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-2 sticky top-0 z-40 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-[#111111] text-white"><Shield size={16} /></div>
           <div>
@@ -589,8 +589,8 @@ export default function AdminPanel({ navigate }) {
       </header>
 
       {/* ── Tab Bar ── */}
-      <div className="bg-white border-b border-neutral-100 px-6">
-        <div className="flex gap-0 max-w-6xl mx-auto">
+      <div className="bg-white border-b border-neutral-100 px-0 sm:px-6 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-0 max-w-6xl mx-auto min-w-max sm:min-w-0">
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -607,7 +607,7 @@ export default function AdminPanel({ navigate }) {
       </div>
 
       {/* ── Tab Content ── */}
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <main className="max-w-6xl mx-auto px-3 sm:px-6 py-5 sm:py-8">
         {activeTab === "slides"  && <SlidesTab />}
         {activeTab === "coupons" && <CouponsTab />}
       </main>

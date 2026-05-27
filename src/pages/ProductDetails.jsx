@@ -100,7 +100,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-sans">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 font-sans">
       
       {/* Back Button */}
       <button
@@ -128,14 +128,14 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
       </div>
 
       {/* Main Details Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
         
         {/* Images */}
         <div className="flex flex-col gap-4">
           <div
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className="relative aspect-[3/4] w-full bg-neutral-100 overflow-hidden cursor-crosshair group rounded-xs border border-neutral-100"
+            className="relative aspect-[4/5] w-full bg-neutral-100 overflow-hidden cursor-crosshair group rounded-xs border border-neutral-100"
           >
             <img
               src={activeImage}
@@ -157,7 +157,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
           <div className="flex gap-3 overflow-x-auto pb-1">
             <button
               onClick={() => setActiveImage(product.image)}
-              className={`relative aspect-[3/4] w-16 bg-neutral-100 shrink-0 border-2 rounded-xs overflow-hidden cursor-pointer focus:outline-none ${
+              className={`relative aspect-[4/5] w-16 bg-neutral-100 shrink-0 border-2 rounded-xs overflow-hidden cursor-pointer focus:outline-none ${
                 activeImage === product.image ? "border-[#FF4D6D]" : "border-transparent"
               }`}
             >
@@ -166,7 +166,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
             {product.altImage && (
               <button
                 onClick={() => setActiveImage(product.altImage)}
-                className={`relative aspect-[3/4] w-16 bg-neutral-100 shrink-0 border-2 rounded-xs overflow-hidden cursor-pointer focus:outline-none ${
+                className={`relative aspect-[4/5] w-16 bg-neutral-100 shrink-0 border-2 rounded-xs overflow-hidden cursor-pointer focus:outline-none ${
                   activeImage === product.altImage ? "border-[#FF4D6D]" : "border-transparent"
                 }`}
               >
@@ -367,7 +367,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
           Customer Reviews
         </h2>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12">
           
           {/* Mock review forms */}
           <div className="bg-neutral-50 p-6 border border-neutral-200/60 rounded-xs space-y-4">
@@ -459,7 +459,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
           <h2 className="text-lg font-bold tracking-wide text-neutral-900 mb-8 uppercase font-display">
             You May Also Like
           </h2>
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             {similarProducts.map((p) => (
               <ProductCard key={p.id} product={p} navigate={navigate} />
             ))}

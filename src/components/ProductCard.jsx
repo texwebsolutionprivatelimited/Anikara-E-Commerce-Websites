@@ -21,7 +21,7 @@ export default function ProductCard({ product, navigate }) {
     >
       {/* Product Image Gallery with hover switch */}
       <div
-        className="relative aspect-[3/4] w-full bg-neutral-100 overflow-hidden cursor-pointer"
+        className="relative aspect-[4/5] w-full bg-neutral-100 overflow-hidden cursor-pointer"
         onClick={() => navigate("product-details", { productId: product.id })}
       >
         {/* Main Image */}

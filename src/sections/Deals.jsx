@@ -34,7 +34,7 @@ export default function Deals({ navigate }) {
 
   return (
     <section className="bg-neutral-50 pt-4 pb-4 md:pt-6 md:pb-6 border-y border-neutral-100">
-      <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-10 lg:px-16">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 md:mb-8 gap-6">
           
           {/* Header and Countdown */}
@@ -79,7 +79,7 @@ export default function Deals({ navigate }) {
         </div>
 
         {/* Static Grid for Deals */}
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 sm:gap-x-4 gap-y-6 sm:gap-y-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 sm:gap-x-4 gap-y-6 sm:gap-y-8">
           {dealProducts.slice(0, visibleCount).map((product) => (
             <ProductCard key={product.id} product={product} navigate={navigate} />
           ))}

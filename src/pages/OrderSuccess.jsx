@@ -73,7 +73,7 @@ export default function OrderSuccess({ navigate, currentParams = {} }) {
                 <div key={idx} className="flex gap-3 sm:gap-4 text-xs font-sans text-neutral-600 min-w-0">
                   <button
                     onClick={() => navigate("product-details", { productId: item.id })}
-                    className="w-10 aspect-[3/4] bg-neutral-100 border border-neutral-100 rounded-xs overflow-hidden shrink-0 cursor-pointer focus:outline-none"
+                   className="w-10 aspect-[4/5] bg-neutral-100 border border-neutral-100 rounded-xs overflow-hidden shrink-0 cursor-pointer focus:outline-none"
                   >
                     <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                   </button>

@@ -105,7 +105,7 @@ export default function BannerSlider({ slides, navigate }) {
   const swiperRef = useRef(null);
 
   return (
-    <section className="relative w-full h-[260px] xs:h-[300px] sm:h-[380px] md:h-[440px] lg:h-[480px] overflow-hidden bg-white border-b border-neutral-100">
+    <section className="relative w-full h-[180px] xs:h-[220px] sm:h-[290px] md:h-[340px] lg:h-[390px] xl:h-[420px] overflow-hidden bg-white border-b border-neutral-100">
       <Swiper
         onSwiper={(swiper) => { swiperRef.current = swiper; }}
         modules={[Autoplay, Pagination, EffectFade]}

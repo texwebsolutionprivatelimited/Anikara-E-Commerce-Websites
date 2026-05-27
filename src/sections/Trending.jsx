@@ -13,7 +13,7 @@ export default function Trending({ navigate }) {
 
   return (
     <section className="w-full border-t border-neutral-100 pt-4 pb-4 md:pt-6 md:pb-6">
-      <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-10 lg:px-16">
         <div className="text-center mb-6 md:mb-8">
           <span className="text-[10px] font-bold tracking-[0.2em] text-[#FF4D6D] uppercase font-display">
             High Demand

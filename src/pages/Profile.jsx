@@ -65,12 +65,12 @@ export default function Profile({ navigate }) {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-sans">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 font-sans">
       <h1 className="text-xl md:text-2xl font-bold tracking-wider text-neutral-900 uppercase mb-8 font-display border-b border-neutral-100 pb-4">
         My Profile
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-10 items-start">
         
         {/* User details */}
         <div className="bg-white border border-neutral-200/60 p-6 rounded-xs space-y-6">
@@ -268,8 +268,8 @@ export default function Profile({ navigate }) {
                       <div className="p-5 space-y-6">
                         
                         {/* Tracker Progress bar */}
-                        <div className="max-w-xl mx-auto py-2 overflow-x-auto">
-                          <div className="relative min-w-[520px] sm:min-w-0 flex items-center justify-between font-display text-[9px] font-bold tracking-wider uppercase text-neutral-400">
+                        <div className="max-w-xl mx-auto py-2 px-1">
+                          <div className="relative w-full flex items-center justify-between font-display text-[7.5px] min-[360px]:text-[8.5px] sm:text-[9.5px] font-bold tracking-wider uppercase text-neutral-400">
                             
                             <div className="flex flex-col items-center gap-1.5 z-10">
                               <span
@@ -330,7 +330,7 @@ export default function Profile({ navigate }) {
                             <div key={idx} className="flex gap-3 sm:gap-4 text-xs font-sans text-neutral-600 min-w-0">
                               <button
                                 onClick={() => navigate("product-details", { productId: item.id })}
-                                className="w-12 aspect-[3/4] bg-neutral-50 border border-neutral-100 rounded-xs shrink-0 overflow-hidden cursor-pointer focus:outline-none"
+                                className="w-12 aspect-[4/5] bg-neutral-50 border border-neutral-100 rounded-xs shrink-0 overflow-hidden cursor-pointer focus:outline-none"
                               >
                                 <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                               </button>

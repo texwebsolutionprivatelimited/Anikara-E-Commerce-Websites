@@ -58,7 +58,7 @@ export default function Categories({ navigate }) {
   const [visibleCount, setVisibleCount] = useState(8);
 
   return (
-    <section className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 pt-4 pb-4 md:pt-6 md:pb-6 border-t border-neutral-100">
+    <section className="max-w-[1600px] mx-auto px-4 sm:px-10 lg:px-16 pt-4 pb-4 md:pt-6 md:pb-6 border-t border-neutral-100">
       <div className="text-center mb-6 md:mb-8">
         <span className="text-[10px] font-bold tracking-[0.2em] text-[#FF4D6D] uppercase font-display">
           Curated Departments
@@ -68,8 +68,8 @@ export default function Categories({ navigate }) {
         </h2>
       </div>
 
-      {/* Categories Grid (2 Columns on mobile, 4 Columns on desktop) */}
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      {/* Categories Grid (2 Columns on mobile, 3 on tablet, 4 on desktop) */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
         {FEATURED_CATEGORIES.slice(0, visibleCount).map((cat) => (
           <CategoryCard key={cat.name} category={cat} navigate={navigate} />
         ))}

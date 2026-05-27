@@ -57,8 +57,17 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const mobileSearchInputRef = useRef(null);
   const searchInputRef = useRef(null);
   const searchWrapperRef = useRef(null);
+
+  // Autofocus mobile search input when overlay opens
+  useEffect(() => {
+    if (isMobileSearchOpen && mobileSearchInputRef.current) {
+      mobileSearchInputRef.current.focus();
+    }
+  }, [isMobileSearchOpen]);
 
   // Scroll handler for floating shadow effect
   useEffect(() => {
@@ -97,6 +106,7 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
     if (searchQuery.trim()) {
       navigate("products", { searchQuery: searchQuery.trim() });
       setIsSearchFocused(false);
+      setIsMobileSearchOpen(false);
       setSearchQuery("");
     }
   };
@@ -104,12 +114,14 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
   const handleTrendingClick = (term) => {
     navigate("products", { searchQuery: term });
     setIsSearchFocused(false);
+    setIsMobileSearchOpen(false);
     setSearchQuery("");
   };
 
   const handleHotCategoryClick = (val) => {
     navigate("products", { category: val });
     setIsSearchFocused(false);
+    setIsMobileSearchOpen(false);
     setSearchQuery("");
   };
 
@@ -124,6 +136,49 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
             : "bg-white border-b border-neutral-100"
         }`}
       >
+        {/* Mobile Search Overlay */}
+        <AnimatePresence>
+          {isMobileSearchOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="absolute inset-0 bg-white z-50 flex items-center px-4 gap-3 lg:hidden"
+            >
+              <form onSubmit={handleSearchSubmit} className="flex-1 relative flex items-center gap-2">
+                <Search size={16} className="absolute left-3 text-neutral-400 pointer-events-none" />
+                <input
+                  ref={mobileSearchInputRef}
+                  type="text"
+                  placeholder="Search dresses, night suits…"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full h-10 text-xs bg-neutral-50 border border-neutral-200 rounded-full pl-9 pr-8 focus:outline-none focus:border-[#FF4D6D] focus:bg-white transition-all duration-200 font-sans"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 text-neutral-400 hover:text-neutral-600 focus:outline-none cursor-pointer p-1"
+                  >
+                    <X size={12} />
+                  </button>
+                )}
+              </form>
+              <button
+                onClick={() => {
+                  setIsMobileSearchOpen(false);
+                  setSearchQuery("");
+                }}
+                className="text-xs font-bold uppercase tracking-wider text-neutral-500 hover:text-black focus:outline-none shrink-0"
+              >
+                Cancel
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-[72px] md:h-[80px] flex items-center justify-between gap-2">
           
           {/* Mobile Hamburger Trigger */}
@@ -334,6 +389,15 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
                 )}
               </AnimatePresence>
             </div>
+
+            {/* Mobile Search Trigger */}
+            <button
+              onClick={() => setIsMobileSearchOpen(true)}
+              className="p-1.5 text-neutral-700 hover:text-[#FF4D6D] lg:hidden transition-colors cursor-pointer focus:outline-none"
+              aria-label="Open Mobile Search"
+            >
+              <Search size={20} strokeWidth={1.8} />
+            </button>
 
             {/* Wishlist Button */}
             <button

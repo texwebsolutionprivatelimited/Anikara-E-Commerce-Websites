@@ -3,7 +3,7 @@ import { Mail, Phone, MapPin, Shield } from "lucide-react";
 
 export default function Footer({ navigate }) {
   return (
-    <footer className="bg-[#111111] text-white pt-12 md:pt-16 pb-8 border-t border-white/5 font-sans">
+    <footer className="bg-[#111111] text-white pt-10 md:pt-16 pb-8 border-t border-white/5 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 pb-10 md:pb-12 border-b border-white/5">
         
         {/* About column */}

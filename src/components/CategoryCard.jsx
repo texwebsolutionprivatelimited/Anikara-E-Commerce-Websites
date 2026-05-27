@@ -8,7 +8,7 @@ export default function CategoryCard({ category, navigate }) {
       onClick={() => navigate("products", { category: category.name })}
     >
       {/* Image Container with Portrait Aspect Ratio & Zoom Effect */}
-      <div className="relative w-full aspect-[3/4] overflow-hidden bg-neutral-100 rounded-md sm:rounded-lg">
+      <div className="relative w-full aspect-square overflow-hidden bg-neutral-100 rounded-md sm:rounded-lg">
         <img
           src={category.image}
           alt={category.name}

@@ -67,7 +67,7 @@ export default function Cart({ navigate }) {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8 py-10 font-sans">
+    <div className="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8 py-6 sm:py-10 font-sans">
       
       {/* Breadcrumbs */}
       <div className="flex flex-wrap items-center gap-1.5 text-[10px] sm:text-xs text-neutral-400 font-medium tracking-wide uppercase mb-8 px-4 sm:px-0">
@@ -80,7 +80,7 @@ export default function Cart({ navigate }) {
         Your Shopping Bag ({cart.length})
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-10 items-start">
         
         {/* Left List */}
         <div className="lg:col-span-2 space-y-4 px-4 sm:px-0">
@@ -91,7 +91,7 @@ export default function Cart({ navigate }) {
             >
               <button
                 onClick={() => navigate("product-details", { productId: item.id })}
-                className="w-20 sm:w-24 aspect-[3/4] bg-neutral-50 shrink-0 overflow-hidden relative cursor-pointer focus:outline-none"
+                className="w-20 sm:w-24 aspect-[4/5] bg-neutral-50 shrink-0 overflow-hidden relative cursor-pointer focus:outline-none"
               >
                 <img
                   src={item.image}
