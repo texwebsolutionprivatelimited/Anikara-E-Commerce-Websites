@@ -22,22 +22,22 @@ export default function Home({ navigate }) {
 
       {/* 2. FREE SHIPPING & VALUE PROPOSITIONS */}
       <section className="bg-neutral-50 border-y border-neutral-100 py-4 md:py-5">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-10 lg:px-16 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 text-center">
-          <div className="flex flex-row md:flex-col lg:flex-row items-center justify-center gap-3 py-2 md:py-0">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-10 lg:px-16 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 text-center value-props-mobile-row">
+          <div className="flex flex-row md:flex-col lg:flex-row items-center justify-center gap-3 py-2 md:py-0 value-prop-mobile-item">
             <Truck size={20} className="text-[#FF4D6D] shrink-0" />
             <div className="text-left md:text-center lg:text-left">
               <h4 className="text-xs font-bold text-neutral-800 uppercase tracking-wider">Free Shipping</h4>
               <p className="text-[10px] text-neutral-500 font-light">On orders above ₹1,500</p>
             </div>
           </div>
-          <div className="flex flex-row md:flex-col lg:flex-row items-center justify-center gap-3 py-2 md:py-0 border-t md:border-t-0 md:border-x border-neutral-200">
+          <div className="flex flex-row md:flex-col lg:flex-row items-center justify-center gap-3 py-2 md:py-0 border-t md:border-t-0 md:border-x border-neutral-200 value-prop-mobile-item">
             <RefreshCw size={20} className="text-[#FF4D6D] shrink-0" />
             <div className="text-left md:text-center lg:text-left">
               <h4 className="text-xs font-bold text-neutral-800 uppercase tracking-wider">Easy Returns</h4>
               <p className="text-[10px] text-neutral-500 font-light">15-day exchange policy</p>
             </div>
           </div>
-          <div className="flex flex-row md:flex-col lg:flex-row items-center justify-center gap-3 py-2 md:py-0 border-t md:border-t-0 border-neutral-200">
+          <div className="flex flex-row md:flex-col lg:flex-row items-center justify-center gap-3 py-2 md:py-0 border-t md:border-t-0 border-neutral-200 value-prop-mobile-item">
             <ShieldCheck size={20} className="text-[#FF4D6D] shrink-0" />
             <div className="text-left md:text-center lg:text-left">
               <h4 className="text-xs font-bold text-neutral-800 uppercase tracking-wider">100% Authentic</h4>

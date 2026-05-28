@@ -123,7 +123,7 @@ export default function Categories({ navigate }) {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-60px" }}
-          className="flex flex-wrap items-center justify-center gap-x-5 gap-y-10 sm:gap-x-7 sm:gap-y-12 max-w-7xl mx-auto w-full"
+          className="flex flex-wrap items-center justify-center gap-x-5 gap-y-10 sm:gap-x-7 sm:gap-y-12 max-w-7xl mx-auto w-full categories-grid-mobile"
         >
           {categoriesWithCounts.map((cat) => (
             <CategoryCard key={cat.displayName} category={cat} navigate={navigate} />
