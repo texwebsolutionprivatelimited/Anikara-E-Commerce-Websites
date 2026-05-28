@@ -3,63 +3,10 @@ import { useApp } from "../context/AppContext";
 import { Search, Heart, ShoppingBag, User, Menu, X, ChevronDown, Flame, Zap, Moon, Shirt, Link2, Gem, Layers, LayoutDashboard } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const CATEGORY_GROUPS = [
-  {
-    heading: "Sleep & Lounge",
-    items: [
-      { label: "Night Suit", value: "Night Suit" },
-      { label: "Lounge Suit", value: "Lounge Suit" },
-      { label: "Lingerie", value: "Lingerie" },
-    ]
-  },
-  {
-    heading: "Western Wear",
-    items: [
-      { label: "Dress", value: "Dress" },
-      { label: "Top & Blouse", value: "Top & Blouse" },
-      { label: "T-Shirt", value: "T-Shirt" },
-      { label: "Co-ords", value: "Co-ords" },
-    ]
-  },
-  {
-    heading: "Ethnic & Formal",
-    items: [
-      { label: "Ethnic Wear", value: "Ethnic Wear" },
-      { label: "Suit", value: "Suit" },
-    ]
-  },
-  {
-    heading: "Bottoms & Basics",
-    items: [
-      { label: "Bottom Wear", value: "Bottom Wear" },
-      { label: "Denim", value: "Denim" },
-    ]
-  },
-  {
-    heading: "Lifestyle & Accs",
-    items: [
-      { label: "Sports Wear", value: "Sports Wear" },
-      { label: "Footwear", value: "Footwear" },
-      { label: "Bags", value: "Bags" },
-      { label: "Cosmetics", value: "Cosmetics" },
-      { label: "Accessories", value: "Accessories" },
-    ]
-  }
-];
-const TRENDING_SEARCHES = [
-  "Night Suit", "Silk Dress", "Co-ords", "Ethnic Wear", "Summer Sale", "Lounge Set", "Denim", "Top & Blouse"
-];
-
-const HOT_CATEGORIES = [
-  { icon: Moon, label: "Sleep", value: "Night Suit" },
-  { icon: Shirt, label: "Dresses", value: "Dress" },
-  { icon: Link2, label: "Co-ords", value: "Co-ords" },
-  { icon: Gem, label: "Ethnic", value: "Ethnic Wear" },
-  { icon: Layers, label: "Denim", value: "Denim" },
-];
+const HOT_CATEGORY_ICONS = [Moon, Shirt, Link2, Gem, Layers];
 
 export default function Navbar({ currentPage, navigate, currentParams = {} }) {
-  const { cart, wishlist, user, settings } = useApp();
+  const { cart, wishlist, user, settings, products = [], categories = [] } = useApp();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -136,6 +83,18 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
   };
 
   const totalCartItems = cart.reduce((total, item) => total + item.quantity, 0);
+  const liveCategories = categories.filter(Boolean);
+  const trendingSearches = Array.from(
+    new Set([
+      ...liveCategories,
+      ...products.map((product) => product.name).filter(Boolean)
+    ])
+  ).slice(0, 8);
+  const hotCategories = liveCategories.slice(0, 5).map((category, index) => ({
+    icon: HOT_CATEGORY_ICONS[index % HOT_CATEGORY_ICONS.length],
+    label: category,
+    value: category
+  }));
   const rawAdminEmails =
     import.meta.env.VITE_ADMIN_EMAILS ||
     import.meta.env.VITE_ADMIN_EMAIL ||
@@ -279,27 +238,24 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
                       </button>
                     </div>
 
-                    {/* Grid of grouped columns */}
-                    <div className="grid grid-cols-5 gap-3 p-5">
-                      {CATEGORY_GROUPS.map((group) => (
-                        <div key={group.heading} className="space-y-2">
-                          <p className="text-[9px] font-bold tracking-[0.18em] uppercase text-[#FF4D6D] mb-3 font-display">
-                            {group.heading}
-                          </p>
-                          {group.items.map((item) => (
-                            <button
-                              key={item.value}
-                              onClick={() => {
-                                navigate("products", { category: item.value });
-                                setIsDropdownOpen(false);
-                              }}
-                              className="block text-left text-xs font-medium text-neutral-700 hover:text-[#FF4D6D] transition-colors cursor-pointer focus:outline-none leading-relaxed w-full min-h-unset min-w-unset py-1"
-                            >
-                              {item.label}
-                            </button>
-                          ))}
-                        </div>
-                      ))}
+                    {/* Realtime categories from Firestore */}
+                    <div className="grid grid-cols-2 gap-2 p-5 sm:grid-cols-3 md:grid-cols-4">
+                      {liveCategories.length > 0 ? (
+                        liveCategories.map((category) => (
+                          <button
+                            key={category}
+                            onClick={() => {
+                              navigate("products", { category });
+                              setIsDropdownOpen(false);
+                            }}
+                            className="block text-left text-xs font-medium text-neutral-700 hover:text-[#FF4D6D] transition-colors cursor-pointer focus:outline-none leading-relaxed w-full min-h-unset min-w-unset py-1"
+                          >
+                            {category}
+                          </button>
+                        ))
+                      ) : (
+                        <p className="col-span-full text-xs text-neutral-400">No categories found.</p>
+                      )}
                     </div>
 
                     {/* Bottom CTA banner */}
@@ -378,7 +334,7 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
                         <Flame size={11} className="text-[#FF4D6D]" /> Trending Searches
                       </p>
                       <div className="flex flex-wrap gap-2">
-                        {TRENDING_SEARCHES.map((term) => (
+                        {trendingSearches.map((term) => (
                           <button
                             key={term}
                             type="button"
@@ -400,7 +356,7 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
                         <Zap size={11} className="text-[#FF4D6D]" /> Hot Categories
                       </p>
                       <div className="grid grid-cols-5 gap-1">
-                        {HOT_CATEGORIES.map((cat) => (
+                        {hotCategories.map((cat) => (
                           <button
                             key={cat.value}
                             type="button"
@@ -575,26 +531,23 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
                   <p className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-3">
                     Shop Categories
                   </p>
-                  <div className="space-y-4 pl-1 sm:pl-2">
-                    {CATEGORY_GROUPS.map((group) => (
-                      <div key={group.heading}>
-                        <p className="text-[9px] font-bold tracking-widest uppercase text-[#FF4D6D] mb-2">{group.heading}</p>
-                        <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-x-4 gap-y-1">
-                          {group.items.map((item) => (
-                            <button
-                              key={item.value}
-                              onClick={() => {
-                                navigate("products", { category: item.value });
-                                setIsMobileMenuOpen(false);
-                              }}
-                              className="text-left text-xs font-medium text-neutral-600 hover:text-[#FF4D6D] py-1 cursor-pointer focus:outline-none min-h-unset min-w-unset"
-                            >
-                              {item.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
+                  <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-x-4 gap-y-1 pl-1 sm:pl-2">
+                    {liveCategories.length > 0 ? (
+                      liveCategories.map((category) => (
+                        <button
+                          key={category}
+                          onClick={() => {
+                            navigate("products", { category });
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className="text-left text-xs font-medium text-neutral-600 hover:text-[#FF4D6D] py-1 cursor-pointer focus:outline-none min-h-unset min-w-unset"
+                        >
+                          {category}
+                        </button>
+                      ))
+                    ) : (
+                      <p className="text-xs text-neutral-400">No categories found.</p>
+                    )}
                   </div>
                 </div>
               </nav>

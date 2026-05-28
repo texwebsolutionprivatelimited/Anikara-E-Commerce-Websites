@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { collection, doc, setDoc, getDoc, deleteDoc, onSnapshot, writeBatch } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { DEFAULT_CATEGORY_IMAGES, DEFAULT_CATEGORY_NAMES } from "../data/categories";
 
 export const uploadToImageKit = async (file) => {
   const publicKey = import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY;
@@ -157,15 +156,8 @@ export const AppProvider = ({ children }) => {
     const unsubscribeCategories = onSnapshot(collection(db, "categories"), (snapshot) => {
       const rows = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
       const sorted = rows.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-      const categoryNames = [
-        ...DEFAULT_CATEGORY_NAMES,
-        ...sorted.map((row) => row.name).filter(Boolean)
-      ];
-      const uniqueCategories = Array.from(
-        new Map(categoryNames.map((name) => [name.toLowerCase(), name])).values()
-      ).sort((a, b) => a.localeCompare(b));
-      setCategories(uniqueCategories);
-      const imageMap = { ...DEFAULT_CATEGORY_IMAGES };
+      setCategories(sorted.map((row) => row.name).filter(Boolean));
+      const imageMap = {};
       sorted.forEach((row) => {
         if (row.name && row.image) imageMap[row.name] = row.image;
       });

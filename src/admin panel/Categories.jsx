@@ -10,8 +10,6 @@ import { StatCard } from "./AdminShared";
 // CATEGORIES TAB
 // ═══════════════════════════════════════════════════════════════════
 
-const DEFAULT_CATEGORY_IMAGE = "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=600&q=80";
-
 function DeleteCategoryModal({ category, onConfirm, onClose }) {
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -218,14 +216,19 @@ export default function CategoriesTab() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 font-sans">
         {categories.map((cat) => {
           const itemCount = productCounts[cat] || 0;
-          const coverUrl = categoryImages[cat] || DEFAULT_CATEGORY_IMAGE;
+          const coverUrl = categoryImages[cat] || "";
           return (
             <div key={cat} className="group bg-white border border-neutral-200/60 rounded-xl overflow-hidden flex flex-col justify-between hover:shadow-lg transition-all duration-300 hover:scale-[1.01]">
               {/* Category Cover Image Div */}
               <div
                 className="h-28 w-full bg-cover bg-center relative transition-transform duration-500 overflow-hidden"
-                style={{ backgroundImage: `url(${coverUrl})` }}
+                style={coverUrl ? { backgroundImage: `url(${coverUrl})` } : undefined}
               >
+                {!coverUrl && (
+                  <div className="absolute inset-0 bg-neutral-100 flex items-center justify-center text-neutral-300">
+                    <ImageIcon size={28} />
+                  </div>
+                )}
                 {/* Overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
                 <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between">

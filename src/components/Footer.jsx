@@ -3,11 +3,12 @@ import { Mail, Phone, MapPin, Truck, RotateCcw, Lock, Award } from "lucide-react
 import { useApp } from "../context/AppContext";
 
 export default function Footer({ navigate }) {
-  const { addToast, settings } = useApp();
+  const { addToast, settings, categories = [] } = useApp();
   const supportAddress = settings?.supportAddress || "Address not configured";
   const supportPhone = settings?.supportPhone || "+91 00000 00000";
   const supportEmail = settings?.supportEmail || "support@example.com";
   const shippingThreshold = Number(settings?.shippingThreshold) || 1500;
+  const footerCategories = categories.filter(Boolean).slice(0, 5);
 
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
@@ -157,21 +158,15 @@ export default function Footer({ navigate }) {
               Collections
             </h4>
             <ul className="space-y-2.5 text-xs font-light">
-              <li>
-                <button onClick={() => navigate("products", { category: "Night Suit" })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 cursor-pointer text-left focus:outline-none text-neutral-400 inline-block">Night Suits</button>
-              </li>
-              <li>
-                <button onClick={() => navigate("products", { category: "Lounge Suit" })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 cursor-pointer text-left focus:outline-none text-neutral-400 inline-block">Lounge Suits</button>
-              </li>
-              <li>
-                <button onClick={() => navigate("products", { category: "Dress" })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 cursor-pointer text-left focus:outline-none text-neutral-400 inline-block">Dresses</button>
-              </li>
-              <li>
-                <button onClick={() => navigate("products", { category: "Co-ords" })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 cursor-pointer text-left focus:outline-none text-neutral-400 inline-block">Co-ord Sets</button>
-              </li>
-              <li>
-                <button onClick={() => navigate("products", { category: "Ethnic Wear" })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 cursor-pointer text-left focus:outline-none text-neutral-400 inline-block">Ethnic Wear</button>
-              </li>
+              {footerCategories.length > 0 ? (
+                footerCategories.map((category) => (
+                  <li key={category}>
+                    <button onClick={() => navigate("products", { category })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 cursor-pointer text-left focus:outline-none text-neutral-400 inline-block">{category}</button>
+                  </li>
+                ))
+              ) : (
+                <li className="text-neutral-500">No collections found.</li>
+              )}
             </ul>
           </div>
 

@@ -5,27 +5,8 @@ import SkeletonLoader from "../components/SkeletonLoader";
 import { ArrowUpDown, ChevronRight, ArrowLeft, Loader2, ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
 
-const DEFAULT_CATEGORIES = [
-  "Night Suit",
-  "Lounge Suit",
-  "Dress",
-  "T-Shirt",
-  "Top & Blouse",
-  "Bottom Wear",
-  "Lingerie",
-  "Co-ords",
-  "Suit",
-  "Denim",
-  "Ethnic Wear",
-  "Sports Wear",
-  "Footwear",
-  "Bags",
-  "Cosmetics",
-  "Accessories"
-];
-
 export default function Product({ navigate, currentParams = {}, goBack }) {
-  const { products, productsLoading, productsError, categories = DEFAULT_CATEGORIES } = useApp();
+  const { products, productsLoading, productsError, categories = [] } = useApp();
 
   // Filter States
   const [selectedCategory, setSelectedCategory] = useState("");

@@ -2,7 +2,6 @@ import React from "react";
 import { motion } from "framer-motion";
 import CategoryCard from "../components/CategoryCard";
 import { useApp } from "../context/AppContext";
-import { FEATURED_CATEGORIES } from "../data/categories";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -15,15 +14,17 @@ const containerVariants = {
 };
 
 export default function Categories({ navigate }) {
-  const { products } = useApp();
+  const { categories = [], categoryImages = {}, products } = useApp();
 
   // Get dynamic count of items in each category
-  const categoriesWithCounts = FEATURED_CATEGORIES.map((cat) => {
+  const categoriesWithCounts = categories.map((categoryName) => {
     const count = products.filter(
-      (p) => p.category.toLowerCase() === cat.dbCategory.toLowerCase()
+      (p) => p.category.toLowerCase() === categoryName.toLowerCase()
     ).length;
     return {
-      ...cat,
+      displayName: categoryName.toUpperCase(),
+      dbCategory: categoryName,
+      image: categoryImages[categoryName] || "/logo.png",
       itemsCount: `${count} ${count === 1 ? "Item" : "Items"}`
     };
   });
