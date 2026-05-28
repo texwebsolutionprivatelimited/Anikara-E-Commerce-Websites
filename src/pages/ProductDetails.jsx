@@ -3,6 +3,7 @@ import { useApp } from "../context/AppContext";
 import ProductCard from "../components/ProductCard";
 import { Star, Heart, ShoppingBag, CreditCard, ChevronRight, Plus, Minus, ArrowLeft, Package, RefreshCcw } from "lucide-react";
 import { motion } from "framer-motion";
+import { IKImage } from "@imagekit/react";
 
 export default function ProductDetails({ navigate, currentParams = {}, goBack }) {
   const { productId } = currentParams;
@@ -137,7 +138,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
             onMouseLeave={handleMouseLeave}
             className="relative aspect-[4/5] w-full bg-neutral-100 overflow-hidden cursor-crosshair group rounded-xs border border-neutral-100"
           >
-            <img
+            <IKImage
               src={activeImage}
               alt={product.name}
               className="w-full h-full object-cover object-center group-hover:opacity-0 transition-opacity duration-200"
@@ -161,7 +162,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
                 activeImage === product.image ? "border-[#FF4D6D]" : "border-transparent"
               }`}
             >
-              <img src={product.image} alt="Main view thumbnail" className="w-full h-full object-cover" />
+              <IKImage src={product.image} alt="Main view thumbnail" className="w-full h-full object-cover" />
             </button>
             {product.altImage && (
               <button
@@ -170,7 +171,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
                   activeImage === product.altImage ? "border-[#FF4D6D]" : "border-transparent"
                 }`}
               >
-                <img src={product.altImage} alt="Alternate view thumbnail" className="w-full h-full object-cover" />
+                <IKImage src={product.altImage} alt="Alternate view thumbnail" className="w-full h-full object-cover" />
               </button>
             )}
           </div>

@@ -1,4 +1,7 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { collection, getDocs, doc, setDoc, getDoc } from "firebase/firestore";
+import { db, auth } from "../firebase";
+import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { products as initialProducts } from "../data/products";
 
 const INITIAL_COUPONS = [
@@ -94,21 +97,85 @@ export const useApp = () => {
 };
 
 export const AppProvider = ({ children }) => {
-  const [products] = useState(initialProducts);
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState(null);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setProductsLoading(true);
+        setProductsError(null);
+        const querySnapshot = await getDocs(collection(db, "products"));
+        
+        if (querySnapshot.empty) {
+          // Fallback to initial products if firestore is empty for demonstration
+          setProducts(initialProducts);
+        } else {
+          const productsList = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              name: data.name || "Unknown Product",
+              price: data.price || 0,
+              category: data.category || "Uncategorized",
+              image: data.image || "https://via.placeholder.com/400x500",
+              stock: data.stock || 0,
+              // Fallbacks to ensure UI components don't break
+              oldPrice: data.oldPrice || data.price || 0,
+              rating: data.rating || 4.5,
+              ratingCount: data.ratingCount || 0,
+              description: data.description || "",
+              sizes: data.sizes || ["S", "M", "L", "XL"],
+              colors: data.colors || [{ name: "Default", hex: "#000000" }]
+            };
+          });
+          setProducts(productsList);
+        }
+      } catch (err) {
+        console.error("Error fetching products from Firestore:", err);
+        setProductsError(err.message);
+        // Fallback to static products on error so app doesn't completely break
+        setProducts(initialProducts);
+      } finally {
+        setProductsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
-  const [user, setUser] = useState({
-    name: "Ajeet Kumar",
-    email: "ajeet@example.com",
-    phone: "+91 9876543210",
-    address: {
-      street: "Flat 405, Rosewood Apartments, Linking Road",
-      city: "Mumbai",
-      state: "Maharashtra",
-      zip: "400054",
-      country: "India"
-    }
-  });
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  // Monitor Auth State
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        try {
+          const userDocRef = doc(db, "users", currentUser.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          
+          if (userDocSnap.exists()) {
+            setUser({ uid: currentUser.uid, email: currentUser.email, ...userDocSnap.data() });
+          } else {
+            // Fallback if no doc exists
+            setUser({ uid: currentUser.uid, email: currentUser.email });
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          setUser({ uid: currentUser.uid, email: currentUser.email });
+        }
+      } else {
+        setUser(null);
+      }
+      setAuthLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
   const [orders, setOrders] = useState([
     {
       id: "ORD-9281-2026",
@@ -363,53 +430,76 @@ export const AppProvider = ({ children }) => {
     return newOrder;
   };
 
-  // Auth mockups
-  const loginUser = (email, password) => {
-    setUser({
-      name: "Ajeet Kumar",
-      email: email,
-      phone: "+91 9876543210",
-      address: {
-        street: "Flat 405, Rosewood Apartments, Linking Road",
-        city: "Mumbai",
-        state: "Maharashtra",
-        zip: "400054",
-        country: "India"
-      }
-    });
-    addToast("Logged In Successfully!", "success");
+  // Real Firebase Auth
+  const loginUser = async (email, password) => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      addToast("Logged In Successfully!", "success");
+      return { success: true };
+    } catch (error) {
+      console.error(error);
+      addToast(error.message.replace("Firebase: ", ""), "error");
+      return { success: false, error: error.message };
+    }
   };
 
-  const registerUser = (name, email, password) => {
-    setUser({
-      name: name,
-      email: email,
-      phone: "+91 9999988888",
-      address: {
-        street: "Please Add Address",
-        city: "",
-        state: "",
-        zip: "",
-        country: ""
-      }
-    });
-    addToast("Registered Successfully!", "success");
+  const registerUser = async (name, email, password) => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const newUser = userCredential.user;
+      
+      const userData = {
+        name: name,
+        phone: "",
+        address: {
+          street: "",
+          city: "",
+          state: "",
+          zip: "",
+          country: ""
+        },
+        createdAt: new Date().toISOString()
+      };
+      
+      await setDoc(doc(db, "users", newUser.uid), userData);
+      addToast("Registered Successfully!", "success");
+      return { success: true };
+    } catch (error) {
+      console.error(error);
+      addToast(error.message.replace("Firebase: ", ""), "error");
+      return { success: false, error: error.message };
+    }
   };
 
-  const logoutUser = () => {
-    setUser(null);
-    addToast("Logged Out Successfully", "info");
+  const logoutUser = async () => {
+    try {
+      await signOut(auth);
+      addToast("Logged Out Successfully", "info");
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const updateProfile = (updatedUser) => {
-    setUser(updatedUser);
-    addToast("Profile Updated", "success");
+  const updateProfile = async (updatedUser) => {
+    try {
+      if (!user || !user.uid) throw new Error("No active user");
+      // Remove email/uid from update payload as they shouldn't change
+      const { uid, email, ...updatePayload } = updatedUser; 
+      await setDoc(doc(db, "users", user.uid), updatePayload, { merge: true });
+      setUser(updatedUser);
+      addToast("Profile Updated", "success");
+    } catch (error) {
+      console.error(error);
+      addToast("Failed to update profile", "error");
+    }
   };
 
   return (
     <AppContext.Provider
       value={{
         products,
+        productsLoading,
+        productsError,
         cart,
         wishlist,
         user,

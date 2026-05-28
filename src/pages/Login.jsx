@@ -11,19 +11,23 @@ export default function Login({ navigate }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     if (isLoginView) {
       if (email.trim() && password.trim()) {
-        loginUser(email, password);
-        navigate("profile");
+        const res = await loginUser(email, password);
+        if (res.success) navigate("profile");
       }
     } else {
       if (name.trim() && email.trim() && password.trim()) {
-        registerUser(name, email, password);
-        navigate("profile");
+        const res = await registerUser(name, email, password);
+        if (res.success) navigate("profile");
       }
     }
+    setIsSubmitting(false);
   };
 
   const handleGoogleLogin = () => {
@@ -132,10 +136,11 @@ export default function Login({ navigate }) {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full h-12 bg-[#111111] hover:bg-[#FF4D6D] text-white text-xs font-bold tracking-widest uppercase transition-colors duration-300 flex items-center justify-center gap-2 rounded-xs cursor-pointer focus:outline-none"
+            disabled={isSubmitting}
+            className="w-full h-12 bg-[#111111] hover:bg-[#FF4D6D] text-white text-xs font-bold tracking-widest uppercase transition-colors duration-300 flex items-center justify-center gap-2 rounded-xs cursor-pointer focus:outline-none disabled:opacity-50"
           >
-            {isLoginView ? "Sign In" : "Create Account"}
-            <ArrowRight size={14} />
+            {isSubmitting ? "Processing..." : (isLoginView ? "Sign In" : "Create Account")}
+            {!isSubmitting && <ArrowRight size={14} />}
           </button>
         </form>
 

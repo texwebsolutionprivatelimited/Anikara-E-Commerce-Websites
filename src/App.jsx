@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { IKContext } from "@imagekit/react";
 import { AppProvider } from "./context/AppContext";
 import AnnouncementBar from "./components/AnnouncementBar";
 import Navbar from "./components/Navbar";
@@ -91,24 +92,27 @@ export default function App() {
   };
 
   const isAdmin = currentPage === "admin";
+  const imageKitUrl = import.meta.env.VITE_IMAGEKIT_URL || "https://ik.imagekit.io/feu3swboqb";
 
   return (
-    <AppProvider>
-      <div className="min-h-screen flex flex-col bg-white text-[#111111] selection:bg-[#FF4D6D] selection:text-white">
-        
-        {/* Core Layout fixed nodes — hidden on admin */}
-        {!isAdmin && <AnnouncementBar />}
-        {!isAdmin && <Navbar currentPage={currentPage} navigate={navigate} currentParams={currentParams} />}
-        
-        {/* Page content window with sticky margins top offset */}
-        <main className={`flex-grow ${!isAdmin ? "pt-[104px] md:pt-[116px] lg:pt-[120px]" : ""}`}>
-          {renderPage()}
-        </main>
-        
-        {!isAdmin && <Footer navigate={navigate} />}
-        <Toast />
+    <IKContext urlEndpoint={imageKitUrl}>
+      <AppProvider>
+        <div className="min-h-screen flex flex-col bg-white text-[#111111] selection:bg-[#FF4D6D] selection:text-white">
+          
+          {/* Core Layout fixed nodes — hidden on admin */}
+          {!isAdmin && <AnnouncementBar />}
+          {!isAdmin && <Navbar currentPage={currentPage} navigate={navigate} currentParams={currentParams} />}
+          
+          {/* Page content window with sticky margins top offset */}
+          <main className={`flex-grow ${!isAdmin ? "pt-[104px] md:pt-[116px] lg:pt-[120px]" : ""}`}>
+            {renderPage()}
+          </main>
+          
+          {!isAdmin && <Footer navigate={navigate} />}
+          <Toast />
 
-      </div>
-    </AppProvider>
+        </div>
+      </AppProvider>
+    </IKContext>
   );
 }

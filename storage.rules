@@ -1,0 +1,55 @@
+rules_version = '2';
+
+// Craft rules based on data in your Firestore database
+// allow write: if firestore.get(
+//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper function to check if user is an admin via Custom Claims
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+    
+    // Helper function to check if the user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // 4. Protect Firebase Storage uploads
+    match /{allPaths=**} {
+      // By default, deny all reads and writes unless explicitly allowed below
+      allow read, write: if false;
+    }
+
+    // ------------------------------------------------------------------------
+    // PRODUCT IMAGES
+    // ------------------------------------------------------------------------
+    match /products/{imageId} {
+      // 1. Public users can only read products (and their images)
+      allow read: if true;
+      
+      // 2. & 4. Only admin users can add/edit/delete product images.
+      // Additionally, protect the upload by validating that it is an image and < 5MB
+      allow create, update: if isAdmin() 
+                            && request.resource.contentType.matches('image/.*')
+                            && request.resource.size < 5 * 1024 * 1024;
+                            
+      allow delete: if isAdmin();
+    }
+    
+    // ------------------------------------------------------------------------
+    // USER ASSETS (e.g., Profile pictures, returns/disputes evidence)
+    // ------------------------------------------------------------------------
+    match /users/{userId}/{fileName} {
+      // Users can only upload and view their own files. Admins can view all.
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      
+      allow write: if isAuthenticated() && request.auth.uid == userId
+                   && request.resource.contentType.matches('image/.*')
+                   && request.resource.size < 2 * 1024 * 1024; // 2MB max for user uploads
+      
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+  }
+}

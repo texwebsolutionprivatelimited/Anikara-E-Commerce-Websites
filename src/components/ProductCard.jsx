@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useApp } from "../context/AppContext";
 import { Heart, ShoppingBag, Star } from "lucide-react";
+// import { IKImage } from "@imagekit/react";
 
 export default function ProductCard({ product, navigate }) {
   const { toggleWishlist, wishlist, addToCart } = useApp();
@@ -25,22 +26,20 @@ export default function ProductCard({ product, navigate }) {
         onClick={() => navigate("product-details", { productId: product.id })}
       >
         {/* Main Image */}
-        <img
+        <IKImage
           src={product.image}
           alt={product.name}
-          className={`absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ease-in-out group-hover:scale-105 ${
-            isHovered && product.altImage ? "opacity-0" : "opacity-100"
-          }`}
+          className={`absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ease-in-out group-hover:scale-105 ${isHovered && product.altImage ? "opacity-0" : "opacity-100"
+            }`}
           loading="lazy"
         />
         {/* Hover Image */}
         {product.altImage && (
-          <img
+          <IKImage
             src={product.altImage}
             alt={`${product.name} alternate view`}
-            className={`absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ease-in-out group-hover:scale-105 ${
-              isHovered ? "opacity-100" : "opacity-0"
-            }`}
+            className={`absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ease-in-out group-hover:scale-105 ${isHovered ? "opacity-100" : "opacity-0"
+              }`}
             loading="lazy"
           />
         )}
@@ -57,9 +56,8 @@ export default function ProductCard({ product, navigate }) {
         >
           <Heart
             size={15}
-            className={`transition-colors duration-300 ${
-              isWishlisted ? "fill-[#FF4D6D] text-[#FF4D6D]" : ""
-            }`}
+            className={`transition-colors duration-300 ${isWishlisted ? "fill-[#FF4D6D] text-[#FF4D6D]" : ""
+              }`}
           />
         </button>
 
@@ -151,3 +149,4 @@ export default function ProductCard({ product, navigate }) {
     </div>
   );
 }
+

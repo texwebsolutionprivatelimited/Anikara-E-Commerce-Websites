@@ -1,14 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
+import { auth } from "../firebase";
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import AdminProductsTab from "../components/admin/AdminProductsTab";
 import {
   Shield, Tag, Plus, Pencil, Trash2, X, Check,
   AlertTriangle, ChevronRight, Eye, EyeOff, Palette,
   Image as ImageIcon, ArrowUp, ArrowDown, LayoutTemplate,
-  ChevronUp, ChevronDown, Monitor,
+  ChevronUp, ChevronDown, Monitor, Package, LogOut
 } from "lucide-react";
 
 // ─── TABS ──────────────────────────────────────────────────────────────────────
 const TABS = [
+  { id: "products", label: "Products", icon: Package },
   { id: "slides",  label: "Banner Slides",    icon: LayoutTemplate },
   { id: "coupons", label: "Offers & Coupons", icon: Tag },
 ];
@@ -568,24 +572,106 @@ function CouponsTab() {
 // MAIN ADMIN PANEL
 // ═══════════════════════════════════════════════════════════════════
 export default function AdminPanel({ navigate }) {
-  const [activeTab, setActiveTab] = useState("slides");
+  const [activeTab, setActiveTab] = useState("products");
+  
+  // Auth State
+  const [adminUser, setAdminUser] = useState(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState("");
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setAdminUser(user);
+      setIsCheckingAuth(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoginError("");
+    try {
+      await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+    } catch (err) {
+      setLoginError("Invalid email or password");
+    }
+  };
+
+  const handleLogout = async () => {
+    await signOut(auth);
+  };
+
+  if (isCheckingAuth) {
+    return <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-neutral-400 text-sm tracking-wider uppercase font-bold">Loading Admin...</div>;
+  }
+
+  if (!adminUser) {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-4 font-sans">
+        <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 sm:p-8">
+          <div className="flex justify-center mb-6">
+            <div className="p-3 rounded-xl bg-[#111111] text-white">
+              <Shield size={24} />
+            </div>
+          </div>
+          <h1 className="text-xl font-black text-center text-neutral-900 uppercase tracking-widest mb-1 font-display">Admin Portal</h1>
+          <p className="text-[10px] text-center text-neutral-400 font-light mb-6">Authorized Personnel Only</p>
+          
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Email Address</label>
+              <input type="email" required value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)}
+                className="w-full text-xs bg-neutral-50 border border-neutral-200 rounded px-3 py-2.5 focus:outline-none focus:border-[#FF4D6D]" placeholder="admin@anikara.com" />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Password</label>
+              <div className="relative">
+                <input type={showPassword ? "text" : "password"} required value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)}
+                  className="w-full text-xs bg-neutral-50 border border-neutral-200 rounded pl-3 pr-10 py-2.5 focus:outline-none focus:border-[#FF4D6D]" placeholder="••••••••" />
+                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 focus:outline-none cursor-pointer">
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+            {loginError && <p className="text-[10px] text-red-500 font-semibold">{loginError}</p>}
+            <button type="submit"
+              className="w-full py-3 bg-[#111111] hover:bg-[#FF4D6D] text-white text-xs font-bold tracking-widest uppercase transition-colors rounded focus:outline-none mt-2">
+              Sign In
+            </button>
+          </form>
+          <div className="mt-6 text-center">
+             <button onClick={() => navigate("home")} className="text-[10px] text-neutral-400 hover:text-[#111111] uppercase tracking-widest font-bold focus:outline-none">← Back to Store</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-neutral-50 font-sans">
-
       {/* ── Top Header ── */}
       <header className="bg-white border-b border-neutral-200 px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-2 sticky top-0 z-40 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="p-2 rounded-lg bg-[#111111] text-white"><Shield size={16} /></div>
           <div>
             <h1 className="text-sm font-black tracking-wide text-neutral-900 font-display uppercase">Anikara Admin</h1>
-            <p className="text-[10px] text-neutral-400 font-light">Landing Page Management</p>
+            <p className="text-[10px] text-neutral-400 font-light">Store Management</p>
           </div>
         </div>
-        <button onClick={() => navigate("home")}
-          className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-neutral-500 hover:text-[#FF4D6D] transition-colors focus:outline-none">
-          View Storefront <ChevronRight size={12} />
-        </button>
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate("home")}
+            className="hidden sm:flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-neutral-500 hover:text-[#FF4D6D] transition-colors focus:outline-none">
+            Storefront <ChevronRight size={12} />
+          </button>
+          <button onClick={handleLogout}
+            className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-red-500 hover:text-red-600 transition-colors focus:outline-none bg-red-50 px-3 py-1.5 rounded">
+            <LogOut size={12} /> Sign Out
+          </button>
+        </div>
       </header>
 
       {/* ── Tab Bar ── */}
@@ -608,6 +694,7 @@ export default function AdminPanel({ navigate }) {
 
       {/* ── Tab Content ── */}
       <main className="max-w-6xl mx-auto px-3 sm:px-6 py-5 sm:py-8">
+        {activeTab === "products" && <AdminProductsTab />}
         {activeTab === "slides"  && <SlidesTab />}
         {activeTab === "coupons" && <CouponsTab />}
       </main>
