@@ -3,6 +3,11 @@ import { useApp } from "../context/AppContext";
 import { Heart, ShoppingBag, Star } from "lucide-react";
 import { Image as IKImage } from "@imagekit/react";
 
+const isImageKitUrl = (url) => {
+  if (!url) return false;
+  return url.includes("ik.imagekit.io") || url.startsWith("/") || !url.startsWith("http");
+};
+
 export default function ProductCard({ product, navigate }) {
   const { toggleWishlist, wishlist, addToCart } = useApp();
   const [isHovered, setIsHovered] = useState(false);
@@ -26,22 +31,42 @@ export default function ProductCard({ product, navigate }) {
         onClick={() => navigate("product-details", { productId: product.id })}
       >
         {/* Main Image */}
-        <IKImage
-          src={product.image}
-          alt={product.name}
-          className={`absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ease-in-out group-hover:scale-105 ${isHovered && product.altImage ? "opacity-0" : "opacity-100"
-            }`}
-          loading="lazy"
-        />
-        {/* Hover Image */}
-        {product.altImage && (
+        {isImageKitUrl(product.image) ? (
           <IKImage
-            src={product.altImage}
-            alt={`${product.name} alternate view`}
-            className={`absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ease-in-out group-hover:scale-105 ${isHovered ? "opacity-100" : "opacity-0"
+            src={product.image}
+            alt={product.name}
+            className={`absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ease-in-out group-hover:scale-105 ${isHovered && product.altImage ? "opacity-0" : "opacity-100"
               }`}
             loading="lazy"
           />
+        ) : (
+          <img
+            src={product.image}
+            alt={product.name}
+            className={`absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ease-in-out group-hover:scale-105 ${isHovered && product.altImage ? "opacity-0" : "opacity-100"
+              }`}
+            loading="lazy"
+          />
+        )}
+        {/* Hover Image */}
+        {product.altImage && (
+          isImageKitUrl(product.altImage) ? (
+            <IKImage
+              src={product.altImage}
+              alt={`${product.name} alternate view`}
+              className={`absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ease-in-out group-hover:scale-105 ${isHovered ? "opacity-100" : "opacity-0"
+                }`}
+              loading="lazy"
+            />
+          ) : (
+            <img
+              src={product.altImage}
+              alt={`${product.name} alternate view`}
+              className={`absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ease-in-out group-hover:scale-105 ${isHovered ? "opacity-100" : "opacity-0"
+                }`}
+              loading="lazy"
+            />
+          )
         )}
 
         {/* Wishlist Button on Image */}

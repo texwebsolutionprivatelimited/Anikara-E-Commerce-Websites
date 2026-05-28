@@ -1,5 +1,5 @@
 import React from "react";
-import { Mail, Phone, MapPin, Shield, Truck, RotateCcw, Lock, Award, ArrowUp } from "lucide-react";
+import { Mail, Phone, MapPin, Shield, Truck, RotateCcw, Lock, Award } from "lucide-react";
 import { useApp } from "../context/AppContext";
 
 export default function Footer({ navigate }) {
@@ -14,10 +14,6 @@ export default function Footer({ navigate }) {
     }
   };
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   return (
     <footer className="relative overflow-hidden bg-[#080808] text-white pt-16 pb-8 border-t border-white/5 font-sans shadow-[0_0_120px_rgba(255,105,180,0.06)]">
       {/* Decorative Glow Elements */}
@@ -25,17 +21,6 @@ export default function Footer({ navigate }) {
       <div className="absolute bottom-10 right-1/4 w-[400px] h-[400px] bg-purple-500/3 rounded-full blur-[120px] pointer-events-none z-0" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/2 rounded-full blur-[150px] pointer-events-none z-0" />
 
-      {/* Floating Back to Top Button */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-        <button
-          onClick={scrollToTop}
-          className="w-12 h-12 rounded-full bg-[#111111] border border-white/10 hover:border-[#FF4D6D] text-white hover:text-[#FF4D6D] hover:shadow-[0_0_25px_rgba(255,77,109,0.35)] transition-all duration-300 flex items-center justify-center group cursor-pointer focus:outline-none"
-          title="Scroll to Top"
-          aria-label="Scroll to Top"
-        >
-          <ArrowUp size={20} className="group-hover:-translate-y-0.5 transition-transform duration-300" />
-        </button>
-      </div>
 
       <div className="relative z-10 max-w-[1450px] mx-auto px-4 sm:px-8 lg:px-10 space-y-16">
         
@@ -169,19 +154,19 @@ export default function Footer({ navigate }) {
             </h4>
             <ul className="space-y-2.5 text-xs font-light">
               <li>
-                <button onClick={() => navigate("products", { category: "Night Suit" })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 cursor-pointer text-left focus:outline-none text-neutral-400">Night Suits</button>
+                <button onClick={() => navigate("products", { category: "Night Suit" })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 cursor-pointer text-left focus:outline-none text-neutral-400 inline-block">Night Suits</button>
               </li>
               <li>
-                <button onClick={() => navigate("products", { category: "Lounge Suit" })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 cursor-pointer text-left focus:outline-none text-neutral-400">Lounge Suits</button>
+                <button onClick={() => navigate("products", { category: "Lounge Suit" })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 cursor-pointer text-left focus:outline-none text-neutral-400 inline-block">Lounge Suits</button>
               </li>
               <li>
-                <button onClick={() => navigate("products", { category: "Dress" })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 cursor-pointer text-left focus:outline-none text-neutral-400">Dresses</button>
+                <button onClick={() => navigate("products", { category: "Dress" })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 cursor-pointer text-left focus:outline-none text-neutral-400 inline-block">Dresses</button>
               </li>
               <li>
-                <button onClick={() => navigate("products", { category: "Co-ords" })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 cursor-pointer text-left focus:outline-none text-neutral-400">Co-ord Sets</button>
+                <button onClick={() => navigate("products", { category: "Co-ords" })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 cursor-pointer text-left focus:outline-none text-neutral-400 inline-block">Co-ord Sets</button>
               </li>
               <li>
-                <button onClick={() => navigate("products", { category: "Ethnic Wear" })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 cursor-pointer text-left focus:outline-none text-neutral-400">Ethnic Wear</button>
+                <button onClick={() => navigate("products", { category: "Ethnic Wear" })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 cursor-pointer text-left focus:outline-none text-neutral-400 inline-block">Ethnic Wear</button>
               </li>
             </ul>
           </div>
@@ -222,14 +207,15 @@ export default function Footer({ navigate }) {
               </li>
               <li className="flex items-center gap-3">
                 <Phone size={16} strokeWidth={1.8} className="text-[#FF4D6D] shrink-0" />
-                <span>+91 98765 43210</span>
+                <a href="tel:+919876543210" className="hover:text-[#FF4D6D] transition-colors duration-300">+91 98765 43210</a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail size={16} strokeWidth={1.8} className="text-[#FF4D6D] shrink-0" />
-                <span>support@anikarafashion.com</span>
+                <a href="mailto:support@anikarafashion.com" className="hover:text-[#FF4D6D] transition-colors duration-300">support@anikarafashion.com</a>
               </li>
             </ul>
           </div>
+
 
         </div>
 

@@ -34,6 +34,16 @@ const CATEGORY_GROUPS = [
       { label: "Bottom Wear", value: "Bottom Wear" },
       { label: "Denim", value: "Denim" },
     ]
+  },
+  {
+    heading: "Lifestyle & Accs",
+    items: [
+      { label: "Sports Wear", value: "Sports Wear" },
+      { label: "Footwear", value: "Footwear" },
+      { label: "Bags", value: "Bags" },
+      { label: "Cosmetics", value: "Cosmetics" },
+      { label: "Accessories", value: "Accessories" },
+    ]
   }
 ];
 const TRENDING_SEARCHES = [
@@ -237,22 +247,22 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
                     transition={{ duration: 0.18 }}
-                    className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white border border-neutral-100 shadow-2xl z-50"
-                    style={{ width: '520px' }}
+                    className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white border border-neutral-100 shadow-2xl z-50 rounded-xl overflow-hidden"
+                    style={{ width: '700px' }}
                   >
                     {/* Header strip */}
                     <div className="px-5 py-3 border-b border-neutral-100 flex items-center justify-between">
                       <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-neutral-400 font-display">Shop by Category</span>
                       <button
                         onClick={() => { navigate("products"); setIsDropdownOpen(false); }}
-                        className="text-[10px] font-bold tracking-widest uppercase text-[#FF4D6D] hover:opacity-70 transition-opacity cursor-pointer focus:outline-none"
+                        className="text-[10px] font-bold tracking-widest uppercase text-[#FF4D6D] hover:opacity-70 transition-opacity cursor-pointer focus:outline-none min-h-unset min-w-unset"
                       >
                         View All →
                       </button>
                     </div>
 
                     {/* Grid of grouped columns */}
-                    <div className="grid grid-cols-4 gap-0 p-5">
+                    <div className="grid grid-cols-5 gap-3 p-5">
                       {CATEGORY_GROUPS.map((group) => (
                         <div key={group.heading} className="space-y-2">
                           <p className="text-[9px] font-bold tracking-[0.18em] uppercase text-[#FF4D6D] mb-3 font-display">
@@ -265,7 +275,7 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
                                 navigate("products", { category: item.value });
                                 setIsDropdownOpen(false);
                               }}
-                              className="block text-left text-xs font-medium text-neutral-700 hover:text-[#FF4D6D] transition-colors cursor-pointer focus:outline-none leading-relaxed w-full"
+                              className="block text-left text-xs font-medium text-neutral-700 hover:text-[#FF4D6D] transition-colors cursor-pointer focus:outline-none leading-relaxed w-full min-h-unset min-w-unset py-1"
                             >
                               {item.label}
                             </button>
@@ -562,7 +572,7 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
                                 navigate("products", { category: item.value });
                                 setIsMobileMenuOpen(false);
                               }}
-                              className="text-left text-xs font-medium text-neutral-600 hover:text-[#FF4D6D] py-1 cursor-pointer focus:outline-none"
+                              className="text-left text-xs font-medium text-neutral-600 hover:text-[#FF4D6D] py-1 cursor-pointer focus:outline-none min-h-unset min-w-unset"
                             >
                               {item.label}
                             </button>

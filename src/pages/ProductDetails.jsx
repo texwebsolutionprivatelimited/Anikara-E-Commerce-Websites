@@ -5,8 +5,13 @@ import { Star, Heart, ShoppingBag, CreditCard, ChevronRight, Plus, Minus, ArrowL
 import { motion } from "framer-motion";
 import { Image as IKImage } from "@imagekit/react";
 
+const isImageKitUrl = (url) => {
+  if (!url) return false;
+  return url.includes("ik.imagekit.io") || url.startsWith("/") || !url.startsWith("http");
+};
+
 export default function ProductDetails({ navigate, currentParams = {}, goBack }) {
-  const { productId } = currentParams;
+  const productId = currentParams.productId;
   const { products, addToCart, toggleWishlist, wishlist, addToast } = useApp();
 
   const product = products.find((p) => p.id === productId);
@@ -138,11 +143,19 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
             onMouseLeave={handleMouseLeave}
             className="relative aspect-[4/5] w-full bg-neutral-100 overflow-hidden cursor-crosshair group rounded-xs border border-neutral-100"
           >
-            <IKImage
-              src={activeImage}
-              alt={product.name}
-              className="w-full h-full object-cover object-center group-hover:opacity-0 transition-opacity duration-200"
-            />
+            {isImageKitUrl(activeImage) ? (
+              <IKImage
+                src={activeImage}
+                alt={product.name}
+                className="w-full h-full object-cover object-center group-hover:opacity-0 transition-opacity duration-200"
+              />
+            ) : (
+              <img
+                src={activeImage}
+                alt={product.name}
+                className="w-full h-full object-cover object-center group-hover:opacity-0 transition-opacity duration-200"
+              />
+            )}
             <div
               style={zoomStyle}
               className="absolute inset-0 bg-no-repeat bg-[length:200%_200%]"
@@ -162,7 +175,11 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
                 activeImage === product.image ? "border-[#FF4D6D]" : "border-transparent"
               }`}
             >
-              <IKImage src={product.image} alt="Main view thumbnail" className="w-full h-full object-cover" />
+              {isImageKitUrl(product.image) ? (
+                <IKImage src={product.image} alt="Main view thumbnail" className="w-full h-full object-cover" />
+              ) : (
+                <img src={product.image} alt="Main view thumbnail" className="w-full h-full object-cover" />
+              )}
             </button>
             {product.altImage && (
               <button
@@ -171,11 +188,16 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
                   activeImage === product.altImage ? "border-[#FF4D6D]" : "border-transparent"
                 }`}
               >
-                <IKImage src={product.altImage} alt="Alternate view thumbnail" className="w-full h-full object-cover" />
+                {isImageKitUrl(product.altImage) ? (
+                  <IKImage src={product.altImage} alt="Alternate view thumbnail" className="w-full h-full object-cover" />
+                ) : (
+                  <img src={product.altImage} alt="Alternate view thumbnail" className="w-full h-full object-cover" />
+                )}
               </button>
             )}
           </div>
         </div>
+
 
         {/* Product Information */}
         <div className="space-y-6">

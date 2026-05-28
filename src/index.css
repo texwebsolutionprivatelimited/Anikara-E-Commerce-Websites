@@ -146,7 +146,10 @@ button[class*="p-0"], button[class*="p-1"], button[class*="p-2"],
 a[class*="p-0"], a[class*="p-1"], a[class*="p-2"],
 .min-w-unset, .min-h-unset,
 .swiper-pagination-bullet,
-.no-target {
+.no-target,
+.footer-link-underline,
+footer a,
+footer button {
   min-width: unset !important;
   min-height: unset !important;
 }

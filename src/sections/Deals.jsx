@@ -66,7 +66,7 @@ export default function Deals({ navigate }) {
 
         {/* Static Grid for Deals */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 sm:gap-x-4 gap-y-6 sm:gap-y-8">
-          {dealProducts.slice(0, 4).map((product) => (
+          {dealProducts.slice(0, 12).map((product) => (
             <ProductCard key={product.id} product={product} navigate={navigate} />
           ))}
         </div>
