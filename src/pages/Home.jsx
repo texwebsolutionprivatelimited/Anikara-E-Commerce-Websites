@@ -14,7 +14,6 @@ export default function Home({ navigate }) {
   const [visibleCount, setVisibleCount] = useState(8);
   const [isLoading, setIsLoading] = useState(false);
 
-<<<<<<< HEAD
   const handleLoadMore = () => {
     setIsLoading(true);
     setTimeout(() => {
@@ -23,12 +22,9 @@ export default function Home({ navigate }) {
     }, 600);
   };
 
-  const newArrivalsSource = products.slice(0, 16);
+  const newArrivalsSource = products.filter((p) => p.displaySection === "new_arrivals").slice(0, 16);
   const newArrivals = newArrivalsSource.slice(0, visibleCount);
   const hasMore = visibleCount < newArrivalsSource.length;
-=======
-  const newArrivals = products.filter((p) => p.displaySection === "new_arrivals").slice(0, 8);
->>>>>>> 0a2592c98933f59aafa2e4b518b0646922db7d7d
 
   return (
     <div className="flex flex-col w-full font-sans">

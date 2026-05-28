@@ -8,9 +8,7 @@ export default function Trending({ navigate }) {
   const [visibleCount, setVisibleCount] = useState(4);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Filter high rated products
-<<<<<<< HEAD
-  const trendingProducts = products.filter((p) => p.rating >= 4.7).slice(0, 16);
+  const trendingProducts = products.filter((p) => p.displaySection === "trending").slice(0, 16);
 
   const handleLoadMore = () => {
     setIsLoading(true);
@@ -21,9 +19,6 @@ export default function Trending({ navigate }) {
   };
 
   const hasMore = visibleCount < trendingProducts.length;
-=======
-  const trendingProducts = products.filter((p) => p.displaySection === "trending");
->>>>>>> 0a2592c98933f59aafa2e4b518b0646922db7d7d
 
   return (
     <section className="w-full border-t border-neutral-100 pt-6 pb-6 md:pt-8 md:pb-8">
