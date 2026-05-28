@@ -12,7 +12,7 @@ import { Mail, Truck, RefreshCw, ShieldCheck, ArrowRight } from "lucide-react";
 export default function Home({ navigate }) {
   const { products } = useApp();
 
-  const newArrivals = products.slice(0, 8);
+  const newArrivals = products.filter((p) => p.displaySection === "new_arrivals").slice(0, 8);
 
   return (
     <div className="flex flex-col w-full font-sans">

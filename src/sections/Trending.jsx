@@ -6,7 +6,7 @@ export default function Trending({ navigate }) {
   const { products } = useApp();
 
   // Filter high rated products
-  const trendingProducts = products.filter((p) => p.rating >= 4.7);
+  const trendingProducts = products.filter((p) => p.displaySection === "trending");
 
   return (
     <section className="w-full border-t border-neutral-100 pt-4 pb-4 md:pt-6 md:pb-6">

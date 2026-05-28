@@ -7,7 +7,10 @@ export default function Deals({ navigate }) {
   const { products } = useApp();
 
   // Filter discounted items
-  const dealProducts = products.filter((p) => p.oldPrice > p.price);
+  const dealProducts = products.filter((p) => {
+    const section = p.displaySection && p.displaySection !== "all" ? p.displaySection : "deals";
+    return section === "deals";
+  });
 
   // Countdown cycle (24-hour cycle)
   const [timeLeft, setTimeLeft] = useState({ hours: 14, minutes: 22, seconds: 45 });
