@@ -148,25 +148,42 @@ export const AppProvider = ({ children }) => {
           // Fallback to initial products if firestore is empty for demonstration
           setProducts(initialProducts);
         } else {
-          const productsList = querySnapshot.docs.map(doc => {
-            const data = doc.data();
-            return {
-              id: doc.id,
-              name: data.name || "Unknown Product",
-              price: data.price || 0,
-              category: data.category || "Uncategorized",
-              image: data.image || "https://via.placeholder.com/400x500",
-              stock: data.stock || 0,
-              // Fallbacks to ensure UI components don't break
-              oldPrice: data.oldPrice || data.price || 0,
-              rating: data.rating || 4.5,
-              ratingCount: data.ratingCount || 0,
-              description: data.description || "",
-              sizes: data.sizes || ["S", "M", "L", "XL"],
-              colors: data.colors || [{ name: "Default", hex: "#000000" }]
-            };
-          });
-          setProducts(productsList);
+          const productsList = querySnapshot.docs
+            .map(doc => {
+              const data = doc.data();
+              // Skip malformed documents that don't have name/title or price
+              if (!data.name && !data.price) {
+                return null;
+              }
+              return {
+                id: doc.id,
+                name: data.name || "Unknown Product",
+                price: data.price || 0,
+                category: data.category || "Uncategorized",
+                image: data.image || "https://via.placeholder.com/400x500",
+                altImage: data.altImage || null,
+                stock: data.stock || 0,
+                // Fallbacks to ensure UI components don't break
+                oldPrice: data.oldPrice || data.price || 0,
+                rating: data.rating || 4.5,
+                ratingCount: data.ratingCount || 0,
+                description: data.description || "",
+                sizes: data.sizes || ["S", "M", "L", "XL"],
+                colors: data.colors || [{ name: "Default", hex: "#000000" }],
+                details: data.details || [],
+                reviews: data.reviews || [],
+                displaySection: data.displaySection || "deals",
+                badge: data.badge || null
+              };
+            })
+            .filter(p => p !== null);
+
+          if (productsList.length === 0) {
+            // Fallback to initial products if all firestore documents are malformed/invalid
+            setProducts(initialProducts);
+          } else {
+            setProducts(productsList);
+          }
         }
       } catch (err) {
         console.error("Error fetching products from Firestore:", err);

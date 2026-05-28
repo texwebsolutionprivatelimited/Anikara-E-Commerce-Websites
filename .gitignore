@@ -30,3 +30,4 @@ storage.rules
 *.njsproj
 *.sln
 *.sw?
+.env

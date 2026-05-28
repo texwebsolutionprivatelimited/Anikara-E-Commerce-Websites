@@ -16,8 +16,9 @@ import Login from "./pages/Login";
 import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
 import OrderSuccess from "./pages/OrderSuccess";
-import AdminPanel from "./pages/AdminPanel";
-import MaintenanceMode from "./pages/MaintenanceMode";
+import AdminPanel from "./admin panel/AdminPanel";
+import MaintenanceMode from "./admin panel/MaintenanceMode";
+
 
 function AppContent() {
   const { settings } = useApp();
@@ -101,9 +102,11 @@ function AppContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#111111] selection:bg-[#FF4D6D] selection:text-white">
+      {/* Core Layout fixed nodes — hidden on admin or maintenance mode */}
       {!isAdmin && !isMaintenance && <AnnouncementBar />}
       {!isAdmin && !isMaintenance && <Navbar currentPage={currentPage} navigate={navigate} currentParams={currentParams} />}
 
+      {/* Page content window with sticky margins top offset */}
       <main className={`flex-grow ${!isAdmin && !isMaintenance ? "pt-[104px] md:pt-[116px] lg:pt-[120px]" : ""}`}>
         {renderPage()}
       </main>
