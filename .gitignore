@@ -11,6 +11,14 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+
+# Local Firebase deploy/rules config
+.firebaserc
+firebase.json
+firestore.rules
+firestore.indexes.json
+storage.rules
 
 # Editor directories and files
 .vscode/*

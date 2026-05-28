@@ -76,10 +76,10 @@ export default function Profile({ navigate }) {
         <div className="bg-white border border-neutral-200/60 p-6 rounded-xs space-y-6">
           <div className="flex items-center gap-4 min-w-0">
             <div className="h-14 w-14 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-600 border border-neutral-200 text-xl font-bold uppercase">
-              {user.name.charAt(0)}
+              {(user.name || user.email || "U").charAt(0)}
             </div>
             <div className="min-w-0">
-              <h2 className="text-sm font-bold text-neutral-955 font-display">{user.name}</h2>
+              <h2 className="text-sm font-bold text-neutral-955 font-display">{user.name || user.email || "User"}</h2>
               <p className="text-[11px] text-[#FF4D6D] font-bold tracking-wider uppercase">Vip Member</p>
             </div>
           </div>

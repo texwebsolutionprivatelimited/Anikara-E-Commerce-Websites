@@ -7,7 +7,7 @@ import { SlidersHorizontal, ArrowUpDown, ChevronRight, ArrowLeft } from "lucide-
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Product({ navigate, currentParams = {}, goBack }) {
-  const { products } = useApp();
+  const { products, productsLoading, productsError } = useApp();
 
   // Filter States
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -20,7 +20,6 @@ export default function Product({ navigate, currentParams = {}, goBack }) {
   // Sorting and Display
   const [sortBy, setSortBy] = useState("popularity");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
   // Map incoming navigation parameter parameters
   useEffect(() => {
@@ -35,13 +34,6 @@ export default function Product({ navigate, currentParams = {}, goBack }) {
     } else {
       setMinDiscount(0);
     }
-
-    // Trigger fake loading spinner
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 600);
-    return () => clearTimeout(timer);
   }, [currentParams]);
 
   const handleSizeToggle = (size) => {
@@ -222,8 +214,17 @@ export default function Product({ navigate, currentParams = {}, goBack }) {
           </div>
 
           {/* Grids */}
-          {isLoading ? (
+          {productsLoading ? (
             <SkeletonLoader count={8} />
+          ) : productsError ? (
+            <div className="text-center py-20 px-4 bg-red-50 border border-red-200/50 rounded-sm">
+              <h3 className="text-sm font-bold tracking-wider text-red-600 uppercase mb-2">
+                Failed to Load Products
+              </h3>
+              <p className="text-xs text-red-500 font-light max-w-xs mx-auto">
+                {productsError}. Please try refreshing the page.
+              </p>
+            </div>
           ) : sortedProducts.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-x-3 sm:gap-x-4 gap-y-6 sm:gap-y-8">
               {sortedProducts.map((product) => (

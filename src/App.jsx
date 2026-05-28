@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { ImageKitProvider } from "@imagekit/react";
 import { AppProvider, useApp } from "./context/AppContext";
 import AnnouncementBar from "./components/AnnouncementBar";
 import Navbar from "./components/Navbar";
@@ -101,7 +102,6 @@ function AppContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#111111] selection:bg-[#FF4D6D] selection:text-white">
-
       {/* Core Layout fixed nodes — hidden on admin or maintenance mode */}
       {!isAdmin && !isMaintenance && <AnnouncementBar />}
       {!isAdmin && !isMaintenance && <Navbar currentPage={currentPage} navigate={navigate} currentParams={currentParams} />}
@@ -113,15 +113,18 @@ function AppContent() {
 
       {!isAdmin && !isMaintenance && <Footer navigate={navigate} />}
       <Toast />
-
     </div>
   );
 }
 
 export default function App() {
+  const imageKitUrl = import.meta.env.VITE_IMAGEKIT_URL || "https://ik.imagekit.io/feu3swboqb";
+
   return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
+    <ImageKitProvider urlEndpoint={imageKitUrl}>
+      <AppProvider>
+        <AppContent />
+      </AppProvider>
+    </ImageKitProvider>
   );
 }
