@@ -12,7 +12,7 @@ const isImageKitUrl = (url) => {
 
 export default function ProductDetails({ navigate, currentParams = {}, goBack }) {
   const productId = currentParams.productId;
-  const { products, addToCart, toggleWishlist, wishlist, addToast, user } = useApp();
+  const { products, addToCart, toggleWishlist, wishlist, addToast, user, addProductReview } = useApp();
 
   const product = products.find((p) => p.id === productId);
 
@@ -126,7 +126,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
 
-  const handleReviewSubmit = (e) => {
+  const handleReviewSubmit = async (e) => {
     e.preventDefault();
     if (newReviewName.trim() && newReviewComment.trim()) {
       const newReview = {
@@ -135,10 +135,13 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
         date: new Date().toISOString().split("T")[0],
         comment: newReviewComment
       };
-      setReviewsList([newReview, ...reviewsList]);
-      setNewReviewName("");
-      setNewReviewComment("");
-      addToast("Review Posted! Thank you for sharing.", "success");
+      
+      const success = await addProductReview(product.id, newReview);
+      if (success) {
+        setNewReviewName("");
+        setNewReviewComment("");
+        addToast("Review Posted! Thank you for sharing.", "success");
+      }
     }
   };
 
@@ -259,7 +262,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
 
 
         {/* Product Information */}
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div className="space-y-2">
             <p className="text-[11px] font-bold tracking-widest text-[#FF4D6D] uppercase">
               {product.category}
@@ -289,7 +292,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
             )}
           </div>
 
-          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2 py-2 border-y border-neutral-100">
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2 py-2 border-y border-neutral-300">
             <span className="text-xl sm:text-2xl font-bold text-neutral-900">
               ₹{product.price.toLocaleString("en-IN")}
             </span>
@@ -298,7 +301,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
                 <span className="text-sm text-neutral-400 line-through font-light">
                   ₹{product.oldPrice.toLocaleString("en-IN")}
                 </span>
-                <span className="text-xs font-bold text-[#FF4D6D] tracking-wider uppercase bg-[#FF4D6D]/10 px-2 py-0.5">
+                <span className="text-xs font-bold text-[#FF4D6D] tracking-wider uppercase bg-[#FF4D6D]/10 px-2 py-0.5 rounded-md border border-[#FF4D6D]/30">
                   Save ₹{(product.oldPrice - product.price).toLocaleString("en-IN")}
                 </span>
               </>
@@ -311,20 +314,34 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
 
           {/* Color selects */}
           {product.colors && product.colors.length > 0 && (
-            <div className="space-y-2.5">
+            <div className="space-y-1.5">
               <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-500 font-display">
                 Color: <span className="text-neutral-900 font-semibold">{selectedColor}</span>
               </span>
-              <div className="flex gap-2">
+              <div className="flex gap-4 py-1.5">
                 {product.colors.map((c) => (
                   <button
                     key={c.name}
                     onClick={() => setSelectedColor(c.name)}
-                    style={{ backgroundColor: c.hex }}
-                    className={`w-8 h-8 rounded-full border relative transition-transform hover:scale-105 focus:outline-none cursor-pointer ${
-                      selectedColor === c.name ? "border-[#FF4D6D] ring-2 ring-[#FF4D6D]/45" : "border-neutral-300"
+                    style={{ backgroundColor: c.hex, borderRadius: "50%" }}
+                    className={`w-8 h-8 border relative transition-all duration-300 hover:scale-110 focus:outline-none cursor-pointer flex items-center justify-center ${
+                      selectedColor === c.name
+                        ? "border-[#FF4D6D] ring-2 ring-[#FF4D6D] ring-offset-2 scale-110 shadow-md"
+                        : "border-neutral-300 hover:border-neutral-400"
                     }`}
-                  />
+                    aria-label={`Select color ${c.name}`}
+                  >
+                    {selectedColor === c.name && (
+                      <span
+                        style={{ borderRadius: "50%" }}
+                        className={`w-2.5 h-2.5 transition-transform duration-300 ${
+                          c.name.toLowerCase() === "white" || c.hex.toLowerCase() === "#ffffff" || c.hex.toLowerCase() === "#fff"
+                            ? "bg-neutral-900"
+                            : "bg-white shadow-[0_1px_3px_rgba(0,0,0,0.35)]"
+                        }`}
+                      />
+                    )}
+                  </button>
                 ))}
               </div>
             </div>
@@ -332,7 +349,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
 
           {/* Size selects */}
           {product.sizes && product.sizes.length > 0 && (
-            <div className="space-y-2.5">
+            <div className="space-y-1.5">
               <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-500 font-display">
                 Select Size: <span className="text-neutral-900 font-semibold">{selectedSize}</span>
               </span>
@@ -355,7 +372,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
           )}
 
           {/* Qty & Add triggers */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 border-t border-neutral-100">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 border-t border-neutral-300">
             {/* Group Qty & Add to Bag on mobile, but keep flex items on sm */}
             <div className="flex flex-1 gap-2 sm:gap-4 min-w-0">
               {/* Qty Selector */}
@@ -398,8 +415,8 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
           {/* Wishlist button moved to image overlay */}
 
           {/* Accordion detail list */}
-          <div className="pt-6 border-t border-neutral-100">
-            <div className="flex overflow-x-auto border-b border-neutral-100 text-xs font-bold uppercase tracking-wider text-neutral-500 font-display">
+          <div className="pt-6 border-t border-neutral-300">
+            <div className="flex overflow-x-auto border-b border-neutral-300 text-xs font-bold uppercase tracking-wider text-neutral-500 font-display">
               <button
                 onClick={() => setActiveTab("description")}
                 className={`pb-3 pr-4 sm:pr-6 border-b-2 cursor-pointer focus:outline-none shrink-0 ${
@@ -446,7 +463,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
       </div>
 
       {/* Customer Reviews block */}
-      <section className="mt-16 md:mt-24 border-t border-neutral-100 pt-16">
+      <section className="mt-8 md:mt-10 border-t border-neutral-300 pt-8 sm:pt-10">
         <h2 className="text-lg font-bold tracking-wide text-neutral-900 mb-8 uppercase font-display">
           Customer Reviews
         </h2>
@@ -508,7 +525,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
           <div className="lg:col-span-2 space-y-6">
             {reviewsList.length > 0 ? (
               reviewsList.map((review, idx) => (
-                <div key={idx} className="border-b border-neutral-100 pb-5 space-y-2">
+                <div key={idx} className="border-b border-neutral-300 pb-5 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-neutral-800">{review.user}</span>
                     <span className="text-[10px] text-neutral-400 font-light">{review.date}</span>
@@ -539,7 +556,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
 
       {/* Related similar slider */}
       {similarProducts.length > 0 && (
-        <section className="mt-16 md:mt-24 border-t border-neutral-100 pt-16">
+        <section className="mt-8 md:mt-10 border-t border-neutral-300 pt-8 sm:pt-10">
           <h2 className="text-lg font-bold tracking-wide text-neutral-900 mb-8 uppercase font-display">
             You May Also Like
           </h2>

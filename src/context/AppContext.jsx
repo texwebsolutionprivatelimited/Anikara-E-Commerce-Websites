@@ -78,6 +78,7 @@ export const AppProvider = ({ children }) => {
   
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
+
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
 
@@ -208,9 +209,14 @@ export const AppProvider = ({ children }) => {
           const userDocSnap = await getDoc(userDocRef);
           
           if (userDocSnap.exists()) {
-            setUser({ uid: currentUser.uid, email: currentUser.email, ...userDocSnap.data() });
+            const data = userDocSnap.data();
+            setUser({ uid: currentUser.uid, email: currentUser.email, ...data });
+            setCart(data.cart || []);
+            setWishlist(data.wishlist || []);
           } else {
             setUser({ uid: currentUser.uid, email: currentUser.email });
+            setCart([]);
+            setWishlist([]);
           }
         } catch (error) {
           console.error("Error fetching user data:", error);
@@ -218,12 +224,32 @@ export const AppProvider = ({ children }) => {
         }
       } else {
         setUser(null);
+        setCart([]);
+        setWishlist([]);
       }
       setAuthLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
+
+  // Sync Cart and Wishlist to Firestore database for logged-in user
+  useEffect(() => {
+    if (user && user.uid) {
+      const syncData = async () => {
+        try {
+          const userDocRef = doc(db, "users", user.uid);
+          await setDoc(userDocRef, { cart, wishlist }, { merge: true });
+        } catch (e) {
+          console.error("Error syncing cart/wishlist to Firestore:", e);
+        }
+      };
+      
+      // Debounce sync slightly to prevent quick multiple edits from creating too many DB writes
+      const timeoutId = setTimeout(syncData, 500);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [cart, wishlist, user?.uid]);
 
   // Toast utilities
   const addToast = (message, type = "success") => {
@@ -553,6 +579,36 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  const addProductReview = async (productId, newReview) => {
+    try {
+      const productRef = doc(db, "products", productId);
+      const productDoc = await getDoc(productRef);
+      if (productDoc.exists()) {
+        const data = productDoc.data();
+        const currentReviews = data.reviews || [];
+        const updatedReviews = [newReview, ...currentReviews];
+        
+        // Calculate new rating and ratingCount
+        const newRatingCount = updatedReviews.length;
+        const totalRating = updatedReviews.reduce((sum, r) => sum + Number(r.rating || 0), 0);
+        const newRating = Number((totalRating / newRatingCount).toFixed(1));
+        
+        await setDoc(productRef, {
+          reviews: updatedReviews,
+          rating: newRating,
+          ratingCount: newRatingCount
+        }, { merge: true });
+        
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error("Error adding review:", err);
+      addToast("Failed to post review. Please try again.", "error");
+      return false;
+    }
+  };
+
   // Checkout and orders
   const placeOrder = async (addressDetails, paymentMethod) => {
     if (cart.length === 0) return null;
@@ -855,7 +911,8 @@ export const AppProvider = ({ children }) => {
         adminAddOrder,
         adminUpdateOrderStatus,
         adminDeleteOrder,
-        uploadToImageKit
+        uploadToImageKit,
+        addProductReview
       }}
     >
       {children}
