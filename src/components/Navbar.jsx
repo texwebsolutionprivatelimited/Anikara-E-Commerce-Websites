@@ -585,7 +585,7 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
                     className="flex items-center gap-3 text-sm font-semibold text-neutral-800 hover:text-[#FF4D6D] cursor-pointer focus:outline-none"
                   >
                     <User size={18} />
-                    <span>Hello, {user.name.split(" ")[0]}</span>
+                    <span>Hello, {(user.name || user.email || "User").split(" ")[0]}</span>
                   </button>
                 ) : (
                   <button

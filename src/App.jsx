@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-<<<<<<< HEAD
-import { IKContext } from "@imagekit/react";
-import { AppProvider } from "./context/AppContext";
-=======
+import { ImageKitProvider } from "@imagekit/react";
 import { AppProvider, useApp } from "./context/AppContext";
->>>>>>> 08a8c6a8bda413c4b93c34ce979217625b577a99
 import AnnouncementBar from "./components/AnnouncementBar";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -30,7 +26,6 @@ function AppContent() {
   const navCountRef = useRef(0);
 
   useEffect(() => {
-    // Save current state as the initial history state if not set
     if (!window.history.state) {
       window.history.replaceState({ page: "home", params: {} }, "");
     }
@@ -102,56 +97,31 @@ function AppContent() {
   };
 
   const isAdmin = currentPage === "admin";
-<<<<<<< HEAD
-  const imageKitUrl = import.meta.env.VITE_IMAGEKIT_URL || "https://ik.imagekit.io/feu3swboqb";
-
-  return (
-    <IKContext urlEndpoint={imageKitUrl}>
-      <AppProvider>
-        <div className="min-h-screen flex flex-col bg-white text-[#111111] selection:bg-[#FF4D6D] selection:text-white">
-          
-          {/* Core Layout fixed nodes — hidden on admin */}
-          {!isAdmin && <AnnouncementBar />}
-          {!isAdmin && <Navbar currentPage={currentPage} navigate={navigate} currentParams={currentParams} />}
-          
-          {/* Page content window with sticky margins top offset */}
-          <main className={`flex-grow ${!isAdmin ? "pt-[104px] md:pt-[116px] lg:pt-[120px]" : ""}`}>
-            {renderPage()}
-          </main>
-          
-          {!isAdmin && <Footer navigate={navigate} />}
-          <Toast />
-
-        </div>
-      </AppProvider>
-    </IKContext>
-=======
   const isMaintenance = settings?.maintenanceMode && !isAdmin;
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#111111] selection:bg-[#FF4D6D] selection:text-white">
-      
-      {/* Core Layout fixed nodes — hidden on admin or maintenance mode */}
       {!isAdmin && !isMaintenance && <AnnouncementBar />}
       {!isAdmin && !isMaintenance && <Navbar currentPage={currentPage} navigate={navigate} currentParams={currentParams} />}
-      
-      {/* Page content window with sticky margins top offset */}
+
       <main className={`flex-grow ${!isAdmin && !isMaintenance ? "pt-[104px] md:pt-[116px] lg:pt-[120px]" : ""}`}>
         {renderPage()}
       </main>
-      
+
       {!isAdmin && !isMaintenance && <Footer navigate={navigate} />}
       <Toast />
-
     </div>
   );
 }
 
 export default function App() {
+  const imageKitUrl = import.meta.env.VITE_IMAGEKIT_URL || "https://ik.imagekit.io/feu3swboqb";
+
   return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
->>>>>>> 08a8c6a8bda413c4b93c34ce979217625b577a99
+    <ImageKitProvider urlEndpoint={imageKitUrl}>
+      <AppProvider>
+        <AppContent />
+      </AppProvider>
+    </ImageKitProvider>
   );
 }

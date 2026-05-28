@@ -1,37 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useApp } from "../context/AppContext";
 import { auth } from "../firebase";
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 import AdminProductsTab from "../components/admin/AdminProductsTab";
 import {
   Shield, Tag, Plus, Pencil, Trash2, X, Check,
   AlertTriangle, ChevronRight, Eye, EyeOff, Palette,
   Image as ImageIcon, ArrowUp, ArrowDown, LayoutTemplate,
-<<<<<<< HEAD
-  ChevronUp, ChevronDown, Monitor, Package, LogOut
-=======
   ChevronUp, ChevronDown, Monitor, FolderOpen, Package, Search, Heart, Star,
-<<<<<<< HEAD
-  Settings, CreditCard, FileText, Download, RotateCcw, CheckCircle, PlusCircle
->>>>>>> 08a8c6a8bda413c4b93c34ce979217625b577a99
-=======
   Settings, CreditCard, FileText, Download, RotateCcw, CheckCircle, PlusCircle,
-  Menu, Bell, User, MessageSquare
->>>>>>> f9c14535d76c2d83be475b4f34a5aacf95dd8016
+  Menu, Bell, User, MessageSquare, LogOut
 } from "lucide-react";
 
 // ─── TABS ──────────────────────────────────────────────────────────────────────
 const TABS = [
-<<<<<<< HEAD
-  { id: "products", label: "Products", icon: Package },
-  { id: "slides",  label: "Banner Slides",    icon: LayoutTemplate },
-=======
   { id: "slides", label: "Banner Slides", icon: LayoutTemplate },
-<<<<<<< HEAD
->>>>>>> 08a8c6a8bda413c4b93c34ce979217625b577a99
-  { id: "coupons", label: "Offers & Coupons", icon: Tag },
-=======
->>>>>>> f9c14535d76c2d83be475b4f34a5aacf95dd8016
   { id: "categories", label: "Categories", icon: FolderOpen },
   { id: "coupons", label: "Offers & Coupons", icon: Tag },
   { id: "orders", label: "Orders Tracking", icon: FileText },
@@ -2490,107 +2473,6 @@ function SettingsTab() {
 // ═══════════════════════════════════════════════════════════════════
 // ORDERS TAB SECTION (With real-time visual progress tracker & summary)
 // ═══════════════════════════════════════════════════════════════════
-<<<<<<< HEAD
-export default function AdminPanel({ navigate }) {
-<<<<<<< HEAD
-  const [activeTab, setActiveTab] = useState("products");
-  
-  // Auth State
-  const [adminUser, setAdminUser] = useState(null);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [loginError, setLoginError] = useState("");
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setAdminUser(user);
-      setIsCheckingAuth(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoginError("");
-    try {
-      await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
-    } catch (err) {
-      setLoginError("Invalid email or password");
-    }
-  };
-
-  const handleLogout = async () => {
-    await signOut(auth);
-  };
-
-  if (isCheckingAuth) {
-    return <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-neutral-400 text-sm tracking-wider uppercase font-bold">Loading Admin...</div>;
-  }
-
-  if (!adminUser) {
-    return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-4 font-sans">
-        <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 sm:p-8">
-          <div className="flex justify-center mb-6">
-            <div className="p-3 rounded-xl bg-[#111111] text-white">
-              <Shield size={24} />
-            </div>
-          </div>
-          <h1 className="text-xl font-black text-center text-neutral-900 uppercase tracking-widest mb-1 font-display">Admin Portal</h1>
-          <p className="text-[10px] text-center text-neutral-400 font-light mb-6">Authorized Personnel Only</p>
-          
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Email Address</label>
-              <input type="email" required value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)}
-                className="w-full text-xs bg-neutral-50 border border-neutral-200 rounded px-3 py-2.5 focus:outline-none focus:border-[#FF4D6D]" placeholder="admin@anikara.com" />
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Password</label>
-              <div className="relative">
-                <input type={showPassword ? "text" : "password"} required value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)}
-                  className="w-full text-xs bg-neutral-50 border border-neutral-200 rounded pl-3 pr-10 py-2.5 focus:outline-none focus:border-[#FF4D6D]" placeholder="••••••••" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 focus:outline-none cursor-pointer">
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-            </div>
-            {loginError && <p className="text-[10px] text-red-500 font-semibold">{loginError}</p>}
-            <button type="submit"
-              className="w-full py-3 bg-[#111111] hover:bg-[#FF4D6D] text-white text-xs font-bold tracking-widest uppercase transition-colors rounded focus:outline-none mt-2">
-              Sign In
-            </button>
-          </form>
-          <div className="mt-6 text-center">
-             <button onClick={() => navigate("home")} className="text-[10px] text-neutral-400 hover:text-[#111111] uppercase tracking-widest font-bold focus:outline-none">← Back to Store</button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-=======
-  const [activeTab, setActiveTab] = useState("slides");
-  const { settings } = useApp();
->>>>>>> 08a8c6a8bda413c4b93c34ce979217625b577a99
-
-  return (
-    <div className="min-h-screen bg-neutral-50 font-sans">
-      {/* ── Top Header ── */}
-      <header className="bg-white border-b border-neutral-200 px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-2 sticky top-0 z-40 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-[#111111] text-white"><Shield size={16} /></div>
-          <div>
-<<<<<<< HEAD
-            <h1 className="text-sm font-black tracking-wide text-neutral-900 font-display uppercase">Anikara Admin</h1>
-            <p className="text-[10px] text-neutral-400 font-light">Store Management</p>
-=======
-            <h1 className="text-sm font-black tracking-wide text-neutral-900 font-display uppercase">{settings?.businessName || "Anikara"} Admin</h1>
-            <p className="text-[10px] text-neutral-400 font-light">Landing Page Management</p>
->>>>>>> 08a8c6a8bda413c4b93c34ce979217625b577a99
-=======
 function OrdersTab() {
   const { orders, adminUpdateOrderStatus, adminDeleteOrder, payments, addToast } = useApp();
   const [search, setSearch] = useState("");
@@ -2686,7 +2568,6 @@ function OrdersTab() {
               placeholder="Search by Order, Customer, Items..."
               className="w-full text-xs bg-neutral-50 border border-neutral-200 rounded pl-9 pr-3 py-2.5 focus:outline-none focus:border-[#FF4D6D] transition-colors"
             />
->>>>>>> f9c14535d76c2d83be475b4f34a5aacf95dd8016
           </div>
 
           {/* Status filter */}
@@ -2715,19 +2596,6 @@ function OrdersTab() {
             <option value="value-low">Order Value: Low to High</option>
           </select>
         </div>
-<<<<<<< HEAD
-        <div className="flex items-center gap-4">
-          <button onClick={() => navigate("home")}
-            className="hidden sm:flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-neutral-500 hover:text-[#FF4D6D] transition-colors focus:outline-none">
-            Storefront <ChevronRight size={12} />
-          </button>
-          <button onClick={handleLogout}
-            className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-red-500 hover:text-red-600 transition-colors focus:outline-none bg-red-50 px-3 py-1.5 rounded">
-            <LogOut size={12} /> Sign Out
-          </button>
-        </div>
-=======
-
         {/* Action Buttons */}
         <div className="flex gap-2 shrink-0">
           <button
@@ -3226,7 +3094,21 @@ function OrdersTab() {
 export default function AdminPanel({ navigate }) {
   const [activeTab, setActiveTab] = useState("orders");
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const { settings } = useApp();
+  const { settings, logoutUser } = useApp();
+  const allowedAdminEmails = useMemo(
+    () =>
+      (import.meta.env.VITE_ADMIN_EMAILS || "admin@anikara.com")
+        .split(",")
+        .map((email) => email.trim().toLowerCase())
+        .filter(Boolean),
+    []
+  );
+  const [adminUser, setAdminUser] = useState(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState("");
 
   // Notification center states
   const [notifications, setNotifications] = useState([
@@ -3264,6 +3146,38 @@ export default function AdminPanel({ navigate }) {
     link.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleAdminLogout = async () => {
+    setShowProfile(false);
+    await logoutUser();
+    navigate("home");
+  };
+
+  const handleAdminLogin = async (e) => {
+    e.preventDefault();
+    setLoginError("");
+    try {
+      const credential = await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+      const email = credential.user.email?.toLowerCase();
+      if (!email || !allowedAdminEmails.includes(email)) {
+        await logoutUser();
+        setLoginError("This account is not allowed to access admin panel");
+      }
+    } catch (error) {
+      console.error(error);
+      setLoginError("Invalid email or password");
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      const email = user?.email?.toLowerCase();
+      setAdminUser(email && allowedAdminEmails.includes(email) ? user : null);
+      setIsCheckingAuth(false);
+    });
+
+    return () => unsubscribe();
+  }, [allowedAdminEmails]);
+
   // Close dropdowns on clicking outside
   useEffect(() => {
     const handleOutsideClick = (e) => {
@@ -3278,6 +3192,89 @@ export default function AdminPanel({ navigate }) {
     document.addEventListener("mousedown", handleOutsideClick);
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
+
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-neutral-400 text-sm tracking-wider uppercase font-bold">
+        Loading Admin...
+      </div>
+    );
+  }
+
+  if (!adminUser) {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-4 font-sans">
+        <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 sm:p-8">
+          <div className="flex justify-center mb-6">
+            <div className="p-3 rounded-xl bg-[#111111] text-white">
+              <Shield size={24} />
+            </div>
+          </div>
+          <h1 className="text-xl font-black text-center text-neutral-900 uppercase tracking-widest mb-1 font-display">
+            Admin Portal
+          </h1>
+          <p className="text-[10px] text-center text-neutral-400 font-light mb-6">
+            Authorized Personnel Only
+          </p>
+
+          <form onSubmit={handleAdminLogin} className="space-y-4">
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">
+                Email Address
+              </label>
+              <input
+                type="email"
+                required
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                className="w-full text-xs bg-neutral-50 border border-neutral-200 rounded px-3 py-2.5 focus:outline-none focus:border-[#FF4D6D]"
+                placeholder="admin@anikara.com"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  className="w-full text-xs bg-neutral-50 border border-neutral-200 rounded pl-3 pr-10 py-2.5 focus:outline-none focus:border-[#FF4D6D]"
+                  placeholder="Password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 focus:outline-none cursor-pointer"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+            {loginError && <p className="text-[10px] text-red-500 font-semibold">{loginError}</p>}
+            <button
+              type="submit"
+              className="w-full py-3 bg-[#111111] hover:bg-[#FF4D6D] text-white text-xs font-bold tracking-widest uppercase transition-colors rounded focus:outline-none mt-2"
+            >
+              Sign In
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => navigate("home")}
+              className="text-[10px] text-neutral-400 hover:text-[#111111] uppercase tracking-widest font-bold focus:outline-none"
+            >
+              Back to Store
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-neutral-50 font-sans flex flex-col md:flex-row">
@@ -3475,7 +3472,7 @@ export default function AdminPanel({ navigate }) {
                   <div className="absolute right-0 mt-2.5 w-48 bg-white border border-neutral-200 rounded-xl shadow-xl z-50 overflow-hidden animate-fade-in font-sans">
                     <div className="p-3 border-b border-neutral-100 bg-neutral-50/30">
                       <p className="text-[11px] font-bold text-neutral-800">Admin User</p>
-                      <p className="text-[9px] text-neutral-400 mt-0.5">admin@anikara.com</p>
+                      <p className="text-[9px] text-neutral-400 mt-0.5">{adminUser.email}</p>
                     </div>
                     <div className="py-1 text-[11px]">
                       <button
@@ -3493,10 +3490,17 @@ export default function AdminPanel({ navigate }) {
                           setShowProfile(false);
                           navigate("home");
                         }}
-                        className="w-full text-left px-3 py-1.5 hover:bg-neutral-50 text-red-500 transition-colors border-t border-neutral-100/50 flex items-center gap-2"
+                        className="w-full text-left px-3 py-1.5 hover:bg-neutral-50 text-neutral-700 transition-colors border-t border-neutral-100/50 flex items-center gap-2"
                       >
-                        <User size={12} className="text-red-400" />
+                        <User size={12} className="text-neutral-400" />
                         <span>Storefront View</span>
+                      </button>
+                      <button
+                        onClick={handleAdminLogout}
+                        className="w-full text-left px-3 py-1.5 hover:bg-red-50 text-red-500 transition-colors border-t border-neutral-100/50 flex items-center gap-2"
+                      >
+                        <LogOut size={12} className="text-red-400" />
+                        <span>Logout</span>
                       </button>
                     </div>
                   </div>
@@ -3505,7 +3509,6 @@ export default function AdminPanel({ navigate }) {
             </div>
           </>
         )}
->>>>>>> f9c14535d76c2d83be475b4f34a5aacf95dd8016
       </header>
 
       {/* Sidebar Overlay Backdrop (Mobile Drawer only) */}
@@ -3750,7 +3753,7 @@ export default function AdminPanel({ navigate }) {
                 <div className="absolute right-0 mt-2.5 w-56 bg-white border border-neutral-200 rounded-xl shadow-xl z-50 overflow-hidden animate-fade-in font-sans">
                   <div className="p-4 border-b border-neutral-100 bg-neutral-50/30">
                     <p className="text-xs font-bold text-neutral-800">Admin User</p>
-                    <p className="text-[10px] text-neutral-400 mt-0.5">admin@anikara.com</p>
+                    <p className="text-[10px] text-neutral-400 mt-0.5">{adminUser.email}</p>
                   </div>
                   <div className="py-1 text-xs">
                     <button
@@ -3768,10 +3771,17 @@ export default function AdminPanel({ navigate }) {
                         setShowProfile(false);
                         navigate("home");
                       }}
-                      className="w-full text-left px-4 py-2 hover:bg-neutral-50 text-red-500 transition-colors border-t border-neutral-100/50 flex items-center gap-2"
+                      className="w-full text-left px-4 py-2 hover:bg-neutral-50 text-neutral-700 transition-colors border-t border-neutral-100/50 flex items-center gap-2"
                     >
-                      <User size={13} className="text-red-400" />
+                      <User size={13} className="text-neutral-400" />
                       <span>Storefront View</span>
+                    </button>
+                    <button
+                      onClick={handleAdminLogout}
+                      className="w-full text-left px-4 py-2 hover:bg-red-50 text-red-500 transition-colors border-t border-neutral-100/50 flex items-center gap-2"
+                    >
+                      <LogOut size={13} className="text-red-400" />
+                      <span>Logout</span>
                     </button>
                   </div>
                 </div>
@@ -3790,24 +3800,6 @@ export default function AdminPanel({ navigate }) {
           {activeTab === "settings" && <SettingsTab />}
         </main>
       </div>
-
-<<<<<<< HEAD
-      {/* ── Tab Content ── */}
-      <main className="max-w-6xl mx-auto px-3 sm:px-6 py-5 sm:py-8">
-<<<<<<< HEAD
-        {activeTab === "products" && <AdminProductsTab />}
-        {activeTab === "slides"  && <SlidesTab />}
-=======
-        {activeTab === "slides" && <SlidesTab />}
->>>>>>> 08a8c6a8bda413c4b93c34ce979217625b577a99
-        {activeTab === "coupons" && <CouponsTab />}
-        {activeTab === "categories" && <CategoriesTab />}
-        {activeTab === "products" && <ProductsTab />}
-        {activeTab === "payments" && <PaymentsTab />}
-        {activeTab === "settings" && <SettingsTab />}
-      </main>
-=======
->>>>>>> f9c14535d76c2d83be475b4f34a5aacf95dd8016
     </div>
   );
 }

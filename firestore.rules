@@ -2,66 +2,75 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper function to check if user is an admin
-    // This assumes you set a Custom Claim `admin: true` using the Firebase Admin SDK.
-    // This is the most secure method for role-based security in Firebase.
-    function isAdmin() {
-      return request.auth != null && request.auth.token.admin == true;
-    }
-    
-    // Helper function to check if the user is authenticated
-    function isAuthenticated() {
+    function isSignedIn() {
       return request.auth != null;
     }
-    
-    // ------------------------------------------------------------------------
-    // PRODUCTS
-    // ------------------------------------------------------------------------
-    match /products/{productId} {
-      // 1. Public users can only read products
-      allow read: if true; 
-      
-      // 2. Only admin users can add/edit/delete products
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function hasAdminClaim() {
+      return isSignedIn() && request.auth.token.admin == true;
+    }
+
+    function hasAdminDoc() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isAdmin() {
+      return hasAdminClaim() || hasAdminDoc();
+    }
+
+    match /admins/{adminId} {
+      allow read: if isOwner(adminId) || isAdmin();
       allow create, update, delete: if isAdmin();
     }
-    
-    // ------------------------------------------------------------------------
-    // CARTS
-    // ------------------------------------------------------------------------
-    // Assuming cart documents use the user's UID as the document ID
-    match /carts/{userId} {
-      // 3. Users can only access their own cart
-      allow read, write: if isAuthenticated() && request.auth.uid == userId;
-    }
-    
-    // If carts have random IDs but contain a userId field:
-    // match /carts/{cartId} {
-    //   allow read, write: if isAuthenticated() && resource.data.userId == request.auth.uid;
-    //   allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
-    // }
 
-    // ------------------------------------------------------------------------
-    // ORDERS
-    // ------------------------------------------------------------------------
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isAdmin();
+    }
+
+    match /carts/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
     match /orders/{orderId} {
-      // 3. Users can only access their own orders. Admins can read all orders.
-      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
-      
-      // Users can create orders for themselves (ensuring the userId field matches their auth UID)
-      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
-      
-      // Only admins can update or delete orders (e.g., updating order status)
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       allow update, delete: if isAdmin();
     }
-    
-    // ------------------------------------------------------------------------
-    // USERS (User Profiles)
-    // ------------------------------------------------------------------------
-    match /users/{userId} {
-      // Users can only read and write their own profile data. Admins can read all profiles.
-      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
-      allow write: if isAuthenticated() && request.auth.uid == userId;
+
+    match /payments/{paymentId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /coupons/{couponId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /slides/{slideId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

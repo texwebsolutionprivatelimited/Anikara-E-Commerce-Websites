@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useApp } from "../context/AppContext";
 import { Heart, ShoppingBag, Star } from "lucide-react";
-// import { IKImage } from "@imagekit/react";
+import { Image as IKImage } from "@imagekit/react";
 
 export default function ProductCard({ product, navigate }) {
   const { toggleWishlist, wishlist, addToCart } = useApp();

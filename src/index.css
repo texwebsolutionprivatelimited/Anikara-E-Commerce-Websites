@@ -290,3 +290,28 @@ a[class*="p-0"], a[class*="p-1"], a[class*="p-2"],
   }
 }
 
+/* Custom Footer Utilities */
+.footer-text-outline {
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.04);
+  color: transparent;
+  text-shadow: 0 0 40px rgba(255, 77, 109, 0.02);
+}
+
+.footer-link-underline {
+  position: relative;
+}
+.footer-link-underline::after {
+  content: '';
+  position: absolute;
+  width: 0%;
+  height: 1px;
+  bottom: -2px;
+  left: 0;
+  background-color: #FF4D6D;
+  transition: width 0.3s ease;
+}
+.footer-link-underline:hover::after {
+  width: 100%;
+}
+
+

@@ -3,7 +3,7 @@ import { useApp } from "../context/AppContext";
 import ProductCard from "../components/ProductCard";
 import { Star, Heart, ShoppingBag, CreditCard, ChevronRight, Plus, Minus, ArrowLeft, Package, RefreshCcw } from "lucide-react";
 import { motion } from "framer-motion";
-import { IKImage } from "@imagekit/react";
+import { Image as IKImage } from "@imagekit/react";
 
 export default function ProductDetails({ navigate, currentParams = {}, goBack }) {
   const { productId } = currentParams;
