@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useApp } from "../context/AppContext";
-import { Search, Heart, ShoppingBag, User, Menu, X, ChevronDown, Flame, Zap, Moon, Shirt, Link2, Gem, Layers } from "lucide-react";
+import { Search, Heart, ShoppingBag, User, Menu, X, ChevronDown, Flame, Zap, Moon, Shirt, Link2, Gem, Layers, LayoutDashboard } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const CATEGORY_GROUPS = [
@@ -136,6 +136,17 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
   };
 
   const totalCartItems = cart.reduce((total, item) => total + item.quantity, 0);
+  const rawAdminEmails =
+    import.meta.env.VITE_ADMIN_EMAILS ||
+    import.meta.env.VITE_ADMIN_EMAIL ||
+    settings?.adminEmail ||
+    "";
+  const adminEmails = String(rawAdminEmails)
+    .split(",")
+    .map((email) => email.toLowerCase().trim())
+    .filter(Boolean);
+  const userEmail = (user?.email || "").toLowerCase().trim();
+  const isAdminUser = !!userEmail && adminEmails.includes(userEmail);
 
   return (
     <>
@@ -410,6 +421,20 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
 
 
             {/* Wishlist Button */}
+            {isAdminUser && (
+              <button
+                onClick={() => navigate("admin")}
+                className={`relative p-1 min-[360px]:p-1.5 transition-colors cursor-pointer focus:outline-none ${
+                  currentPage === "admin" ? "text-[#FF4D6D]" : "text-neutral-700 hover:text-[#FF4D6D]"
+                }`}
+                aria-label="Open Admin Dashboard"
+                title="Admin Dashboard"
+              >
+                <LayoutDashboard className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px]" strokeWidth={1.8} />
+              </button>
+            )}
+
+            {/* Wishlist Button */}
             <button
               onClick={() => navigate("wishlist")}
               className={`relative p-1 min-[360px]:p-1.5 transition-colors cursor-pointer focus:outline-none ${
@@ -576,6 +601,19 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
 
               {/* User Account Quick Link */}
               <div className="shrink-0 mt-8 pt-6 border-t border-neutral-100 font-sans">
+                {isAdminUser && (
+                  <button
+                    onClick={() => {
+                      navigate("admin");
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="mb-4 flex items-center gap-3 text-sm font-semibold text-neutral-800 hover:text-[#FF4D6D] cursor-pointer focus:outline-none"
+                  >
+                    <LayoutDashboard size={18} />
+                    <span>Admin Dashboard</span>
+                  </button>
+                )}
+
                 {user ? (
                   <button
                     onClick={() => {
