@@ -11,7 +11,8 @@ export default function Cart({ navigate }) {
     promoDiscount,
     applyCoupon,
     removeCoupon,
-    addToast
+    addToast,
+    settings
   } = useApp();
 
   const [couponInput, setCouponInput] = useState("");
@@ -28,8 +29,8 @@ export default function Cart({ navigate }) {
     ? Math.round((subtotal * promoDiscount.discountPercent) / 100)
     : 0;
 
-  const shipping = subtotal > 1500 || subtotal === 0 ? 0 : 150;
-  const tax = Math.round((subtotal - discountAmount) * 0.05); // 5% GST/tax estimation
+  const shipping = subtotal > settings.shippingThreshold || subtotal === 0 ? 0 : settings.shippingFee;
+  const tax = Math.round((subtotal - discountAmount) * (settings.gstPercent / 100)); // Dynamic GST/tax estimation
   const total = subtotal - discountAmount + shipping + tax;
 
   const handleSaveForLater = (item) => {
@@ -167,7 +168,7 @@ export default function Cart({ navigate }) {
         </div>
 
         {/* Right Summary */}
-        <div className="space-y-6">
+        <div className="space-y-6 px-4 sm:px-0">
           <div className="bg-white border-y border-neutral-200/60 sm:border sm:rounded-xs p-5 space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-900 flex items-center gap-1.5 font-display">
               <Ticket size={16} className="text-[#FF4D6D]" />
@@ -235,7 +236,7 @@ export default function Cart({ navigate }) {
               </div>
 
               <div className="flex justify-between">
-                <span className="font-light">Estimated GST (5%)</span>
+                <span className="font-light">Estimated GST ({settings.gstPercent}%)</span>
                 <span className="font-bold text-neutral-900">₹{tax}</span>
               </div>
 

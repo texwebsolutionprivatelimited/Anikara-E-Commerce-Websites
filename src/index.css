@@ -8,10 +8,12 @@
   --font-sans: 'Inter', sans-serif;
   --font-display: 'Poppins', sans-serif;
   --font-logo: 'Great Vibes', cursive;
+  --breakpoint-xs: 375px;
 
   --animate-fade-in-up: fade-in-up 0.5s ease-out forwards;
   --animate-pulse-slow: pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-skeleton: skeleton-wave 1.5s infinite linear;
+  --animate-sparkle-float: sparkle-float 4s ease-in-out infinite;
 
   @keyframes fade-in-up {
     from {
@@ -21,6 +23,17 @@
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @keyframes sparkle-float {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0.35;
+    }
+    50% {
+      transform: translate(3px, -4px) scale(1.25);
+      opacity: 0.95;
     }
   }
 
@@ -194,4 +207,86 @@ a[class*="p-0"], a[class*="p-1"], a[class*="p-2"],
   .no-print {
     display: none !important;
   }
+  body * {
+    visibility: hidden;
+  }
+  .print-invoice-container, .print-invoice-container * {
+    visibility: visible;
+  }
+  .print-invoice-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: none !important;
+    box-shadow: none !important;
+    background: white !important;
+  }
+  .no-print-backdrop {
+    background: transparent !important;
+    backdrop-filter: none !important;
+  }
 }
+
+/* Categories grid for mobile (up to 426px) */
+@media (max-width: 426px) {
+  .categories-grid-mobile {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 32px 16px !important;
+    justify-items: center !important;
+  }
+}
+
+/* Value Propositions horizontal row for mobile (up to 426px) */
+@media (max-width: 426px) {
+  .value-props-mobile-row {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    justify-content: space-between !important;
+    gap: 0 !important;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+  }
+
+  .value-prop-mobile-item {
+    flex: 1 1 0% !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    text-align: center !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    padding: 6px 4px !important;
+    gap: 4px !important;
+  }
+
+  /* Thin vertical dividers for mobile horizontal view */
+  .value-prop-mobile-item:not(:last-child) {
+    border-right: 1px solid #E5E5E5 !important;
+  }
+
+  /* Make typography compact so it fits beautifully in a single line */
+  .value-prop-mobile-item h4 {
+    font-size: 8px !important;
+    line-height: 1.15 !important;
+    letter-spacing: 0.02em !important;
+  }
+
+  .value-prop-mobile-item p {
+    font-size: 7px !important;
+    line-height: 1.2 !important;
+  }
+
+  .value-prop-mobile-item svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+}
+

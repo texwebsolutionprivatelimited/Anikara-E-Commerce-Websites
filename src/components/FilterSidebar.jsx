@@ -1,7 +1,8 @@
 import React from "react";
 import { X, Star } from "lucide-react";
+import { useApp } from "../context/AppContext";
 
-const CATEGORIES = [
+const DEFAULT_CATEGORIES = [
   "Night Suit",
   "Lounge Suit",
   "Dress",
@@ -12,7 +13,12 @@ const CATEGORIES = [
   "Co-ords",
   "Suit",
   "Denim",
-  "Ethnic Wear"
+  "Ethnic Wear",
+  "Sports Wear",
+  "Footwear",
+  "Bags",
+  "Cosmetics",
+  "Accessories"
 ];
 
 const SIZES = ["S", "M", "L", "XL", "26", "28", "30", "32", "One Size"];
@@ -48,6 +54,7 @@ export default function FilterSidebar({
   isMobileDrawer = false,
   onCloseMobileDrawer = () => {}
 }) {
+  const { categories = DEFAULT_CATEGORIES } = useApp();
   return (
     <div className={`w-full flex flex-col font-sans ${isMobileDrawer ? "p-6" : ""}`}>
       {/* Mobile Drawer Header */}
@@ -77,7 +84,7 @@ export default function FilterSidebar({
             />
             <span>All Categories</span>
           </label>
-          {CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <label key={cat} className="flex items-center gap-2.5 text-xs text-neutral-600 hover:text-black cursor-pointer">
               <input
                 type="radio"

@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
+<<<<<<< HEAD
 import { IKContext } from "@imagekit/react";
 import { AppProvider } from "./context/AppContext";
+=======
+import { AppProvider, useApp } from "./context/AppContext";
+>>>>>>> 08a8c6a8bda413c4b93c34ce979217625b577a99
 import AnnouncementBar from "./components/AnnouncementBar";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -17,8 +21,10 @@ import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
 import OrderSuccess from "./pages/OrderSuccess";
 import AdminPanel from "./pages/AdminPanel";
+import MaintenanceMode from "./pages/MaintenanceMode";
 
-export default function App() {
+function AppContent() {
+  const { settings } = useApp();
   const [currentPage, setCurrentPage] = useState("home");
   const [currentParams, setCurrentParams] = useState({});
   const navCountRef = useRef(0);
@@ -65,6 +71,10 @@ export default function App() {
   };
 
   const renderPage = () => {
+    if (settings?.maintenanceMode && currentPage !== "admin") {
+      return <MaintenanceMode navigate={navigate} />;
+    }
+
     switch (currentPage) {
       case "home":
         return <Home navigate={navigate} />;
@@ -92,6 +102,7 @@ export default function App() {
   };
 
   const isAdmin = currentPage === "admin";
+<<<<<<< HEAD
   const imageKitUrl = import.meta.env.VITE_IMAGEKIT_URL || "https://ik.imagekit.io/feu3swboqb";
 
   return (
@@ -114,5 +125,33 @@ export default function App() {
         </div>
       </AppProvider>
     </IKContext>
+=======
+  const isMaintenance = settings?.maintenanceMode && !isAdmin;
+
+  return (
+    <div className="min-h-screen flex flex-col bg-white text-[#111111] selection:bg-[#FF4D6D] selection:text-white">
+      
+      {/* Core Layout fixed nodes — hidden on admin or maintenance mode */}
+      {!isAdmin && !isMaintenance && <AnnouncementBar />}
+      {!isAdmin && !isMaintenance && <Navbar currentPage={currentPage} navigate={navigate} currentParams={currentParams} />}
+      
+      {/* Page content window with sticky margins top offset */}
+      <main className={`flex-grow ${!isAdmin && !isMaintenance ? "pt-[104px] md:pt-[116px] lg:pt-[120px]" : ""}`}>
+        {renderPage()}
+      </main>
+      
+      {!isAdmin && !isMaintenance && <Footer navigate={navigate} />}
+      <Toast />
+
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
+>>>>>>> 08a8c6a8bda413c4b93c34ce979217625b577a99
   );
 }

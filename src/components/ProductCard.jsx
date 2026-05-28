@@ -16,7 +16,7 @@ export default function ProductCard({ product, navigate }) {
 
   return (
     <div
-      className="group relative flex flex-col w-full bg-white overflow-hidden font-sans border border-neutral-100 rounded-sm"
+      className="group relative flex flex-col w-full bg-white overflow-hidden font-sans border border-neutral-100 rounded-sm hover:scale-[1.02] hover:shadow-xl transition-all duration-300"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -92,7 +92,7 @@ export default function ProductCard({ product, navigate }) {
       </div>
 
       {/* Info Block */}
-      <div className="p-3 sm:p-4 flex flex-col flex-grow">
+      <div className="p-3 sm:p-4 pb-5 sm:pb-5 flex flex-col flex-grow">
         {/* Category */}
         <p className="text-[10px] font-semibold text-neutral-400 tracking-wider uppercase mb-1">
           {product.category}

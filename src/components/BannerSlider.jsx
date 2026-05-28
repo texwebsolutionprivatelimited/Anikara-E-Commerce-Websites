@@ -105,7 +105,7 @@ export default function BannerSlider({ slides, navigate }) {
   const swiperRef = useRef(null);
 
   return (
-    <section className="relative w-full h-[180px] xs:h-[220px] sm:h-[290px] md:h-[340px] lg:h-[390px] xl:h-[420px] overflow-hidden bg-white border-b border-neutral-100">
+    <section className="relative w-full h-[190px] xs:h-[220px] sm:h-[290px] md:h-[340px] lg:h-[390px] xl:h-[420px] overflow-hidden bg-white border-b border-neutral-100">
       <Swiper
         onSwiper={(swiper) => { swiperRef.current = swiper; }}
         modules={[Autoplay, Pagination, EffectFade]}
@@ -132,7 +132,7 @@ export default function BannerSlider({ slides, navigate }) {
             {/* Slide Content */}
             <div className="absolute inset-0 flex items-center z-20">
               <div className="w-full px-5 sm:px-8 lg:px-16 max-w-7xl mx-auto">
-                <div className="max-w-[60%] sm:max-w-[55%] md:max-w-lg text-[#111111] space-y-2 sm:space-y-3 md:space-y-4">
+                <div className="max-w-[85%] sm:max-w-[55%] md:max-w-lg text-[#111111] space-y-2 sm:space-y-3 md:space-y-4">
                   <span className="text-[9px] sm:text-[10px] md:text-xs font-bold tracking-[0.25em] text-[#FF4D6D] uppercase font-display block">
                     {slide.subtitle}
                   </span>
