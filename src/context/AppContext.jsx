@@ -195,6 +195,70 @@ export const AppProvider = ({ children }) => {
       paymentMethod: "Credit Card"
     }
   ]);
+  const [payments, setPayments] = useState([
+    {
+      id: "TXN-839201",
+      orderId: "ORD-9281-2026",
+      customerName: "Ajeet Kumar",
+      customerEmail: "ajeet@example.com",
+      customerPhone: "+91 98765 43210",
+      amount: 6298,
+      paymentMethod: "UPI",
+      date: "2026-05-12",
+      time: "14:32",
+      status: "Success"
+    },
+    {
+      id: "TXN-482019",
+      orderId: "ORD-1102-2026",
+      customerName: "Ajeet Kumar",
+      customerEmail: "ajeet@example.com",
+      customerPhone: "+91 98765 43210",
+      amount: 3299,
+      paymentMethod: "Credit Card",
+      date: "2026-05-24",
+      time: "10:15",
+      status: "Success"
+    },
+    {
+      id: "TXN-102938",
+      orderId: "ORD-5832-2026",
+      customerName: "Priyanka Sharma",
+      customerEmail: "priyanka@example.com",
+      customerPhone: "+91 99887 76655",
+      amount: 4500,
+      paymentMethod: "Net Banking",
+      date: "2026-05-25",
+      time: "18:40",
+      status: "Failed",
+      errorMessage: "Authentication failed / Timeout"
+    },
+    {
+      id: "TXN-293847",
+      orderId: "ORD-2049-2026",
+      customerName: "Rahul Verma",
+      customerEmail: "rahul@example.com",
+      customerPhone: "+91 91234 56789",
+      amount: 1899,
+      paymentMethod: "UPI",
+      date: "2026-05-26",
+      time: "11:22",
+      status: "Refunded",
+      refundReason: "Customer cancelled before shipment"
+    },
+    {
+      id: "TXN-902834",
+      orderId: "ORD-3048-2026",
+      customerName: "Sneha Patel",
+      customerEmail: "sneha@example.com",
+      customerPhone: "+91 98989 89898",
+      amount: 2799,
+      paymentMethod: "Cash on Delivery (COD)",
+      date: "2026-05-27",
+      time: "09:05",
+      status: "Pending"
+    }
+  ]);
   const [promoDiscount, setPromoDiscount] = useState(null);
   const [toasts, setToasts] = useState([]);
   const [coupons, setCoupons] = useState(INITIAL_COUPONS);
@@ -467,6 +531,22 @@ export const AppProvider = ({ children }) => {
     };
 
     setOrders((prev) => [newOrder, ...prev]);
+
+    // Automatically generate a payment log record
+    const newPayment = {
+      id: `TXN-${Math.floor(100000 + Math.random() * 900000)}`,
+      orderId: newOrder.id,
+      customerName: user?.name || "Guest Customer",
+      customerEmail: user?.email || "guest@example.com",
+      customerPhone: user?.phone || "+91 99999 88888",
+      amount: finalTotal,
+      paymentMethod: paymentMethod === "COD" ? "Cash on Delivery (COD)" : paymentMethod,
+      date: newOrder.date,
+      time: new Date().toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit" }),
+      status: paymentMethod === "COD" ? "Pending" : "Success"
+    };
+    setPayments((prev) => [newPayment, ...prev]);
+
     setCart([]);
     setPromoDiscount(null);
     addToast("Order Placed Successfully!", "success");
@@ -516,6 +596,30 @@ export const AppProvider = ({ children }) => {
     addToast("Profile Updated", "success");
   };
 
+  const adminUpdatePaymentStatus = (id, status, extraFields = {}) => {
+    setPayments((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, status, ...extraFields } : p))
+    );
+    if (status === "Refunded") {
+      addToast(`Payment ${id} has been refunded.`, "info");
+    } else if (status === "Success") {
+      addToast(`Payment ${id} completed successfully!`, "success");
+    } else {
+      addToast(`Payment status updated to ${status}.`, "success");
+    }
+  };
+
+  const adminAddPayment = (payment) => {
+    const newPayment = {
+      ...payment,
+      id: payment.id || `TXN-${Math.floor(100000 + Math.random() * 900000)}`,
+      date: payment.date || new Date().toISOString().split("T")[0],
+      time: payment.time || new Date().toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit" }),
+    };
+    setPayments((prev) => [newPayment, ...prev]);
+    addToast("Payment record logged successfully!", "success");
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -559,6 +663,9 @@ export const AppProvider = ({ children }) => {
         adminDeleteProduct,
         settings,
         adminUpdateSettings,
+        payments,
+        adminUpdatePaymentStatus,
+        adminAddPayment,
       }}
     >
       {children}
