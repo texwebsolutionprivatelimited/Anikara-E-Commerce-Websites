@@ -712,6 +712,18 @@ export const AppProvider = ({ children }) => {
     addToast("Payment record logged successfully!", "success");
   };
 
+  const adminUpdateOrderStatus = (id, status, trackingStep) => {
+    setOrders((prev) =>
+      prev.map((o) => (o.id === id ? { ...o, status, trackingStep: trackingStep || o.trackingStep } : o))
+    );
+    addToast(`Order ${id} status updated to ${status}`, "success");
+  };
+
+  const adminDeleteOrder = (id) => {
+    setOrders((prev) => prev.filter((o) => o.id !== id));
+    addToast(`Order ${id} has been deleted.`, "info");
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -760,6 +772,8 @@ export const AppProvider = ({ children }) => {
         payments,
         adminUpdatePaymentStatus,
         adminAddPayment,
+        adminUpdateOrderStatus,
+        adminDeleteOrder,
       }}
     >
       {children}
