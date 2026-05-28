@@ -3,7 +3,7 @@ import { useApp } from "../context/AppContext";
 import { collection, doc, getDocs, setDoc, writeBatch } from "firebase/firestore";
 import { db } from "../firebase";
 import {
-  Shield, Tag, Check, AlertTriangle, Package, Monitor
+  Shield, Tag, Check, AlertTriangle, Package, Monitor, Clock
 } from "lucide-react";
 
 // ═══════════════════════════════════════════════════════════════════
@@ -13,6 +13,14 @@ export default function SettingsTab() {
   const { settings, adminUpdateSettings, addToast } = useApp();
   const [form, setForm] = useState({ ...settings });
   const [seedingAdminFeed, setSeedingAdminFeed] = useState(false);
+
+  const toDateTimeLocal = (value) => {
+    if (!value) return "";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    const offsetDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return offsetDate.toISOString().slice(0, 16);
+  };
 
   useEffect(() => {
     setForm({ ...settings });
@@ -31,6 +39,7 @@ export default function SettingsTab() {
       supportAddress: form.supportAddress?.trim() || "",
       supportPhone: form.supportPhone?.trim() || "",
       supportEmail: form.supportEmail?.trim() || "",
+      dealEndsAt: form.dealEndsAt ? new Date(form.dealEndsAt).toISOString() : "",
     });
   };
 
@@ -168,6 +177,24 @@ export default function SettingsTab() {
               />
               <p className="text-[9px] text-neutral-400 mt-1">Fee for orders under the threshold.</p>
             </div>
+          </div>
+        </div>
+
+        {/* Deal timer settings */}
+        <div className="bg-white border border-neutral-200/60 rounded-xl p-5 space-y-4 shadow-xs">
+          <div className="flex items-center gap-2 border-b border-neutral-100 pb-3">
+            <div className="p-1.5 bg-[#FF4D6D]/5 text-[#FF4D6D] rounded-lg"><Clock size={14} /></div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-800 font-display">Deals of the Day Timer</h3>
+          </div>
+          <div>
+            <label className={labelCls}>Deal Ends At</label>
+            <input
+              type="datetime-local"
+              value={toDateTimeLocal(form.dealEndsAt)}
+              onChange={(e) => set("dealEndsAt", e.target.value)}
+              className={inputCls}
+            />
+            <p className="text-[9px] text-neutral-400 mt-1">Controls the live countdown shown in the Deals of the Day section.</p>
           </div>
         </div>
 

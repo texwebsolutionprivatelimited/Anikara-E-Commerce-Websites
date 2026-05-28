@@ -44,6 +44,25 @@ export const uploadToImageKit = async (file) => {
 
 const AppContext = createContext();
 
+const normalizeProductColors = (colors) => {
+  if (!Array.isArray(colors) || colors.length === 0) {
+    return [{ name: "Default", hex: "#000000" }];
+  }
+
+  const normalized = colors
+    .map((color) => {
+      if (typeof color === "string") {
+        const name = color.trim();
+        return name ? { name, hex: "#000000" } : null;
+      }
+      const name = color?.name?.trim();
+      return name ? { name, hex: color.hex || "#000000" } : null;
+    })
+    .filter(Boolean);
+
+  return normalized.length > 0 ? normalized : [{ name: "Default", hex: "#000000" }];
+};
+
 export const useApp = () => {
   const context = useContext(AppContext);
   if (!context) {
@@ -80,6 +99,7 @@ export const AppProvider = ({ children }) => {
   const [categories, setCategories] = useState([]);
 
   const [categoryImages, setCategoryImages] = useState({});
+  const [categoryDocIds, setCategoryDocIds] = useState({});
 
   // central realtime syncing logic
   useEffect(() => {
@@ -97,11 +117,11 @@ export const AppProvider = ({ children }) => {
           images: data.images || [],
           stock: data.stock || 0,
           oldPrice: data.oldPrice || data.price || 0,
-          rating: data.rating || 4.5,
+          rating: Number(data.rating) || 0,
           ratingCount: data.ratingCount || 0,
           description: data.description || "",
           sizes: data.sizes || ["S", "M", "L", "XL"],
-          colors: data.colors || [{ name: "Default", hex: "#000000" }],
+          colors: normalizeProductColors(data.colors),
           details: data.details || [],
           reviews: data.reviews || [],
           displaySection: data.displaySection || "deals",
@@ -144,7 +164,8 @@ export const AppProvider = ({ children }) => {
           gstPercent: 5,
           shippingThreshold: 1500,
           shippingFee: 150,
-          maintenanceMode: false
+          maintenanceMode: false,
+          dealEndsAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
         };
         await setDoc(doc(db, "settings", "general"), defaultSettings);
       } else {
@@ -158,10 +179,13 @@ export const AppProvider = ({ children }) => {
       const sorted = rows.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
       setCategories(sorted.map((row) => row.name).filter(Boolean));
       const imageMap = {};
+      const idMap = {};
       sorted.forEach((row) => {
         if (row.name && row.image) imageMap[row.name] = row.image;
+        if (row.name && row.id) idMap[row.name.toLowerCase()] = row.id;
       });
       setCategoryImages(imageMap);
+      setCategoryDocIds(idMap);
     });
 
     return () => {
@@ -452,7 +476,7 @@ export const AppProvider = ({ children }) => {
       return false;
     }
     try {
-      const id = categoryName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      const id = categoryDocIds[categoryName.toLowerCase()] || categoryName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
       await deleteDoc(doc(db, "categories", id));
       addToast("Category deleted.", "info");
       return true;
@@ -475,7 +499,7 @@ export const AppProvider = ({ children }) => {
       return false;
     }
     try {
-      const oldId = oldName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      const oldId = categoryDocIds[oldName.toLowerCase()] || oldName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
       const newId = newName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
       const batch = writeBatch(db);
       batch.set(doc(db, "categories", newId), {
@@ -507,7 +531,7 @@ export const AppProvider = ({ children }) => {
       const newProduct = {
         ...product,
         id: product.id || `p-${Date.now()}`,
-        rating: product.rating || 5.0,
+        rating: Number(product.rating) || 0,
         ratingCount: product.ratingCount || 0,
         reviews: product.reviews || []
       };

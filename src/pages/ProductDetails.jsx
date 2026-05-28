@@ -57,6 +57,8 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
   }
 
   const isWishlisted = wishlist.some((item) => item.id === product.id);
+  const reviewCount = reviewsList.length || Number(product.ratingCount) || 0;
+  const hasRating = reviewCount > 0 && Number(product.rating) > 0;
   const discountPercent = Math.round(
     ((product.oldPrice - product.price) / product.oldPrice) * 100
   );
@@ -266,23 +268,25 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
               {product.name}
             </h1>
             
-            <div className="flex items-center gap-2">
-              <div className="flex items-center text-amber-400 gap-0.5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star
-                    key={i}
-                    size={13}
-                    className={i < Math.floor(product.rating) ? "fill-amber-400 text-amber-400" : "text-neutral-200"}
-                  />
-                ))}
+            {hasRating && (
+              <div className="flex items-center gap-2">
+                <div className="flex items-center text-amber-400 gap-0.5">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      size={13}
+                      className={i < Math.floor(product.rating) ? "fill-amber-400 text-amber-400" : "text-neutral-200"}
+                    />
+                  ))}
+                </div>
+                <span className="text-xs font-semibold text-neutral-800">
+                  {product.rating} / 5.0
+                </span>
+                <span className="text-xs text-neutral-400 font-light">
+                  ({reviewCount} {reviewCount === 1 ? "review" : "reviews"})
+                </span>
               </div>
-              <span className="text-xs font-semibold text-neutral-800">
-                {product.rating} / 5.0
-              </span>
-              <span className="text-xs text-neutral-400 font-light">
-                ({reviewsList.length} reviews)
-              </span>
-            </div>
+            )}
           </div>
 
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2 py-2 border-y border-neutral-100">

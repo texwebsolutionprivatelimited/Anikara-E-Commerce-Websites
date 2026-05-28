@@ -2,7 +2,8 @@ import React, { useState, useCallback } from "react";
 import { useApp } from "../context/AppContext";
 import {
   Plus, Trash2, X, Check, AlertTriangle, Search, Heart, Star, Pencil,
-  Monitor, Package, Flame, Clock, Sparkles, LayoutGrid, Upload, Image as ImageIcon
+  Monitor, Package, Flame, Clock, Sparkles, LayoutGrid, Upload, Image as ImageIcon,
+  HelpCircle, Boxes
 } from "lucide-react";
 import { StatCard } from "./AdminShared";
 
@@ -190,30 +191,86 @@ function ImageUploader({ currentImage, onImageChange, label, required }) {
   );
 }
 
+const normalizeColors = (colors) => {
+  if (!Array.isArray(colors)) return [];
+  return colors
+    .map((color) => {
+      if (typeof color === "string") {
+        const name = color.trim();
+        return name ? { name, hex: "#111111" } : null;
+      }
+      const name = color?.name?.trim();
+      return name ? { name, hex: color.hex || "#111111" } : null;
+    })
+    .filter(Boolean);
+};
+
+const COLOR_NAME_TO_HEX = {
+  black: "#000000",
+  white: "#ffffff",
+  red: "#ff0000",
+  green: "#008000",
+  blue: "#0000ff",
+  yellow: "#ffff00",
+  pink: "#ffc0cb",
+  purple: "#800080",
+  orange: "#ffa500",
+  brown: "#8b4513",
+  grey: "#808080",
+  gray: "#808080",
+  silver: "#c0c0c0",
+  gold: "#ffd700",
+  beige: "#f5f5dc",
+  cream: "#fffdd0",
+  maroon: "#800000",
+  navy: "#000080",
+  teal: "#008080",
+  olive: "#808000",
+  peach: "#ffe5b4",
+  lavender: "#e6e6fa"
+};
+
+const normalizeHex = (value) => {
+  const raw = value.trim();
+  if (!raw) return "";
+  const withHash = raw.startsWith("#") ? raw : `#${raw}`;
+  return /^#[0-9a-fA-F]{6}$/.test(withHash) ? withHash.toLowerCase() : "";
+};
+
+const getHexFromColorName = (name) => COLOR_NAME_TO_HEX[name.trim().toLowerCase()] || "";
+
 function ProductModal({ onSave, onClose, editingProduct = null }) {
   const { categories } = useApp();
 
   // IMPORTANT: Default displaySection must be one of the specific sections, not "all"
   const [form, setForm] = useState({
     name: editingProduct?.name || "",
-    category: editingProduct?.category || categories[0] || "Dress",
+    category: editingProduct?.category || categories[0] || "",
     price: editingProduct?.price || "",
     oldPrice: editingProduct?.oldPrice || "",
+    stock: editingProduct?.stock ?? "",
     badge: editingProduct?.badge || "",
     image: editingProduct?.image || "",
     altImage: editingProduct?.altImage || "",
     images: editingProduct?.images || [],
     description: editingProduct?.description || "",
     sizes: editingProduct?.sizes || ["S", "M", "L"],
-    colors: editingProduct?.colors || [],
+    colors: normalizeColors(editingProduct?.colors),
     details: editingProduct?.details?.join("\n") || "",
     displaySection: editingProduct?.displaySection || "deals" // Default to "deals" instead of "all"
   });
 
-  const [colorInput, setColorInput] = useState({ name: "", hex: "#111111" });
+  const [colorInput, setColorInput] = useState({ name: "", hex: "" });
+  const [colorError, setColorError] = useState("");
   const [imageError, setImageError] = useState("");
 
   const set = (key, val) => setForm((f) => ({ ...f, [key]: val }));
+
+  React.useEffect(() => {
+    if (!form.category && categories.length > 0) {
+      set("category", categories[0]);
+    }
+  }, [categories, form.category]);
 
   const toggleSize = (size) => {
     setForm(f => ({
@@ -223,12 +280,30 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
   };
 
   const addColor = () => {
-    if (!colorInput.name.trim()) return;
+    const name = colorInput.name.trim();
+    const hex = normalizeHex(colorInput.hex) || getHexFromColorName(name);
+    if (!name && !hex) {
+      setColorError("Please enter a color name or hex code.");
+      return;
+    }
+    if (colorInput.hex.trim() && !normalizeHex(colorInput.hex)) {
+      setColorError("Hex code should look like #ff0000 or ff0000.");
+      return;
+    }
+    if (name && !hex) {
+      setColorError("Color name not recognized. Add a hex code too, like #ff0000.");
+      return;
+    }
+    const colorName = name || hex;
     setForm(f => ({
       ...f,
-      colors: [...f.colors, { name: colorInput.name.trim(), hex: colorInput.hex }]
+      colors: [
+        ...normalizeColors(f.colors).filter((c) => c.name.toLowerCase() !== colorName.toLowerCase()),
+        { name: colorName, hex }
+      ]
     }));
-    setColorInput({ name: "", hex: "#111111" });
+    setColorError("");
+    setColorInput({ name: "", hex: "" });
   };
 
   const removeColor = (name) => {
@@ -249,6 +324,10 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
     // Validation
     if (!form.name) {
       alert("Product name is required");
+      return;
+    }
+    if (!form.category) {
+      alert("Please add/select a category first");
       return;
     }
     if (!form.price) {
@@ -279,13 +358,14 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
       category: form.category,
       price: Number(form.price),
       oldPrice: form.oldPrice ? Number(form.oldPrice) : null,
+      stock: form.stock === "" ? 0 : Number(form.stock),
       badge: form.badge || null,
       image: form.image,
       altImage: form.altImage || null,
       images: form.images || [],
       description: form.description,
       sizes: form.sizes,
-      colors: form.colors.length > 0 ? form.colors : [{ name: "Default", hex: "#111111" }],
+      colors: normalizeColors(form.colors).length > 0 ? normalizeColors(form.colors) : [{ name: "Default", hex: "#111111" }],
       details: detailsArr,
       displaySection: form.displaySection, // This is now either "deals", "trending", or "new_arrivals"
       rating: editingProduct?.rating || 0,
@@ -295,6 +375,7 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
 
   const inputCls = "w-full text-xs bg-neutral-50 border border-neutral-200 rounded px-3 py-2 focus:outline-none focus:border-[#FF4D6D] transition-colors font-sans";
   const labelCls = "block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1";
+  const hintCls = "text-[9px] text-neutral-400 mt-1 leading-relaxed";
 
   const selectedSection = SECTION_OPTIONS.find(s => s.id === form.displaySection) || SECTION_OPTIONS[0];
   const SectionIcon = selectedSection?.icon || Clock;
@@ -307,9 +388,14 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[92vh] overflow-y-auto flex flex-col">
 
         <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 sticky top-0 bg-white z-10">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-900 font-display">
-            {editingProduct ? "Edit Product" : "Add New Product"}
-          </h2>
+          <div>
+            <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-900 font-display">
+              {editingProduct ? "Edit Product" : "Add New Product"}
+            </h2>
+            <p className="text-[10px] text-neutral-400 mt-0.5">
+              Required fields are marked with *. The preview updates as you type.
+            </p>
+          </div>
           <button type="button" onClick={onClose} className="text-neutral-400 hover:text-black focus:outline-none">
             <X size={18} />
           </button>
@@ -319,20 +405,36 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
 
           {/* Form Side */}
           <form onSubmit={handleSubmit} className="lg:col-span-7 space-y-4">
+            <div className="rounded-lg border border-blue-100 bg-blue-50 p-4 text-blue-800">
+              <div className="flex items-start gap-2">
+                <HelpCircle size={16} className="mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider">Easy product checklist</p>
+                  <p className="text-[10px] mt-1 leading-relaxed">
+                    Add title, category, selling price, stock, main image, and description. Old price, badge, sizes, colors, and gallery images are optional.
+                  </p>
+                </div>
+              </div>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelCls}>Product Title <span className="text-[#FF4D6D]">*</span></label>
                 <input required value={form.name} onChange={(e) => set("name", e.target.value)}
-                  placeholder="e.g. Linen Tie-Dye Dress" className={inputCls} />
+                  placeholder="Example: Pink Cotton Co-ord Set" className={inputCls} />
+                <p className={hintCls}>Use the name customers will search for.</p>
               </div>
               <div>
                 <label className={labelCls}>Category <span className="text-[#FF4D6D]">*</span></label>
-                <select value={form.category} onChange={(e) => set("category", e.target.value)} className={inputCls}>
+                <select value={form.category} onChange={(e) => set("category", e.target.value)} className={inputCls} disabled={categories.length === 0}>
+                  <option value="">{categories.length === 0 ? "No categories available" : "Select category"}</option>
                   {categories.map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
                 </select>
+                <p className={hintCls}>
+                  {categories.length === 0 ? "First add a category from the Categories tab." : "Choose where this product belongs."}
+                </p>
               </div>
             </div>
 
@@ -340,12 +442,32 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
               <div>
                 <label className={labelCls}>Price (₹) <span className="text-[#FF4D6D]">*</span></label>
                 <input required type="number" step="1" value={form.price} onChange={(e) => set("price", e.target.value)}
-                  placeholder="e.g. 2499" className={inputCls} />
+                  placeholder="Example: 2499" className={inputCls} />
+                <p className={hintCls}>Final customer price.</p>
               </div>
               <div>
                 <label className={labelCls}>Compare At Price (₹) / Old Price</label>
                 <input type="number" step="1" value={form.oldPrice} onChange={(e) => set("oldPrice", e.target.value)}
-                  placeholder="e.g. 3499" className={inputCls} />
+                  placeholder="Example: 3499" className={inputCls} />
+                <p className={hintCls}>Optional. Add higher MRP to show discount.</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className={labelCls}>Stock Quantity</label>
+                <div className="relative">
+                  <Boxes size={13} className="absolute left-3 top-2.5 text-neutral-400" />
+                  <input type="number" min="0" step="1" value={form.stock} onChange={(e) => set("stock", e.target.value)}
+                    placeholder="Example: 25" className={`${inputCls} pl-8`} />
+                </div>
+                <p className={hintCls}>How many pieces are available. Blank means 0.</p>
+              </div>
+              <div>
+                <label className={labelCls}>Badge Label</label>
+                <input value={form.badge} onChange={(e) => set("badge", e.target.value)}
+                  placeholder="Example: New, Best Seller, Sale" className={inputCls} />
+                <p className={hintCls}>Optional label shown on product card.</p>
               </div>
             </div>
 
@@ -408,13 +530,17 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
                   required={true}
                 />
                 {imageError && <p className="text-[10px] text-red-500 mt-1">{imageError}</p>}
+                <p className={hintCls}>Main image appears on product cards and product page.</p>
               </div>
-              <ImageUploader
-                currentImage={form.altImage}
-                onImageChange={(url) => handleImageChange("altImage", url)}
-                label="Alt Image (Hover View)"
-                required={false}
-              />
+              <div>
+                <ImageUploader
+                  currentImage={form.altImage}
+                  onImageChange={(url) => handleImageChange("altImage", url)}
+                  label="Second Image (Hover View)"
+                  required={false}
+                />
+                <p className={hintCls}>Optional. Customers see this on hover.</p>
+              </div>
             </div>
 
             {/* Gallery Images (Multiple Images) */}
@@ -461,13 +587,8 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <div>
-                <label className={labelCls}>Badge Label (e.g. "Best Seller", "New")</label>
-                <input value={form.badge} onChange={(e) => set("badge", e.target.value)}
-                  placeholder="e.g. Trending" className={inputCls} />
-              </div>
-              <div className="sm:col-span-1">
                 <label className={labelCls}>Sizes Available</label>
                 <div className="flex flex-wrap gap-1.5 mt-1">
                   {["S", "M", "L", "XL", "26", "28", "30", "32", "One Size"].map((size) => {
@@ -487,41 +608,79 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
                     );
                   })}
                 </div>
+                <p className={hintCls}>Tap sizes to select or unselect. Use One Size for bags/accessories.</p>
               </div>
             </div>
 
             <div>
               <label className={labelCls}>Add Color Variants</label>
-              <div className="flex gap-2 items-center mb-2">
+              <div className="grid grid-cols-1 sm:grid-cols-[1fr_120px_auto_auto] gap-2 items-center mb-2">
                 <input
                   value={colorInput.name}
-                  onChange={(e) => setColorInput(c => ({ ...c, name: e.target.value }))}
-                  placeholder="Color Name (e.g. Blush Pink)"
+                  onChange={(e) => {
+                    setColorError("");
+                    const nextName = e.target.value;
+                    setColorInput(c => ({
+                      ...c,
+                      name: nextName,
+                      hex: c.hex || getHexFromColorName(nextName)
+                    }));
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addColor();
+                    }
+                  }}
+                  placeholder="Example: Blush Pink"
                   className={`${inputCls} flex-1`}
                 />
                 <input
-                  type="color"
                   value={colorInput.hex}
+                  onChange={(e) => {
+                    setColorError("");
+                    setColorInput(c => ({ ...c, hex: e.target.value }));
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addColor();
+                    }
+                  }}
+                  placeholder="#ff0000"
+                  className={inputCls}
+                  aria-label="Color hex code"
+                />
+                <input
+                  type="color"
+                  value={normalizeHex(colorInput.hex) || getHexFromColorName(colorInput.name) || "#111111"}
                   onChange={(e) => setColorInput(c => ({ ...c, hex: e.target.value }))}
-                  className="w-10 h-8 border border-neutral-200 rounded p-0.5 cursor-pointer bg-neutral-50"
+                  className="w-full sm:w-12 h-9 border border-neutral-200 rounded p-0.5 cursor-pointer bg-neutral-50"
+                  aria-label="Choose color swatch"
                 />
                 <button
                   type="button"
                   onClick={addColor}
                   className="px-4 py-2 bg-neutral-800 text-white text-xs font-bold uppercase rounded focus:outline-none hover:bg-black transition-colors shrink-0"
                 >
-                  Add
+                  Add Color
                 </button>
               </div>
-              {form.colors.length > 0 && (
+              <p className={hintCls}>Type a common color name like red/yellow/green, or enter a hex code like #ff0000. Pressing Enter also adds it.</p>
+              {colorError && <p className="text-[10px] text-red-500 mt-1">{colorError}</p>}
+              {normalizeColors(form.colors).length > 0 ? (
                 <div className="flex flex-wrap gap-2 p-3 bg-neutral-50 border border-neutral-100 rounded">
-                  {form.colors.map(col => (
+                  {normalizeColors(form.colors).map(col => (
                     <span key={col.name} className="flex items-center gap-1.5 text-[10px] font-bold bg-white border border-neutral-200 px-2 py-1 rounded-full text-neutral-700 font-sans">
                       <span className="w-3.5 h-3.5 rounded-full border border-neutral-200/80" style={{ backgroundColor: col.hex }} />
                       {col.name}
-                      <button type="button" onClick={() => removeColor(col.name)} className="text-neutral-400 hover:text-red-500 font-extrabold focus:outline-none ml-1">×</button>
+                      <button type="button" onClick={() => removeColor(col.name)} className="text-neutral-400 hover:text-red-500 font-extrabold focus:outline-none ml-1" aria-label={`Remove ${col.name}`}>x</button>
                     </span>
                   ))}
+                </div>
+              ) : (
+                <div className="rounded border border-dashed border-neutral-200 bg-neutral-50 px-3 py-2 text-[10px] text-neutral-400">
+                  No colors added yet. The product will use a default color if you leave this empty.
                 </div>
               )}
             </div>
@@ -529,13 +688,15 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
             <div>
               <label className={labelCls}>Product Description <span className="text-[#FF4D6D]">*</span></label>
               <textarea required rows={3} value={form.description} onChange={(e) => set("description", e.target.value)}
-                placeholder="Write a captivating product description..." className={`${inputCls} resize-none`} />
+                placeholder="Example: Soft cotton co-ord set for everyday comfort. Lightweight, breathable, and easy to style." className={`${inputCls} resize-none`} />
+              <p className={hintCls}>Write 1-3 simple lines about fabric, fit, and use.</p>
             </div>
 
             <div>
               <label className={labelCls}>Material Details / Bullet points (one per line)</label>
               <textarea rows={3} value={form.details} onChange={(e) => set("details", e.target.value)}
-                placeholder={"e.g. 100% Linen French Flax\nAdjustable crop straps\nBreathable fabric"} className={`${inputCls} resize-none`} />
+                placeholder={"Example:\n100% cotton fabric\nRelaxed fit\nMachine washable"} className={`${inputCls} resize-none`} />
+              <p className={hintCls}>Each line becomes one bullet point on the product page.</p>
             </div>
 
             <div className="flex gap-3 pt-4 border-t border-neutral-100">
@@ -628,6 +789,9 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
                     </span>
                   )}
                 </div>
+                <p className="mt-2 text-[10px] text-neutral-400">
+                  Stock: {form.stock === "" ? 0 : form.stock}
+                </p>
               </div>
 
             </div>
@@ -766,7 +930,9 @@ export default function ProductsTab() {
         </div>
         <button
           onClick={() => setShowAdd(true)}
+          disabled={categories.length === 0}
           className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#FF4D6D] hover:bg-[#ff1e46] text-white text-xs font-bold tracking-widest uppercase rounded-lg transition-colors focus:outline-none shadow-sm font-sans"
+          title={categories.length === 0 ? "Add a category before adding products" : "Add Product"}
         >
           <Plus size={13} /> Add Product
         </button>
@@ -780,7 +946,22 @@ export default function ProductsTab() {
       {filtered.length === 0 ? (
         <div className="bg-white border border-dashed border-neutral-200 rounded-xl py-16 text-center font-sans">
           <Package size={32} className="mx-auto text-neutral-200 mb-3" />
-          <p className="text-xs text-neutral-400 font-light">No products match your search/filter.</p>
+          <p className="text-sm font-bold text-neutral-800">
+            {products.length === 0 ? "No products listed yet" : "No products match your search/filter"}
+          </p>
+          <p className="text-xs text-neutral-400 font-light mt-1 max-w-sm mx-auto">
+            {products.length === 0
+              ? "Start by adding categories, then click Add Product and fill the required fields."
+              : "Try clearing search, category, or section filters."}
+          </p>
+          {products.length === 0 && categories.length > 0 && (
+            <button
+              onClick={() => setShowAdd(true)}
+              className="mt-5 inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#FF4D6D] hover:bg-[#ff1e46] text-white text-xs font-bold tracking-widest uppercase rounded-lg transition-colors focus:outline-none shadow-sm"
+            >
+              <Plus size={13} /> Add First Product
+            </button>
+          )}
         </div>
       ) : (
         <div className="bg-white border border-neutral-200/60 rounded-xl overflow-hidden shadow-xs font-sans">
@@ -878,3 +1059,4 @@ export default function ProductsTab() {
     </>
   );
 }
+

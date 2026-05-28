@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useApp } from "../context/AppContext";
 import { collection, doc, onSnapshot, setDoc } from "firebase/firestore";
 import { db } from "../firebase";
@@ -36,6 +36,7 @@ export default function AdminPanel({ navigate }) {
   const [activeTab, setActiveTab] = useState("orders");
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const { settings } = useApp();
+  const mainContentRef = useRef(null);
 
   // Notification center states
   const [notifications, setNotifications] = useState([]);
@@ -79,6 +80,11 @@ export default function AdminPanel({ navigate }) {
     document.addEventListener("mousedown", handleOutsideClick);
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
+
+  useEffect(() => {
+    mainContentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [activeTab]);
 
   useEffect(() => {
     const unsubNotifications = onSnapshot(collection(db, "admin_notifications"), (snap) => {
@@ -406,7 +412,7 @@ export default function AdminPanel({ navigate }) {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 md:h-screen md:overflow-y-auto">
+      <div ref={mainContentRef} className="flex-1 flex flex-col min-w-0 md:h-screen md:overflow-y-auto">
 
         {/* Desktop Admin Header */}
         <header className="hidden md:flex bg-white border-b border-neutral-200 px-8 py-4 items-center justify-between sticky top-0 z-30 shadow-xs">

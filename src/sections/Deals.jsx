@@ -4,7 +4,7 @@ import ProductCard from "../components/ProductCard";
 import { Clock, ArrowRight } from "lucide-react";
 
 export default function Deals({ navigate }) {
-  const { products } = useApp();
+  const { products, settings } = useApp();
 
   // Filter discounted items
   const dealProducts = products.filter((p) => {
@@ -12,25 +12,25 @@ export default function Deals({ navigate }) {
     return section === "deals";
   });
 
-  // Countdown cycle (24-hour cycle)
-  const [timeLeft, setTimeLeft] = useState({ hours: 14, minutes: 22, seconds: 45 });
+  const getTimeLeft = () => {
+    const endTime = settings?.dealEndsAt ? new Date(settings.dealEndsAt).getTime() : 0;
+    const diff = Math.max(0, endTime - Date.now());
+    return {
+      hours: Math.floor(diff / (1000 * 60 * 60)),
+      minutes: Math.floor((diff / (1000 * 60)) % 60),
+      seconds: Math.floor((diff / 1000) % 60)
+    };
+  };
+
+  const [timeLeft, setTimeLeft] = useState(getTimeLeft);
 
   useEffect(() => {
+    setTimeLeft(getTimeLeft());
     const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.seconds > 0) {
-          return { ...prev, seconds: prev.seconds - 1 };
-        } else if (prev.minutes > 0) {
-          return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
-        } else if (prev.hours > 0) {
-          return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        } else {
-          return { hours: 23, minutes: 59, seconds: 59 };
-        }
-      });
+      setTimeLeft(getTimeLeft());
     }, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [settings?.dealEndsAt]);
 
   return (
     <section className="bg-neutral-50 pt-6 pb-6 md:pt-8 md:pb-8 border-y border-neutral-100">

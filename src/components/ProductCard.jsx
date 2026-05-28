@@ -13,6 +13,8 @@ export default function ProductCard({ product, navigate }) {
   const [isHovered, setIsHovered] = useState(false);
 
   const isWishlisted = wishlist.some((item) => item.id === product.id);
+  const reviewCount = Number(product.ratingCount) || (Array.isArray(product.reviews) ? product.reviews.length : 0);
+  const hasRating = reviewCount > 0 && Number(product.rating) > 0;
 
   // Calculate discount percentage
   const discountPercent = Math.round(
@@ -176,17 +178,19 @@ export default function ProductCard({ product, navigate }) {
         </button>
 
         {/* Ratings block */}
-        <div className="flex items-center gap-1 mb-2">
-          <div className="flex items-center text-amber-400">
-            <Star size={11} className="fill-amber-400 text-amber-400" />
+        {hasRating && (
+          <div className="flex items-center gap-1 mb-2">
+            <div className="flex items-center text-amber-400">
+              <Star size={11} className="fill-amber-400 text-amber-400" />
+            </div>
+            <span className="text-[11px] font-semibold text-neutral-800">
+              {product.rating}
+            </span>
+            <span className="text-[10px] text-neutral-400 font-light">
+              ({reviewCount})
+            </span>
           </div>
-          <span className="text-[11px] font-semibold text-neutral-800">
-            {product.rating}
-          </span>
-          <span className="text-[10px] text-neutral-400 font-light">
-            ({product.ratingCount})
-          </span>
-        </div>
+        )}
 
         {/* Prices */}
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 mt-auto">

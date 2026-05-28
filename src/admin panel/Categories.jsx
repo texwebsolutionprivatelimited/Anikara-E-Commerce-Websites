@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useApp } from "../context/AppContext";
 import {
   Plus, Trash2, Check, AlertTriangle, FolderOpen, Pencil,
@@ -40,6 +40,8 @@ export default function CategoriesTab() {
   const [editTarget, setEditTarget] = useState(null);
   const [isDragActive, setIsDragActive] = useState(false);
   const [delTarget, setDelTarget] = useState(null);
+  const formRef = useRef(null);
+  const nameInputRef = useRef(null);
 
   // Statistics
   const totalCategories = categories.length;
@@ -106,6 +108,16 @@ export default function CategoriesTab() {
     }
   };
 
+  const handleEditClick = (cat) => {
+    setEditTarget(cat);
+    setNewCat(cat);
+    setNewCatImage(categoryImages[cat] || "");
+    requestAnimationFrame(() => {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      nameInputRef.current?.focus({ preventScroll: true });
+    });
+  };
+
   return (
     <>
       {/* Stats */}
@@ -117,7 +129,7 @@ export default function CategoriesTab() {
       </div>
 
       {/* Header & Add Category bar */}
-      <div className="bg-white border border-neutral-200/60 rounded-xl p-6 mb-6 font-sans">
+      <div ref={formRef} className="bg-white border border-neutral-200/60 rounded-xl p-6 mb-6 font-sans scroll-mt-6">
         <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-800 mb-4 font-display">{editTarget ? "Edit Category" : "Add New Category"}</h3>
 
         <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
@@ -126,6 +138,7 @@ export default function CategoriesTab() {
             <div>
               <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5">Category Name <span className="text-[#FF4D6D]">*</span></label>
               <input
+                ref={nameInputRef}
                 required
                 value={newCat}
                 onChange={(e) => setNewCat(e.target.value)}
@@ -245,12 +258,7 @@ export default function CategoriesTab() {
                 </div>
                 <div className="flex justify-end pt-3 mt-3 border-t border-neutral-100">
                   <button
-                    onClick={() => {
-                      setEditTarget(cat);
-                      setNewCat(cat);
-                      setNewCatImage(categoryImages[cat] || "");
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
+                    onClick={() => handleEditClick(cat)}
                     className="p-1.5 rounded-lg text-neutral-400 hover:text-[#111111] hover:bg-neutral-100 focus:outline-none transition-colors"
                     title="Edit category"
                   >
