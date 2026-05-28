@@ -3,43 +3,22 @@ import { collection, doc, setDoc, getDoc, deleteDoc, onSnapshot, writeBatch } fr
 import { db, auth } from "../firebase";
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 
-// Native browser HMAC-SHA1 signature for ImageKit client-side uploads
-const generateImageKitSignature = async (token, expire, privateKey) => {
-  const text = token + expire;
-  const encoder = new TextEncoder();
-  const keyData = encoder.encode(privateKey);
-  const messageData = encoder.encode(text);
-  
-  const cryptoKey = await window.crypto.subtle.importKey(
-    "raw",
-    keyData,
-    { name: "HMAC", hash: "SHA-1" },
-    false,
-    ["sign"]
-  );
-  
-  const signatureBuffer = await window.crypto.subtle.sign(
-    "HMAC",
-    cryptoKey,
-    messageData
-  );
-  
-  const hashArray = Array.from(new Uint8Array(signatureBuffer));
-  const signatureHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-  return signatureHex;
-};
-
 export const uploadToImageKit = async (file) => {
   const publicKey = import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY;
-  const privateKey = import.meta.env.VITE_IMAGEKIT_PRIVATE_KEY;
-  if (!publicKey || !privateKey) {
-    throw new Error("ImageKit keys missing. Set VITE_IMAGEKIT_PUBLIC_KEY and VITE_IMAGEKIT_PRIVATE_KEY.");
+  if (!publicKey) {
+    throw new Error("ImageKit public key missing. Set VITE_IMAGEKIT_PUBLIC_KEY.");
   }
 
-  const token = Math.random().toString(36).substring(2) + Date.now().toString(36);
-  const expire = Math.floor(Date.now() / 1000) + 1200; // 20 minutes expire
-  
-  const signature = await generateImageKitSignature(token, expire, privateKey);
+  const authResponse = await fetch("/api/imagekit-auth");
+  if (!authResponse.ok) {
+    const errText = await authResponse.text();
+    throw new Error(`ImageKit auth failed: ${errText}`);
+  }
+
+  const { signature, token, expire } = await authResponse.json();
+  if (!signature || !token || !expire) {
+    throw new Error("ImageKit auth failed: signature response is incomplete.");
+  }
   
   const formData = new FormData();
   formData.append("file", file);
