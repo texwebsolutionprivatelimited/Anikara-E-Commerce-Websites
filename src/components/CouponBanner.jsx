@@ -145,40 +145,70 @@ function SingleCoupon({ coupon, navigate, addToast }) {
         <p className="text-[8px] sm:text-[9px] text-neutral-600 mt-1 font-medium leading-snug">{coupon.condition}</p>
       </div>
 
-      {/* RIGHT — Code + Copy */}
+      {/* RIGHT — Code + Copy (Sleek unified pill for mobile, full stacked layout for larger screens) */}
       <div className="flex flex-col items-center justify-center px-2 sm:px-4 py-3 shrink-0 gap-1.5">
-        <div
-          className="border-2 border-dashed px-2 py-1 text-center"
-          style={{ borderColor: coupon.accent }}
-        >
-          <p className="text-[7px] sm:text-[9px] font-bold text-neutral-500 uppercase tracking-widest mb-0.5">
-            Use Code
-          </p>
-          <p
-            className="font-black tracking-wider text-[9px] sm:text-xs"
-            style={{ color: coupon.accent }}
-          >
-            {coupon.code}
-          </p>
-        </div>
+        {/* Unified Interactive Code Button for Mobile viewports */}
         <button
           onClick={handleCopy}
-          className="flex items-center justify-center gap-1 text-[8px] sm:text-[9px] font-bold uppercase tracking-wider px-4 py-2 transition-all duration-200 focus:outline-none min-h-0"
+          className="flex flex-col items-center justify-center border-2 border-dashed p-1.5 text-center rounded-xs transition-all duration-250 cursor-pointer focus:outline-none min-h-0 min-w-[76px] sm:hidden"
           style={{
-            background: copied ? "#22c55e" : coupon.accent,
-            color: "white",
-            minHeight: "unset",
-            minWidth: "unset",
-            borderRadius: "12px",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.08)"
+            borderColor: copied ? "#22c55e" : coupon.accent,
+            backgroundColor: copied ? "rgba(34, 197, 94, 0.05)" : "transparent",
           }}
         >
-          {copied ? (
-            <><Check size={8} strokeWidth={3} /> Copied!</>
-          ) : (
-            <><Copy size={8} /> Copy</>
-          )}
+          <span className="text-[6px] font-bold text-neutral-400 uppercase tracking-wider mb-0.5 leading-none">
+            {copied ? "Success" : "Tap to Copy"}
+          </span>
+          <div className="flex items-center gap-1 leading-none">
+            <span
+              className="font-black tracking-wide text-[9px] uppercase leading-none"
+              style={{ color: copied ? "#22c55e" : coupon.accent }}
+            >
+              {copied ? "COPIED" : coupon.code}
+            </span>
+            {copied ? (
+              <Check size={8} strokeWidth={3.5} className="text-[#22c55e] shrink-0" />
+            ) : (
+              <Copy size={8} style={{ color: coupon.accent }} className="shrink-0" />
+            )}
+          </div>
         </button>
+
+        {/* Traditional Double Element Layout for Desktop viewports */}
+        <div className="hidden sm:flex flex-col items-center justify-center gap-1.5">
+          <div
+            className="border-2 border-dashed px-2 py-1 text-center"
+            style={{ borderColor: coupon.accent }}
+          >
+            <p className="text-[7px] sm:text-[9px] font-bold text-neutral-500 uppercase tracking-widest mb-0.5">
+              Use Code
+            </p>
+            <p
+              className="font-black tracking-wider text-[9px] sm:text-xs"
+              style={{ color: coupon.accent }}
+            >
+              {coupon.code}
+            </p>
+          </div>
+          <button
+            onClick={handleCopy}
+            className="flex items-center justify-center gap-1 text-[8px] sm:text-[9px] font-bold uppercase tracking-wider px-4 py-2 transition-all duration-200 focus:outline-none min-h-0"
+            style={{
+              background: copied ? "#22c55e" : coupon.accent,
+              color: "white",
+              minHeight: "unset",
+              minWidth: "unset",
+              borderRadius: "12px",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.08)"
+            }}
+          >
+            {copied ? (
+              <><Check size={8} strokeWidth={3} /> Copied!</>
+            ) : (
+              <><Copy size={8} /> Copy</>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Shop Now CTA on hover — desktop only */}

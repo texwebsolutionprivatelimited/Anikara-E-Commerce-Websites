@@ -179,21 +179,21 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
           )}
         </AnimatePresence>
 
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-[72px] md:h-[80px] flex items-center justify-between gap-2">
+        <div className="relative max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-[72px] md:h-[80px] flex items-center justify-between gap-2">
           
           {/* Mobile Hamburger Trigger */}
           <div className="flex items-center lg:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="text-neutral-700 hover:text-black p-1 focus:outline-none"
+              className="text-neutral-700 hover:text-black p-0.5 min-[360px]:p-1.5 focus:outline-none"
               aria-label="Open Mobile Menu"
             >
-              <Menu size={24} strokeWidth={1.8} />
+              <Menu className="w-[20px] h-[20px] sm:w-[24px] sm:h-[24px]" strokeWidth={1.8} />
             </button>
           </div>
 
           {/* Brand Logo */}
-          <div className="flex-1 lg:flex-none flex justify-center lg:justify-start min-w-0">
+          <div className="absolute left-1/2 -translate-x-1/2 lg:relative lg:left-auto lg:translate-x-0 flex justify-center lg:justify-start min-w-0 z-10">
             <button
               onClick={() => navigate("home")}
               className="hover:opacity-90 transition-opacity cursor-pointer focus:outline-none py-1 flex items-center"
@@ -201,7 +201,7 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
               <img
                 src="/logo.png"
                 alt="Anikara Logo"
-                className="h-9 sm:h-10 md:h-12 w-auto object-contain"
+                className="h-8 min-[360px]:h-9 sm:h-10 md:h-12 w-auto object-contain"
               />
             </button>
           </div>
@@ -307,7 +307,7 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
           </nav>
 
           {/* Action Icons + Persistent Search Bar */}
-          <div className="flex items-center gap-1.5 sm:gap-3 xl:gap-4 shrink-0">
+          <div className="flex items-center gap-1 min-[360px]:gap-1.5 sm:gap-3 xl:gap-4 shrink-0">
 
             {/* Persistent Visible Search Bar (desktop only) */}
             <div ref={searchWrapperRef} className="relative hidden lg:flex items-center">
@@ -393,21 +393,21 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
             {/* Mobile Search Trigger */}
             <button
               onClick={() => setIsMobileSearchOpen(true)}
-              className="p-1.5 text-neutral-700 hover:text-[#FF4D6D] lg:hidden transition-colors cursor-pointer focus:outline-none"
+              className="p-1 min-[360px]:p-1.5 text-neutral-700 hover:text-[#FF4D6D] lg:hidden transition-colors cursor-pointer focus:outline-none"
               aria-label="Open Mobile Search"
             >
-              <Search size={20} strokeWidth={1.8} />
+              <Search className="w-[18px] h-[18px]" strokeWidth={1.8} />
             </button>
 
             {/* Wishlist Button */}
             <button
               onClick={() => navigate("wishlist")}
-              className={`relative p-1.5 transition-colors cursor-pointer focus:outline-none ${
+              className={`relative p-1 min-[360px]:p-1.5 transition-colors cursor-pointer focus:outline-none ${
                 currentPage === "wishlist" ? "text-[#FF4D6D]" : "text-neutral-700 hover:text-[#FF4D6D]"
               }`}
               aria-label="View Wishlist"
             >
-              <Heart size={20} strokeWidth={1.8} />
+              <Heart className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px]" strokeWidth={1.8} />
               {wishlist.length > 0 && (
                 <span className="absolute top-0 right-0 bg-[#FF4D6D] text-white text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center border border-white transform translate-x-1/3 -translate-y-1/3 animate-pulse">
                   {wishlist.length}
@@ -418,12 +418,12 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
             {/* Cart Button */}
             <button
               onClick={() => navigate("cart")}
-              className={`relative p-1.5 transition-colors cursor-pointer focus:outline-none ${
+              className={`relative p-1 min-[360px]:p-1.5 transition-colors cursor-pointer focus:outline-none ${
                 currentPage === "cart" ? "text-[#FF4D6D]" : "text-neutral-700 hover:text-[#FF4D6D]"
               }`}
               aria-label="View Cart"
             >
-              <ShoppingBag size={20} strokeWidth={1.8} />
+              <ShoppingBag className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px]" strokeWidth={1.8} />
               {totalCartItems > 0 && (
                 <span className="absolute top-0 right-0 bg-[#111111] text-white text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center border border-white transform translate-x-1/3 -translate-y-1/3">
                   {totalCartItems}
@@ -434,12 +434,12 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
             {/* Profile Button */}
             <button
               onClick={() => navigate(user ? "profile" : "login")}
-              className={`p-1.5 transition-colors cursor-pointer focus:outline-none hidden sm:block ${
+              className={`p-1 min-[360px]:p-1.5 transition-colors cursor-pointer focus:outline-none hidden sm:block ${
                 currentPage === "profile" || currentPage === "login" ? "text-[#FF4D6D]" : "text-neutral-700 hover:text-[#FF4D6D]"
               }`}
               aria-label="View Profile"
             >
-              <User size={20} strokeWidth={1.8} />
+              <User className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px]" strokeWidth={1.8} />
             </button>
           </div>
         </div>

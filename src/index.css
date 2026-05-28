@@ -8,6 +8,7 @@
   --font-sans: 'Inter', sans-serif;
   --font-display: 'Poppins', sans-serif;
   --font-logo: 'Great Vibes', cursive;
+  --breakpoint-xs: 375px;
 
   --animate-fade-in-up: fade-in-up 0.5s ease-out forwards;
   --animate-pulse-slow: pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;

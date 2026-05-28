@@ -167,7 +167,7 @@ export default function Cart({ navigate }) {
         </div>
 
         {/* Right Summary */}
-        <div className="space-y-6">
+        <div className="space-y-6 px-4 sm:px-0">
           <div className="bg-white border-y border-neutral-200/60 sm:border sm:rounded-xs p-5 space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-900 flex items-center gap-1.5 font-display">
               <Ticket size={16} className="text-[#FF4D6D]" />
