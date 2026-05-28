@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
 import ProductCard from "../components/ProductCard";
 import SkeletonLoader from "../components/SkeletonLoader";
-import { ArrowUpDown, ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowUpDown, ChevronRight, ArrowLeft, Loader2, ChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
 
 const DEFAULT_CATEGORIES = [
@@ -67,8 +67,11 @@ export default function Product({ navigate, currentParams = {}, goBack }) {
       return false;
     }
 
-    if (currentParams.badge === "Sale" && !(product.oldPrice > product.price)) {
-      return false;
+    if (currentParams.badge === "Sale") {
+      const section = product.displaySection && product.displaySection !== "all" ? product.displaySection : "deals";
+      if (section !== "deals") {
+        return false;
+      }
     }
 
     return true;
@@ -102,19 +105,19 @@ export default function Product({ navigate, currentParams = {}, goBack }) {
   const displayedProducts = sortedProducts.slice(0, visibleCount);
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-2 pb-6 sm:pt-4 sm:pb-10 font-sans">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-5 pb-6 sm:pt-8 sm:pb-10 font-sans">
       
       {/* Back Button */}
       <button
         onClick={goBack}
-        className="inline-flex items-center gap-2 text-xs font-bold text-neutral-500 hover:text-[#FF4D6D] uppercase tracking-wider transition-colors mb-2 focus:outline-none cursor-pointer"
+        className="inline-flex items-center gap-2 text-[10px] font-bold text-neutral-700 bg-neutral-50 border border-neutral-200 hover:bg-[#FF4D6D] hover:text-white hover:border-[#FF4D6D] px-3.5 py-2 uppercase tracking-wider transition-all duration-300 rounded-sm focus:outline-none cursor-pointer mb-3 sm:mb-5"
       >
-        <ArrowLeft size={14} />
+        <ArrowLeft size={12} />
         Back
       </button>
 
       {/* Page Title & Count */}
-      <div className="flex flex-col md:flex-row md:items-baseline justify-between mb-8 gap-3 border-b border-neutral-100 pb-4">
+      <div className="flex flex-col md:flex-row md:items-baseline justify-between mb-4 sm:mb-8 gap-2 sm:gap-3 border-b border-neutral-100 pb-3 sm:pb-4">
         <div>
           <h1 className="text-xl md:text-2xl font-bold tracking-wider text-[#111111] uppercase font-display">
             {selectedCategory || (currentParams.badge === "Sale" ? "Special Offers & Discounts" : "Shop All Products")}
@@ -130,8 +133,47 @@ export default function Product({ navigate, currentParams = {}, goBack }) {
         </p>
       </div>
 
-      {/* Wrapped Category Pills Grid */}
-      <div className="flex flex-wrap gap-2.5 mb-6 pb-5 border-b border-neutral-100">
+      {/* Mobile Selectors - Side-by-side Dropdowns */}
+      <div className="grid grid-cols-2 gap-3 w-full sm:hidden mb-6">
+        {/* Category Dropdown */}
+        <div className="relative">
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="w-full bg-white border border-neutral-200 text-neutral-800 text-[10px] font-bold uppercase tracking-wider pl-3.5 pr-8 py-3 rounded-sm appearance-none focus:outline-none focus:border-[#111111] transition-all cursor-pointer shadow-xs"
+          >
+            <option value="">All Items</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-neutral-500">
+            <ChevronDown size={14} />
+          </div>
+        </div>
+
+        {/* Sort Dropdown */}
+        <div className="relative">
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="w-full bg-white border border-neutral-200 text-neutral-800 text-[10px] font-bold uppercase tracking-wider pl-3.5 pr-8 py-3 rounded-sm appearance-none focus:outline-none focus:border-[#111111] transition-all cursor-pointer shadow-xs"
+          >
+            <option value="popularity">Popularity</option>
+            <option value="newest">Newest</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+          </select>
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-neutral-500">
+            <ChevronDown size={14} />
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Category Pills - Hidden on Mobile */}
+      <div className="hidden sm:flex flex-wrap gap-2.5 mb-6 pb-5 border-b border-neutral-100">
         <button
           onClick={() => setSelectedCategory("")}
           className={`px-4 py-2 text-[10px] font-bold tracking-widest uppercase transition-all duration-300 rounded-full shrink-0 focus:outline-none min-h-unset min-w-unset cursor-pointer border ${
@@ -161,8 +203,8 @@ export default function Product({ navigate, currentParams = {}, goBack }) {
       </div>
 
       <div className="min-w-0">
-        {/* Controls */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-neutral-50 border border-neutral-200/60 p-3 mb-8 rounded-sm">
+        {/* Desktop Controls - Hidden on Mobile */}
+        <div className="hidden sm:flex sm:flex-row sm:items-center sm:justify-between gap-3 bg-neutral-50 border border-neutral-200/60 p-3 mb-8 rounded-sm">
           <span className="text-[11px] text-neutral-500 font-semibold tracking-wider uppercase">
             Sort products list
           </span>

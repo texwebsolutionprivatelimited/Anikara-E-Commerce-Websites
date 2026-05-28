@@ -191,14 +191,21 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
 
         <div className="relative max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-[72px] md:h-[80px] flex items-center justify-between gap-2">
           
-          {/* Mobile Hamburger Trigger */}
-          <div className="flex items-center lg:hidden">
+          {/* Mobile Hamburger + Search Trigger */}
+          <div className="flex items-center gap-1.5 min-[360px]:gap-2 lg:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="text-neutral-700 hover:text-black p-0.5 min-[360px]:p-1.5 focus:outline-none"
+              className="text-neutral-700 hover:text-black p-0.5 min-[360px]:p-1 focus:outline-none cursor-pointer"
               aria-label="Open Mobile Menu"
             >
               <Menu className="w-[20px] h-[20px] sm:w-[24px] sm:h-[24px]" strokeWidth={1.8} />
+            </button>
+            <button
+              onClick={() => setIsMobileSearchOpen(true)}
+              className="text-neutral-700 hover:text-black p-0.5 min-[360px]:p-1 focus:outline-none cursor-pointer"
+              aria-label="Open Mobile Search"
+            >
+              <Search className="w-[20px] h-[20px] sm:w-[22px] sm:h-[22px]" strokeWidth={1.8} />
             </button>
           </div>
 
@@ -400,14 +407,7 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
               </AnimatePresence>
             </div>
 
-            {/* Mobile Search Trigger */}
-            <button
-              onClick={() => setIsMobileSearchOpen(true)}
-              className="p-1 min-[360px]:p-1.5 text-neutral-700 hover:text-[#FF4D6D] lg:hidden transition-colors cursor-pointer focus:outline-none"
-              aria-label="Open Mobile Search"
-            >
-              <Search className="w-[18px] h-[18px]" strokeWidth={1.8} />
-            </button>
+
 
             {/* Wishlist Button */}
             <button
@@ -444,7 +444,7 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
             {/* Profile Button */}
             <button
               onClick={() => navigate(user ? "profile" : "login")}
-              className={`p-1 min-[360px]:p-1.5 transition-colors cursor-pointer focus:outline-none hidden sm:block ${
+              className={`p-1 min-[360px]:p-1.5 transition-colors cursor-pointer focus:outline-none ${
                 currentPage === "profile" || currentPage === "login" ? "text-[#FF4D6D]" : "text-neutral-700 hover:text-[#FF4D6D]"
               }`}
               aria-label="View Profile"

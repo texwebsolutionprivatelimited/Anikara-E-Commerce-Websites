@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
 import ProductCard from "../components/ProductCard";
-import { Star, Heart, ShoppingBag, CreditCard, ChevronRight, Plus, Minus, ArrowLeft, Package, RefreshCcw } from "lucide-react";
+import { Star, Heart, ShoppingBag, CreditCard, ChevronRight, Plus, Minus, ArrowLeft, Package, RefreshCcw, Share2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Image as IKImage } from "@imagekit/react";
 
@@ -85,6 +85,31 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
     navigate("checkout");
   };
 
+  const handleShare = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const shareText = `Check out ${product.name} on Anikara: ₹${product.price.toLocaleString("en-IN")}`;
+    const shareUrl = `${window.location.origin}/?page=product-details&productId=${product.id}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: product.name,
+        text: shareText,
+        url: shareUrl
+      }).catch(err => {
+        if (err.name !== "AbortError") {
+          navigator.clipboard.writeText(shareUrl)
+            .then(() => addToast("Product link copied to clipboard!", "success"))
+            .catch(() => addToast("Failed to copy link", "error"));
+        }
+      });
+    } else {
+      navigator.clipboard.writeText(shareUrl)
+        .then(() => addToast("Product link copied to clipboard!", "success"))
+        .catch(() => addToast("Failed to copy link", "error"));
+    }
+  };
+
   const similarProducts = products
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
@@ -106,32 +131,16 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 font-sans">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-5 pb-6 sm:pt-8 sm:pb-8 font-sans">
       
       {/* Back Button */}
       <button
         onClick={goBack}
-        className="inline-flex items-center gap-2 text-xs font-bold text-neutral-500 hover:text-[#FF4D6D] uppercase tracking-wider transition-colors mb-4 focus:outline-none cursor-pointer"
+        className="inline-flex items-center gap-2 text-[10px] font-bold text-neutral-700 bg-neutral-50 border border-neutral-200 hover:bg-[#FF4D6D] hover:text-white hover:border-[#FF4D6D] px-3.5 py-2 uppercase tracking-wider transition-all duration-300 rounded-sm focus:outline-none cursor-pointer mb-5"
       >
-        <ArrowLeft size={14} />
+        <ArrowLeft size={12} />
         Back
       </button>
-
-      {/* Breadcrumbs */}
-      <div className="flex flex-wrap items-center gap-1.5 text-[10px] sm:text-xs text-neutral-400 font-medium tracking-wide uppercase mb-8">
-        <button onClick={() => navigate("home")} className="hover:text-black cursor-pointer focus:outline-none">Home</button>
-        <ChevronRight size={10} />
-        <button onClick={() => navigate("products")} className="hover:text-black cursor-pointer focus:outline-none">Catalog</button>
-        <ChevronRight size={10} />
-        <button
-          onClick={() => navigate("products", { category: product.category })}
-          className="hover:text-black cursor-pointer focus:outline-none"
-        >
-          {product.category}
-        </button>
-        <ChevronRight size={10} />
-        <span className="text-[#FF4D6D] font-bold break-words">{product.name}</span>
-      </div>
 
       {/* Main Details Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
@@ -141,7 +150,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
           <div
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className="relative aspect-[4/5] w-full bg-neutral-100 overflow-hidden cursor-crosshair group rounded-xs border border-neutral-100"
+            className="relative aspect-[4/5] w-full bg-neutral-100 overflow-hidden cursor-crosshair group rounded-md border border-neutral-200/60 transition-colors duration-300 hover:border-[#FF4D6D]/45"
           >
             {isImageKitUrl(activeImage) ? (
               <IKImage
@@ -161,10 +170,33 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
               className="absolute inset-0 bg-no-repeat bg-[length:200%_200%]"
             />
             {discountPercent > 0 && (
-              <span className="absolute left-4 top-4 px-2.5 py-1 text-[10px] font-bold tracking-wider text-white bg-[#FF4D6D] uppercase z-10">
+              <span className="absolute left-4 top-4 px-2.5 py-1 text-[10px] font-bold tracking-wider text-white bg-[#FF4D6D] uppercase z-10 rounded-md shadow-xs">
                 {discountPercent}% OFF
               </span>
             )}
+            {/* Action Buttons Top Right Overlay */}
+            <div className="absolute right-4 top-4 z-10 flex flex-col gap-2">
+              {/* Wishlist Heart Button Overlay */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleWishlist(product);
+                }}
+                className="bg-white/90 hover:bg-white text-neutral-700 hover:text-[#FF4D6D] p-2.5 rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_15px_rgba(255,77,109,0.18)] transition-all duration-300 cursor-pointer focus:outline-none flex items-center justify-center"
+                aria-label={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
+              >
+                <Heart size={16} className={isWishlisted ? "fill-[#FF4D6D] text-[#FF4D6D]" : ""} />
+              </button>
+
+              {/* Share Button Overlay */}
+              <button
+                onClick={handleShare}
+                className="bg-white/90 hover:bg-white text-neutral-700 hover:text-[#FF4D6D] p-2.5 rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_15px_rgba(255,77,109,0.18)] transition-all duration-300 cursor-pointer focus:outline-none flex items-center justify-center"
+                aria-label="Share Product"
+              >
+                <Share2 size={16} />
+              </button>
+            </div>
           </div>
 
           {/* Thumbnails */}
@@ -295,46 +327,46 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
 
           {/* Qty & Add triggers */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 border-t border-neutral-100">
-            <div className="flex items-center justify-between border border-neutral-200 h-12 w-full sm:w-32 px-3 shrink-0 rounded-xs bg-white">
+            {/* Group Qty & Add to Bag on mobile, but keep flex items on sm */}
+            <div className="flex flex-1 gap-2 sm:gap-4 min-w-0">
+              {/* Qty Selector */}
+              <div className="flex items-center justify-between border border-neutral-200 h-12 w-28 sm:w-32 px-3 shrink-0 rounded-xs bg-white">
+                <button
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  className="text-neutral-500 hover:text-black p-1 cursor-pointer focus:outline-none min-h-unset min-w-unset"
+                >
+                  <Minus size={14} />
+                </button>
+                <span className="text-xs font-bold text-neutral-800">{quantity}</span>
+                <button
+                  onClick={() => setQuantity((q) => Math.min(10, q + 1))}
+                  className="text-neutral-500 hover:text-black p-1 cursor-pointer focus:outline-none min-h-unset min-w-unset"
+                >
+                  <Plus size={14} />
+                </button>
+              </div>
+
+              {/* Add to Bag */}
               <button
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="text-neutral-500 hover:text-black p-1 cursor-pointer focus:outline-none"
+                onClick={handleAddToCart}
+                className="flex-grow sm:flex-1 h-12 bg-white hover:bg-[#111111] hover:text-white border border-[#111111] text-[#111111] text-xs font-bold tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-2 rounded-xs cursor-pointer focus:outline-none font-display min-h-unset min-w-unset"
               >
-                <Minus size={14} />
-              </button>
-              <span className="text-xs font-bold text-neutral-800">{quantity}</span>
-              <button
-                onClick={() => setQuantity((q) => Math.min(10, q + 1))}
-                className="text-neutral-500 hover:text-black p-1 cursor-pointer focus:outline-none"
-              >
-                <Plus size={14} />
+                <ShoppingBag size={16} />
+                Add to Bag
               </button>
             </div>
 
-            <button
-              onClick={handleAddToCart}
-              className="flex-1 h-12 bg-white hover:bg-[#111111] hover:text-white border border-[#111111] text-[#111111] text-xs font-bold tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-2 rounded-xs cursor-pointer focus:outline-none font-display"
-            >
-              <ShoppingBag size={16} />
-              Add to Bag
-            </button>
-
+            {/* Buy It Now */}
             <button
               onClick={handleBuyNow}
-              className="flex-1 h-12 bg-[#111111] hover:bg-[#FF4D6D] text-white text-xs font-bold tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-2 rounded-xs cursor-pointer focus:outline-none font-display"
+              className="w-full sm:flex-1 h-12 bg-[#111111] hover:bg-[#FF4D6D] text-white text-xs font-bold tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-2 rounded-xs cursor-pointer focus:outline-none font-display min-h-unset min-w-unset"
             >
               <CreditCard size={16} />
               Buy It Now
             </button>
           </div>
 
-          <button
-            onClick={() => toggleWishlist(product)}
-            className="flex items-center gap-2 text-xs font-semibold text-neutral-600 hover:text-[#FF4D6D] transition-colors focus:outline-none pt-2 cursor-pointer"
-          >
-            <Heart size={15} className={isWishlisted ? "fill-[#FF4D6D] text-[#FF4D6D]" : ""} />
-            {isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
-          </button>
+          {/* Wishlist button moved to image overlay */}
 
           {/* Accordion detail list */}
           <div className="pt-6 border-t border-neutral-100">

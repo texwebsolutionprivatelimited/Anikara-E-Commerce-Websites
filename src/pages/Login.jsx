@@ -37,7 +37,7 @@ export default function Login({ navigate }) {
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-neutral-50/70 font-sans">
+    <div className="min-h-[60vh] sm:min-h-[85vh] flex items-start sm:items-center justify-center py-4 sm:py-12 px-4 sm:px-6 lg:px-8 bg-neutral-50/70 font-sans">
       <div className="max-w-5xl w-full bg-white border border-neutral-200/50 shadow-[0_20px_50px_rgba(0,0,0,0.05)] rounded-2xl overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[600px] transition-all duration-500">
         
         {/* Left Side: Editorial Banner */}

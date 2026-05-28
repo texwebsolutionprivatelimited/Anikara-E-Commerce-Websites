@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useApp } from "../context/AppContext";
-import { Heart, ShoppingBag, Star } from "lucide-react";
+import { Heart, ShoppingBag, Star, Share2 } from "lucide-react";
 import { Image as IKImage } from "@imagekit/react";
 
 const isImageKitUrl = (url) => {
@@ -9,7 +9,7 @@ const isImageKitUrl = (url) => {
 };
 
 export default function ProductCard({ product, navigate }) {
-  const { toggleWishlist, wishlist, addToCart } = useApp();
+  const { toggleWishlist, wishlist, addToCart, addToast } = useApp();
   const [isHovered, setIsHovered] = useState(false);
 
   const isWishlisted = wishlist.some((item) => item.id === product.id);
@@ -19,15 +19,40 @@ export default function ProductCard({ product, navigate }) {
     ((product.oldPrice - product.price) / product.oldPrice) * 100
   );
 
+  const handleShare = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const shareText = `Check out ${product.name} on Anikara: ₹${product.price.toLocaleString("en-IN")}`;
+    const shareUrl = `${window.location.origin}/?page=product-details&productId=${product.id}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: product.name,
+        text: shareText,
+        url: shareUrl
+      }).catch(err => {
+        if (err.name !== "AbortError") {
+          navigator.clipboard.writeText(shareUrl)
+            .then(() => addToast("Product link copied to clipboard!", "success"))
+            .catch(() => addToast("Failed to copy link", "error"));
+        }
+      });
+    } else {
+      navigator.clipboard.writeText(shareUrl)
+        .then(() => addToast("Product link copied to clipboard!", "success"))
+        .catch(() => addToast("Failed to copy link", "error"));
+    }
+  };
+
   return (
     <div
-      className="group relative flex flex-col w-full bg-white overflow-hidden font-sans border border-neutral-100 rounded-sm hover:scale-[1.02] hover:shadow-xl transition-all duration-300"
+      className="group relative flex flex-col w-full bg-white overflow-hidden font-sans border border-neutral-100 rounded-md hover:scale-[1.02] hover:shadow-xl transition-all duration-300"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Product Image Gallery with hover switch */}
       <div
-        className="relative aspect-[4/5] w-full bg-neutral-100 overflow-hidden cursor-pointer"
+        className="relative aspect-[4/5] w-full bg-neutral-100 overflow-hidden cursor-pointer rounded-t-md border-b border-neutral-200/60 transition-all duration-300 group-hover:border-[#FF4D6D]/45"
         onClick={() => navigate("product-details", { productId: product.id })}
       >
         {/* Main Image */}
@@ -69,33 +94,45 @@ export default function ProductCard({ product, navigate }) {
           )
         )}
 
-        {/* Wishlist Button on Image */}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleWishlist(product);
-          }}
-          className="absolute right-2 top-2 sm:right-3 sm:top-3 z-20 p-1.5 sm:p-2 rounded-full bg-white/90 backdrop-blur-xs shadow-xs text-neutral-600 hover:text-[#FF4D6D] hover:scale-110 active:scale-95 transition-all focus:outline-none cursor-pointer"
-          aria-label="Add to Wishlist"
-        >
-          <Heart
-            size={15}
-            className={`transition-colors duration-300 ${isWishlisted ? "fill-[#FF4D6D] text-[#FF4D6D]" : ""
-              }`}
-          />
-        </button>
+        {/* Action Buttons Top Right Overlay */}
+        <div className="absolute right-2 top-2 sm:right-3 sm:top-3 z-20 flex flex-col gap-1.5">
+          {/* Wishlist Button */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleWishlist(product);
+            }}
+            className="p-1.5 sm:p-2 rounded-full bg-white/90 backdrop-blur-xs shadow-xs text-neutral-600 hover:text-[#FF4D6D] hover:scale-110 active:scale-95 transition-all focus:outline-none cursor-pointer"
+            aria-label="Add to Wishlist"
+          >
+            <Heart
+              size={15}
+              className={`transition-colors duration-300 ${isWishlisted ? "fill-[#FF4D6D] text-[#FF4D6D]" : ""
+                }`}
+            />
+          </button>
+
+          {/* Share Button */}
+          <button
+            onClick={handleShare}
+            className="p-1.5 sm:p-2 rounded-full bg-white/90 backdrop-blur-xs shadow-xs text-neutral-600 hover:text-[#FF4D6D] hover:scale-110 active:scale-95 transition-all focus:outline-none cursor-pointer"
+            aria-label="Share Product"
+          >
+            <Share2 size={15} />
+          </button>
+        </div>
 
         {/* Discount Badge */}
         {discountPercent > 0 && (
-          <span className="absolute left-2 top-2 sm:left-3 sm:top-3 z-20 px-2 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-bold tracking-wider text-white bg-[#FF4D6D] uppercase">
+          <span className="absolute left-2 top-2 sm:left-3 sm:top-3 z-20 px-2 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-bold tracking-wider text-white bg-[#FF4D6D] uppercase rounded-md shadow-xs">
             {discountPercent}% OFF
           </span>
         )}
 
         {/* Custom Custom Badge (e.g. New / Best Seller) */}
         {product.badge && product.badge !== "Sale" && (
-          <span className="absolute left-3 bottom-3 z-20 px-2 py-0.5 text-[9px] font-bold tracking-widest text-[#111111] bg-white border border-neutral-100 uppercase">
+          <span className="absolute left-3 bottom-3 z-20 px-2 py-0.5 text-[9px] font-bold tracking-widest text-[#111111] bg-white border border-neutral-100 uppercase rounded-sm">
             {product.badge}
           </span>
         )}
@@ -108,7 +145,7 @@ export default function ProductCard({ product, navigate }) {
               e.stopPropagation();
               addToCart(product, 1, "M");
             }}
-            className="w-full py-2.5 bg-[#111111] hover:bg-[#FF4D6D] text-white text-[11px] font-bold tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer focus:outline-none"
+            className="w-full py-2.5 bg-[#111111] hover:bg-[#FF4D6D] text-white text-[11px] font-bold tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer focus:outline-none rounded-sm"
           >
             <ShoppingBag size={14} />
             Quick Add (Size M)

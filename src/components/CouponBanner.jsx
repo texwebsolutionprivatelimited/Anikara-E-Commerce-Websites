@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Tag, Copy, Check, ShoppingBag, Sparkles } from "lucide-react";
 import { useApp } from "../context/AppContext";
 
@@ -228,18 +228,70 @@ export default function CouponBanner({ navigate }) {
   const { coupons, addToast } = useApp();
   const activeCoupons = coupons.filter((c) => c.active);
 
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    if (isPaused || activeCoupons.length <= 1) return;
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % activeCoupons.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [activeCoupons.length, isPaused]);
+
   if (activeCoupons.length === 0) return null;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
-      {activeCoupons.map((coupon) => (
-        <SingleCoupon
-          key={coupon.id}
-          coupon={coupon}
-          navigate={navigate}
-          addToast={addToast}
-        />
-      ))}
+    <div className="w-full">
+      {/* Mobile Slider View */}
+      <div
+        className="block sm:hidden relative overflow-hidden w-full"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={() => setIsPaused(true)}
+        onTouchEnd={() => setIsPaused(false)}
+      >
+        <div
+          className="flex transition-transform duration-500 ease-out"
+          style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+        >
+          {activeCoupons.map((coupon) => (
+            <div key={coupon.id} className="w-full shrink-0 px-1 pb-1">
+              <SingleCoupon
+                coupon={coupon}
+                navigate={navigate}
+                addToast={addToast}
+              />
+            </div>
+          ))}
+        </div>
+        
+        {/* Navigation Dots */}
+        <div className="flex justify-center gap-1.5 mt-2.5">
+          {activeCoupons.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setActiveIndex(idx)}
+              className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer focus:outline-none min-h-unset min-w-unset ${
+                activeIndex === idx ? "w-4 bg-[#FF4D6D]" : "w-1.5 bg-neutral-300"
+              }`}
+              aria-label={`Go to slide ${idx + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop Grid View */}
+      <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+        {activeCoupons.map((coupon) => (
+          <SingleCoupon
+            key={coupon.id}
+            coupon={coupon}
+            navigate={navigate}
+            addToast={addToast}
+          />
+        ))}
+      </div>
     </div>
   );
 }
