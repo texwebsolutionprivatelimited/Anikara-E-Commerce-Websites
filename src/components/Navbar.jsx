@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useApp } from "../context/AppContext";
-import { Search, Heart, ShoppingBag, User, Menu, X, ChevronDown, Flame, Zap, Moon, Shirt, Link2, Gem, Layers, Shield } from "lucide-react";
+import { Search, Heart, ShoppingBag, User, Menu, X, ChevronDown, Flame, Zap, Moon, Shirt, Link2, Gem, Layers } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const CATEGORY_GROUPS = [
@@ -452,16 +452,6 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
               <User className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px]" strokeWidth={1.8} />
             </button>
 
-            {/* Admin Button */}
-            <button
-              onClick={() => navigate("admin")}
-              className={`p-1.5 transition-colors cursor-pointer focus:outline-none hidden sm:block ${
-                currentPage === "admin" ? "text-[#FF4D6D]" : "text-neutral-700 hover:text-[#FF4D6D]"
-              }`}
-              aria-label="Admin Panel"
-            >
-              <Shield size={20} strokeWidth={1.8} />
-            </button>
           </div>
         </div>
       </header>
@@ -611,19 +601,6 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
                 )}
               </div>
 
-              {/* Admin Quick Link */}
-              <div className="shrink-0 mt-4 pt-4 border-t border-neutral-100 font-sans">
-                <button
-                  onClick={() => {
-                    navigate("admin");
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="flex items-center gap-3 text-sm font-semibold text-neutral-800 hover:text-[#FF4D6D] cursor-pointer focus:outline-none"
-                >
-                  <Shield size={18} />
-                  <span>Admin Panel</span>
-                </button>
-              </div>
             </motion.div>
           </>
         )}

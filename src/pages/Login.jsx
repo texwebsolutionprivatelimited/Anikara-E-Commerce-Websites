@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useApp } from "../context/AppContext";
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react";
 
-export default function Login({ navigate }) {
+export default function Login({ navigate, currentParams = {} }) {
   const { loginUser, registerUser, settings } = useApp();
   const [isLoginView, setIsLoginView] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -13,6 +13,16 @@ export default function Login({ navigate }) {
   const [password, setPassword] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const redirectTo = currentParams?.redirectTo;
+  const rawAdminEmails =
+    import.meta.env.VITE_ADMIN_EMAILS ||
+    import.meta.env.VITE_ADMIN_EMAIL ||
+    settings?.adminEmail ||
+    "";
+  const adminEmails = String(rawAdminEmails)
+    .split(",")
+    .map((e) => e.toLowerCase().trim())
+    .filter(Boolean);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,7 +30,10 @@ export default function Login({ navigate }) {
     if (isLoginView) {
       if (email.trim() && password.trim()) {
         const res = await loginUser(email, password);
-        if (res.success) navigate("profile");
+        if (res.success) {
+          const isAdminLogin = adminEmails.includes(email.toLowerCase().trim());
+          navigate(redirectTo === "admin" || isAdminLogin ? "admin" : "profile");
+        }
       }
     } else {
       if (name.trim() && email.trim() && password.trim()) {

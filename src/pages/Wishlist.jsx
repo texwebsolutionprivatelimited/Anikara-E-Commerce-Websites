@@ -3,7 +3,7 @@ import { useApp } from "../context/AppContext";
 import { Heart, Trash2, ShoppingCart, ChevronRight } from "lucide-react";
 
 export default function Wishlist({ navigate }) {
-  const { wishlist, toggleWishlist, moveToCart } = useApp();
+  const { wishlist, toggleWishlist, moveToCart, user, addToast } = useApp();
 
   if (wishlist.length === 0) {
     return (
@@ -111,7 +111,14 @@ export default function Wishlist({ navigate }) {
 
                 {/* Move to Cart */}
                 <button
-                  onClick={() => moveToCart(product, "M")}
+                  onClick={() => {
+                    if (!user) {
+                      addToast("Please log in to add items to your cart.", "warning");
+                      navigate("login");
+                      return;
+                    }
+                    moveToCart(product, "M");
+                  }}
                   className="w-full py-2 bg-[#111111] hover:bg-[#FF4D6D] text-white text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 flex items-center justify-center gap-1.5 cursor-pointer focus:outline-none"
                 >
                   <ShoppingCart size={12} />

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useApp } from "../context/AppContext";
 import {
-  Plus, Trash2, Check, AlertTriangle, FolderOpen,
+  Plus, Trash2, Check, AlertTriangle, FolderOpen, Pencil,
   Image as ImageIcon
 } from "lucide-react";
 import { StatCard } from "./AdminShared";
@@ -36,9 +36,10 @@ function DeleteCategoryModal({ category, onConfirm, onClose }) {
 }
 
 export default function CategoriesTab() {
-  const { categories, categoryImages = {}, products, adminAddCategory, adminDeleteCategory, addToast } = useApp();
+  const { categories, categoryImages = {}, products, adminAddCategory, adminUpdateCategory, adminDeleteCategory, addToast, uploadToImageKit } = useApp();
   const [newCat, setNewCat] = useState("");
   const [newCatImage, setNewCatImage] = useState("");
+  const [editTarget, setEditTarget] = useState(null);
   const [isDragActive, setIsDragActive] = useState(false);
   const [delTarget, setDelTarget] = useState(null);
 
@@ -63,18 +64,20 @@ export default function CategoriesTab() {
     }
   };
 
-  const processFile = (file) => {
+  const processFile = async (file) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
       addToast("Please upload an image file!", "error");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setNewCatImage(event.target.result);
+    try {
+      const url = await uploadToImageKit(file);
+      setNewCatImage(url);
       addToast("Image uploaded successfully!", "success");
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      console.error(err);
+      addToast("Image upload failed", "error");
+    }
   };
 
   const handleDrop = (e) => {
@@ -82,23 +85,26 @@ export default function CategoriesTab() {
     e.stopPropagation();
     setIsDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      processFile(e.dataTransfer.files[0]);
+      void processFile(e.dataTransfer.files[0]);
     }
   };
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      processFile(e.target.files[0]);
+      void processFile(e.target.files[0]);
     }
   };
 
-  const handleAdd = (e) => {
+  const handleAdd = async (e) => {
     e.preventDefault();
     if (!newCat.trim()) return;
-    const success = adminAddCategory(newCat, newCatImage);
+    const success = editTarget
+      ? await adminUpdateCategory(editTarget, newCat, newCatImage)
+      : await adminAddCategory(newCat, newCatImage);
     if (success) {
       setNewCat("");
       setNewCatImage("");
+      setEditTarget(null);
     }
   };
 
@@ -114,7 +120,7 @@ export default function CategoriesTab() {
 
       {/* Header & Add Category bar */}
       <div className="bg-white border border-neutral-200/60 rounded-xl p-6 mb-6 font-sans">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-800 mb-4 font-display">Add New Category</h3>
+        <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-800 mb-4 font-display">{editTarget ? "Edit Category" : "Add New Category"}</h3>
 
         <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
           {/* Left: Input details */}
@@ -131,8 +137,21 @@ export default function CategoriesTab() {
             </div>
 
             <button type="submit" className="w-full py-3 bg-[#111111] hover:bg-[#FF4D6D] text-white text-xs font-bold tracking-widest uppercase transition-colors rounded flex items-center justify-center gap-1.5 focus:outline-none font-sans h-12 shadow-sm">
-              <Plus size={14} /> Add Category
+              {editTarget ? <Pencil size={14} /> : <Plus size={14} />} {editTarget ? "Update Category" : "Add Category"}
             </button>
+            {editTarget && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditTarget(null);
+                  setNewCat("");
+                  setNewCatImage("");
+                }}
+                className="w-full py-2.5 border border-neutral-200 text-neutral-700 text-xs font-bold tracking-widest uppercase rounded hover:bg-neutral-50 transition-colors focus:outline-none"
+              >
+                Cancel Edit
+              </button>
+            )}
           </div>
 
           {/* Right: Drag & Drop Upload Zone */}
@@ -222,6 +241,18 @@ export default function CategoriesTab() {
                   <p className="text-[11px] text-neutral-400 font-light mt-0.5">{itemCount} {itemCount === 1 ? "product" : "products"} listed</p>
                 </div>
                 <div className="flex justify-end pt-3 mt-3 border-t border-neutral-100">
+                  <button
+                    onClick={() => {
+                      setEditTarget(cat);
+                      setNewCat(cat);
+                      setNewCatImage(categoryImages[cat] || "");
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="p-1.5 rounded-lg text-neutral-400 hover:text-[#111111] hover:bg-neutral-100 focus:outline-none transition-colors"
+                    title="Edit category"
+                  >
+                    <Pencil size={15} />
+                  </button>
                   <button
                     onClick={() => setDelTarget(cat)}
                     disabled={itemCount > 0}

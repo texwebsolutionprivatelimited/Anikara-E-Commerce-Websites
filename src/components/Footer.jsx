@@ -1,9 +1,13 @@
 import React from "react";
-import { Mail, Phone, MapPin, Shield, Truck, RotateCcw, Lock, Award } from "lucide-react";
+import { Mail, Phone, MapPin, Truck, RotateCcw, Lock, Award } from "lucide-react";
 import { useApp } from "../context/AppContext";
 
 export default function Footer({ navigate }) {
   const { addToast, settings } = useApp();
+  const supportAddress = settings?.supportAddress || "Address not configured";
+  const supportPhone = settings?.supportPhone || "+91 00000 00000";
+  const supportEmail = settings?.supportEmail || "support@example.com";
+  const shippingThreshold = Number(settings?.shippingThreshold) || 1500;
 
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
@@ -32,7 +36,7 @@ export default function Footer({ navigate }) {
             </div>
             <div>
               <h4 className="text-sm font-semibold text-white tracking-wide group-hover:text-[#FF4D6D] transition-colors duration-300">Free Shipping</h4>
-              <p className="text-xs text-neutral-400 mt-1 font-light leading-relaxed">Complimentary shipping on all orders above ₹999.</p>
+              <p className="text-xs text-neutral-400 mt-1 font-light leading-relaxed">Complimentary shipping on all orders above Rs. {shippingThreshold.toLocaleString("en-IN")}.</p>
             </div>
           </div>
 
@@ -203,15 +207,15 @@ export default function Footer({ navigate }) {
             <ul className="space-y-3.5 text-xs font-light text-neutral-400">
               <li className="flex items-start gap-3">
                 <MapPin size={16} strokeWidth={1.8} className="text-[#FF4D6D] shrink-0 mt-0.5" />
-                <span className="leading-relaxed">Flat 405, Rosewood Apartments, Linking Road, Mumbai, MH, 400054</span>
+                <span className="leading-relaxed">{supportAddress}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone size={16} strokeWidth={1.8} className="text-[#FF4D6D] shrink-0" />
-                <a href="tel:+919876543210" className="hover:text-[#FF4D6D] transition-colors duration-300">+91 98765 43210</a>
+                <a href={`tel:${supportPhone.replace(/\s+/g, "")}`} className="hover:text-[#FF4D6D] transition-colors duration-300">{supportPhone}</a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail size={16} strokeWidth={1.8} className="text-[#FF4D6D] shrink-0" />
-                <a href="mailto:support@anikarafashion.com" className="hover:text-[#FF4D6D] transition-colors duration-300">support@anikarafashion.com</a>
+                <a href={`mailto:${supportEmail}`} className="hover:text-[#FF4D6D] transition-colors duration-300">{supportEmail}</a>
               </li>
             </ul>
           </div>
@@ -234,12 +238,6 @@ export default function Footer({ navigate }) {
             <span className="bg-white/[0.02] border border-white/10 rounded px-2.5 py-1 text-[9px] font-bold text-neutral-400 tracking-wider hover:border-orange-500 hover:text-orange-400 transition-all cursor-default">RUPAY</span>
           </div>
 
-          <button
-            onClick={() => navigate("admin")}
-            className="flex items-center gap-1.5 text-neutral-500 hover:text-[#FF4D6D] hover:shadow-[0_0_10px_rgba(255,77,109,0.1)] transition-colors focus:outline-none text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full bg-white/5 border border-white/10 cursor-pointer"
-          >
-            <Shield size={12} /> Admin Panel
-          </button>
         </div>
 
       </div>
@@ -253,3 +251,4 @@ export default function Footer({ navigate }) {
     </footer>
   );
 }
+

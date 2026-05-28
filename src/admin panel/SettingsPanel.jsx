@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
+import { collection, doc, getDocs, setDoc, writeBatch } from "firebase/firestore";
+import { db } from "../firebase";
 import {
   Shield, Tag, Check, AlertTriangle, Package, Monitor
 } from "lucide-react";
@@ -8,8 +10,9 @@ import {
 // SETTINGS TAB
 // ═══════════════════════════════════════════════════════════════════
 export default function SettingsTab() {
-  const { settings, adminUpdateSettings } = useApp();
+  const { settings, adminUpdateSettings, addToast } = useApp();
   const [form, setForm] = useState({ ...settings });
+  const [seedingAdminFeed, setSeedingAdminFeed] = useState(false);
 
   useEffect(() => {
     setForm({ ...settings });
@@ -25,11 +28,58 @@ export default function SettingsTab() {
       shippingThreshold: Number(form.shippingThreshold),
       shippingFee: Number(form.shippingFee),
       maintenanceMode: form.maintenanceMode,
+      supportAddress: form.supportAddress?.trim() || "",
+      supportPhone: form.supportPhone?.trim() || "",
+      supportEmail: form.supportEmail?.trim() || "",
     });
   };
 
   const inputCls = "w-full text-xs bg-neutral-50 border border-neutral-200 rounded px-3 py-2.5 focus:outline-none focus:border-[#FF4D6D] focus:ring-1 focus:ring-[#FF4D6D]/20 transition-all font-sans";
   const labelCls = "block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5";
+
+  const seedAdminFeeds = async () => {
+    if (seedingAdminFeed) return;
+    setSeedingAdminFeed(true);
+    try {
+      const [notificationsSnap, messagesSnap] = await Promise.all([
+        getDocs(collection(db, "admin_notifications")),
+        getDocs(collection(db, "admin_messages"))
+      ]);
+
+      if (!notificationsSnap.empty || !messagesSnap.empty) {
+        addToast("Admin feeds already exist. Seed skipped.", "info");
+        return;
+      }
+
+      const now = new Date();
+      const iso = now.toISOString();
+      const batch = writeBatch(db);
+      const notificationDocs = [
+        { id: "notif-1", title: "New payment received", desc: "Order payment completed successfully.", time: "Just now", read: false, createdAt: iso },
+        { id: "notif-2", title: "Stock alert", desc: "Some products are running low in inventory.", time: "5 mins ago", read: false, createdAt: new Date(now.getTime() - 5 * 60 * 1000).toISOString() },
+        { id: "notif-3", title: "Coupon updated", desc: "A coupon has been activated by admin.", time: "1 hour ago", read: true, createdAt: new Date(now.getTime() - 60 * 60 * 1000).toISOString() }
+      ];
+      const messageDocs = [
+        { id: "msg-1", sender: "Customer A", text: "Can I exchange this product size?", time: "Just now", read: false, createdAt: iso },
+        { id: "msg-2", sender: "Customer B", text: "When will my order be delivered?", time: "12 mins ago", read: false, createdAt: new Date(now.getTime() - 12 * 60 * 1000).toISOString() },
+        { id: "msg-3", sender: "Customer C", text: "Thank you, the order arrived safely.", time: "Yesterday", read: true, createdAt: new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString() }
+      ];
+
+      notificationDocs.forEach((item) => {
+        batch.set(doc(db, "admin_notifications", item.id), item);
+      });
+      messageDocs.forEach((item) => {
+        batch.set(doc(db, "admin_messages", item.id), item);
+      });
+      await batch.commit();
+      addToast("Admin notifications/messages seeded successfully!", "success");
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to seed admin feeds", "error");
+    } finally {
+      setSeedingAdminFeed(false);
+    }
+  };
 
   // Simulation calculations
   const simSubtotal = 1200;
@@ -121,6 +171,46 @@ export default function SettingsTab() {
           </div>
         </div>
 
+        {/* Support contact settings */}
+        <div className="bg-white border border-neutral-200/60 rounded-xl p-5 space-y-4 shadow-xs">
+          <div className="flex items-center gap-2 border-b border-neutral-100 pb-3">
+            <div className="p-1.5 bg-[#FF4D6D]/5 text-[#FF4D6D] rounded-lg"><Shield size={14} /></div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-800 font-display">Support Contact Details</h3>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <label className={labelCls}>Support Address</label>
+              <input
+                value={form.supportAddress || ""}
+                onChange={(e) => set("supportAddress", e.target.value)}
+                placeholder="e.g. Flat 405, Linking Road, Mumbai"
+                className={inputCls}
+              />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className={labelCls}>Support Phone</label>
+                <input
+                  value={form.supportPhone || ""}
+                  onChange={(e) => set("supportPhone", e.target.value)}
+                  placeholder="e.g. +91 98765 43210"
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Support Email</label>
+                <input
+                  type="email"
+                  value={form.supportEmail || ""}
+                  onChange={(e) => set("supportEmail", e.target.value)}
+                  placeholder="e.g. support@brand.com"
+                  className={inputCls}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* System Settings */}
         <div className="bg-white border border-neutral-200/60 rounded-xl p-5 space-y-4 shadow-xs">
           <div className="flex items-center gap-2 border-b border-neutral-100 pb-3">
@@ -150,12 +240,22 @@ export default function SettingsTab() {
         </div>
 
         {/* Submit */}
-        <button
-          type="submit"
-          className="w-full py-3 bg-[#111111] hover:bg-[#FF4D6D] text-white text-xs font-bold tracking-widest uppercase transition-colors rounded-lg focus:outline-none flex items-center justify-center gap-2 shadow-sm font-sans"
-        >
-          <Check size={14} /> Save Configuration
-        </button>
+        <div className="space-y-3">
+          <button
+            type="button"
+            onClick={seedAdminFeeds}
+            disabled={seedingAdminFeed}
+            className="w-full py-3 bg-neutral-100 hover:bg-neutral-200 disabled:opacity-60 text-neutral-800 text-xs font-bold tracking-widest uppercase transition-colors rounded-lg focus:outline-none flex items-center justify-center gap-2 shadow-sm font-sans"
+          >
+            <Shield size={14} /> {seedingAdminFeed ? "Seeding Admin Feed..." : "Seed Admin Inbox/Notifications"}
+          </button>
+          <button
+            type="submit"
+            className="w-full py-3 bg-[#111111] hover:bg-[#FF4D6D] text-white text-xs font-bold tracking-widest uppercase transition-colors rounded-lg focus:outline-none flex items-center justify-center gap-2 shadow-sm font-sans"
+          >
+            <Check size={14} /> Save Configuration
+          </button>
+        </div>
 
       </form>
 

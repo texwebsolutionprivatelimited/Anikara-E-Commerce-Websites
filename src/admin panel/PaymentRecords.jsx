@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useApp } from "../context/AppContext";
 import {
   Plus, X, Check, AlertTriangle, Search, CreditCard, FileText,
-  Download, RotateCcw, CheckCircle, PlusCircle
+  Download, RotateCcw, CheckCircle, PlusCircle, Trash2
 } from "lucide-react";
 import { StatCard } from "./AdminShared";
 
@@ -368,7 +368,7 @@ function CompletePaymentModal({ payment, onConfirm, onClose }) {
 // MAIN PAYMENTS TAB SECTION
 // ═══════════════════════════════════════════════════════════════════
 export default function PaymentsTab() {
-  const { payments, adminUpdatePaymentStatus, adminAddPayment, addToast } = useApp();
+  const { payments, adminUpdatePaymentStatus, adminAddPayment, adminDeletePayment, addToast } = useApp();
   const [search, setSearch] = useState("");
   const [selectedMethod, setSelectedMethod] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
@@ -567,6 +567,17 @@ export default function PaymentsTab() {
                               <CheckCircle size={14} />
                             </button>
                           )}
+                          <button
+                            onClick={() => {
+                              if (window.confirm(`Delete payment record ${p.id}?`)) {
+                                adminDeletePayment(p.id);
+                              }
+                            }}
+                            className="p-1.5 rounded hover:bg-red-50 text-neutral-400 hover:text-red-600 transition-colors focus:outline-none no-target"
+                            title="Delete payment record"
+                          >
+                            <Trash2 size={14} />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -633,6 +644,17 @@ export default function PaymentsTab() {
                         <Check size={11} /> Approve
                       </button>
                     )}
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`Delete payment record ${p.id}?`)) {
+                          adminDeletePayment(p.id);
+                        }
+                      }}
+                      className="p-1.5 border border-red-200 hover:bg-red-50 text-red-500 rounded focus:outline-none no-target"
+                      title="Delete"
+                    >
+                      <Trash2 size={12} />
+                    </button>
                   </div>
                 </div>
               </div>

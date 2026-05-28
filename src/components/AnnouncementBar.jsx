@@ -4,12 +4,13 @@ import { Sparkles, Zap, Package } from "lucide-react";
 import { useApp } from "../context/AppContext";
 
 export default function AnnouncementBar() {
-  const { settings } = useApp();
+  const { settings, coupons = [] } = useApp();
   const [index, setIndex] = useState(0);
 
+  const featuredCoupon = coupons.find((c) => c.active);
   const announcements = [
     { icon: Sparkles, text: `FREE SHIPPING ON ALL ORDERS ABOVE ₹${(settings?.shippingThreshold || 1500).toLocaleString("en-IN")}` },
-    { icon: Zap, text: "LIMITED TIME SALE: USE CODE 'ANIKARA20' TO GET 20% OFF" },
+    { icon: Zap, text: featuredCoupon ? `LIMITED TIME SALE: USE CODE '${featuredCoupon.code}'` : "LIMITED TIME SALE IS LIVE NOW" },
     { icon: Package, text: "EASY RETURNS & 15-DAY HASSLE-FREE EXCHANGES" },
   ];
 
@@ -44,3 +45,4 @@ export default function AnnouncementBar() {
     </div>
   );
 }
+

@@ -1,90 +1,67 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { collection, getDocs, doc, setDoc, getDoc } from "firebase/firestore";
+import { collection, doc, setDoc, getDoc, deleteDoc, onSnapshot, writeBatch } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { products as initialProducts } from "../data/products";
 
-const INITIAL_COUPONS = [
-  {
-    id: 1,
-    label: "1ST ORDER",
-    headline: "FLAT ₹300 OFF",
-    subtext: "On your 1st purchase",
-    code: "ANIKARA300",
-    condition: "Min. order ₹999 • New users only",
-    accent: "#FF4D6D",
-    bg: "from-[#fff5f7] to-[#fff0f3]",
-    badgeBg: "#FF4D6D",
-    active: true,
-  },
-  {
-    id: 2,
-    label: "APP EXCLUSIVE",
-    headline: "FLAT 20% OFF",
-    subtext: "Sitewide — limited time",
-    code: "ANIKARA20",
-    condition: "All categories • No min. order",
-    accent: "#111111",
-    bg: "from-[#f5f5f5] to-[#f0f0f0]",
-    badgeBg: "#111111",
-    active: true,
-  },
-  {
-    id: 3,
-    label: "FESTIVE SPECIAL",
-    headline: "BUY 2 GET 1 FREE",
-    subtext: "On selected ethnic wear",
-    code: "NIKFEST3",
-    condition: "Applies on Ethnic Wear category",
-    accent: "#c9860a",
-    bg: "from-[#fffbf0] to-[#fff8e6]",
-    badgeBg: "#c9860a",
-    active: true,
-  },
-];
+// Native browser HMAC-SHA1 signature for ImageKit client-side uploads
+const generateImageKitSignature = async (token, expire, privateKey) => {
+  const text = token + expire;
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(privateKey);
+  const messageData = encoder.encode(text);
+  
+  const cryptoKey = await window.crypto.subtle.importKey(
+    "raw",
+    keyData,
+    { name: "HMAC", hash: "SHA-1" },
+    false,
+    ["sign"]
+  );
+  
+  const signatureBuffer = await window.crypto.subtle.sign(
+    "HMAC",
+    cryptoKey,
+    messageData
+  );
+  
+  const hashArray = Array.from(new Uint8Array(signatureBuffer));
+  const signatureHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+  return signatureHex;
+};
 
-const INITIAL_SLIDES = [
-  {
-    id: 1,
-    title: "Summer Sale 50% OFF",
-    subtitle: "SEASONAL EDIT",
-    desc: "Luxe silhouettes for warmer days. Woven in French linen, soft organic cottons, and breezy satin silk fits.",
-    navigatePage: "products",
-    navigateParams: { badge: "50% OFF" },
-    image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1600&q=80",
-    active: true,
-  },
-  {
-    id: 2,
-    title: "Trending Co-word Sets",
-    subtitle: "MINIMAL MODERNIST",
-    desc: "Effortless coordinating sets crafted to transition seamlessly from morning lounge to sunset styling.",
-    navigatePage: "products",
-    navigateParams: { category: "Co-ords" },
-    image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1600&q=80",
-    active: true,
-  },
-  {
-    id: 3,
-    title: "New Ethnic Collection",
-    subtitle: "FESTIVE BLOCKPRINT",
-    desc: "Intricate handloom Chanderi silk sarees and detailed blockprint embroidered kurta sets.",
-    navigatePage: "products",
-    navigateParams: { category: "Ethnic Wear" },
-    image: "https://images.unsplash.com/photo-1610030469668-93535c17b6b3?auto=format&fit=crop&w=1600&q=80",
-    active: true,
-  },
-  {
-    id: 4,
-    title: "Cozy Sleepwear Deals",
-    subtitle: "NIGHT SUIT ESSENTIALS",
-    desc: "Indulge in nightly luxury. Liquid satin pajama sets and organic cotton sleep shirts starting from ₹1,899.",
-    navigatePage: "products",
-    navigateParams: { category: "Night Suit" },
-    image: "https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=1600&q=80",
-    active: true,
-  },
-];
+export const uploadToImageKit = async (file) => {
+  const publicKey = import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY;
+  const privateKey = import.meta.env.VITE_IMAGEKIT_PRIVATE_KEY;
+  if (!publicKey || !privateKey) {
+    throw new Error("ImageKit keys missing. Set VITE_IMAGEKIT_PUBLIC_KEY and VITE_IMAGEKIT_PRIVATE_KEY.");
+  }
+
+  const token = Math.random().toString(36).substring(2) + Date.now().toString(36);
+  const expire = Math.floor(Date.now() / 1000) + 1200; // 20 minutes expire
+  
+  const signature = await generateImageKitSignature(token, expire, privateKey);
+  
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("fileName", file.name || "upload.png");
+  formData.append("publicKey", publicKey);
+  formData.append("signature", signature);
+  formData.append("expire", expire.toString());
+  formData.append("token", token);
+
+  const response = await fetch("https://upload.imagekit.io/api/v1/files/upload", {
+    method: "POST",
+    body: formData
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`ImageKit Upload failed: ${errText}`);
+  }
+
+  const result = await response.json();
+  return result.url; // Returns the full secure CDN image URL
+};
 
 const AppContext = createContext();
 
@@ -100,108 +77,124 @@ export const AppProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const [productsError, setProductsError] = useState(null);
-  const [categories, setCategories] = useState([
-    "Night Suit",
-    "Lounge Suit",
-    "Dress",
-    "T-Shirt",
-    "Top & Blouse",
-    "Bottom Wear",
-    "Lingerie",
-    "Co-ords",
-    "Suit",
-    "Denim",
-    "Ethnic Wear",
-    "Sports Wear",
-    "Footwear",
-    "Bags",
-    "Cosmetics",
-    "Accessories"
-  ]);
-  const [categoryImages, setCategoryImages] = useState({
-    "Dress": "https://images.unsplash.com/photo-1618932260643-eee4a2f6c9d6?auto=format&fit=crop&w=600&q=80",
-    "Top & Blouse": "https://images.unsplash.com/photo-1564227901-6b1d20bebe9d?auto=format&fit=crop&w=600&q=80",
-    "T-Shirt": "https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=600&q=80",
-    "Denim": "https://images.unsplash.com/photo-1604176354204-9268737828e4?auto=format&fit=crop&w=600&q=80",
-    "Co-ords": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=600&q=80",
-    "Bottom Wear": "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=600&q=80",
-    "Night Suit": "https://images.unsplash.com/photo-1608231387042-66d1773070a5?auto=format&fit=crop&w=600&q=80",
-    "Lounge Suit": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80",
-    "Lingerie": "https://images.unsplash.com/photo-1569591159212-b02ea8a9f239?auto=format&fit=crop&w=600&q=80",
-    "Suit": "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=600&q=80",
-    "Sports Wear": "https://images.unsplash.com/photo-1571008887538-b36bb32f4571?auto=format&fit=crop&w=600&q=80",
-    "Footwear": "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=600&q=80",
-    "Bags": "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=600&q=80",
-    "Cosmetics": "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80",
-    "Accessories": "https://images.unsplash.com/photo-1576243345690-4e4b79b63288?auto=format&fit=crop&w=600&q=80",
-    "Ethnic Wear": "https://images.unsplash.com/photo-1610030469668-93535c17b6b3?auto=format&fit=crop&w=600&q=80",
-  });
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setProductsLoading(true);
-        setProductsError(null);
-        const querySnapshot = await getDocs(collection(db, "products"));
-        
-        if (querySnapshot.empty) {
-          // Fallback to initial products if firestore is empty for demonstration
-          setProducts(initialProducts);
-        } else {
-          const productsList = querySnapshot.docs
-            .map(doc => {
-              const data = doc.data();
-              // Skip malformed documents that don't have name/title or price
-              if (!data.name && !data.price) {
-                return null;
-              }
-              return {
-                id: doc.id,
-                name: data.name || "Unknown Product",
-                price: data.price || 0,
-                category: data.category || "Uncategorized",
-                image: data.image || "https://via.placeholder.com/400x500",
-                altImage: data.altImage || null,
-                stock: data.stock || 0,
-                // Fallbacks to ensure UI components don't break
-                oldPrice: data.oldPrice || data.price || 0,
-                rating: data.rating || 4.5,
-                ratingCount: data.ratingCount || 0,
-                description: data.description || "",
-                sizes: data.sizes || ["S", "M", "L", "XL"],
-                colors: data.colors || [{ name: "Default", hex: "#000000" }],
-                details: data.details || [],
-                reviews: data.reviews || [],
-                displaySection: data.displaySection || "deals",
-                badge: data.badge || null
-              };
-            })
-            .filter(p => p !== null);
-
-          if (productsList.length === 0) {
-            // Fallback to initial products if all firestore documents are malformed/invalid
-            setProducts(initialProducts);
-          } else {
-            setProducts(productsList);
-          }
-        }
-      } catch (err) {
-        console.error("Error fetching products from Firestore:", err);
-        setProductsError(err.message);
-        // Fallback to static products on error so app doesn't completely break
-        setProducts(initialProducts);
-      } finally {
-        setProductsLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, []);
-
+  
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+
+  const [orders, setOrders] = useState([]);
+  const [payments, setPayments] = useState([]);
+  const [coupons, setCoupons] = useState([]);
+  const [slides, setSlides] = useState([]);
+  const [promoDiscount, setPromoDiscount] = useState(null);
+  const [toasts, setToasts] = useState([]);
+  
+  const [settings, setSettings] = useState({
+    businessName: "Anikara",
+    gstPercent: 5,
+    shippingThreshold: 1500,
+    shippingFee: 150,
+    maintenanceMode: false
+  });
+
+  const [categories, setCategories] = useState([]);
+
+  const [categoryImages, setCategoryImages] = useState({});
+
+  // central realtime syncing logic
+  useEffect(() => {
+    // 1. Sync Products
+    const unsubscribeProducts = onSnapshot(collection(db, "products"), (snapshot) => {
+      const list = snapshot.docs.map((docSnap) => {
+        const data = docSnap.data();
+        return {
+          id: docSnap.id,
+          name: data.name || "Unknown Product",
+          price: data.price || 0,
+          category: data.category || "Uncategorized",
+          image: data.image || "",
+          altImage: data.altImage || null,
+          images: data.images || [],
+          stock: data.stock || 0,
+          oldPrice: data.oldPrice || data.price || 0,
+          rating: data.rating || 4.5,
+          ratingCount: data.ratingCount || 0,
+          description: data.description || "",
+          sizes: data.sizes || ["S", "M", "L", "XL"],
+          colors: data.colors || [{ name: "Default", hex: "#000000" }],
+          details: data.details || [],
+          reviews: data.reviews || [],
+          displaySection: data.displaySection || "deals",
+          badge: data.badge || null
+        };
+      });
+      setProducts(list);
+      setProductsLoading(false);
+    }, (err) => {
+      console.error(err);
+      setProductsError(err.message);
+      setProductsLoading(false);
+    });
+
+    // 2. Sync Coupons
+    const unsubscribeCoupons = onSnapshot(collection(db, "coupons"), (snapshot) => {
+      setCoupons(snapshot.docs.map((docSnap) => docSnap.data()));
+    });
+
+    // 3. Sync Slides
+    const unsubscribeSlides = onSnapshot(collection(db, "slides"), (snapshot) => {
+      setSlides(snapshot.docs.map((docSnap) => docSnap.data()));
+    });
+
+    // 4. Sync Orders
+    const unsubscribeOrders = onSnapshot(collection(db, "orders"), (snapshot) => {
+      setOrders(snapshot.docs.map((docSnap) => docSnap.data()));
+    });
+
+    // 5. Sync Payments
+    const unsubscribePayments = onSnapshot(collection(db, "payments"), (snapshot) => {
+      setPayments(snapshot.docs.map((docSnap) => docSnap.data()));
+    });
+
+    // 6. Sync Settings
+    const unsubscribeSettings = onSnapshot(doc(db, "settings", "general"), async (docSnap) => {
+      if (!docSnap.exists()) {
+        const defaultSettings = {
+          businessName: "Anikara",
+          gstPercent: 5,
+          shippingThreshold: 1500,
+          shippingFee: 150,
+          maintenanceMode: false
+        };
+        await setDoc(doc(db, "settings", "general"), defaultSettings);
+      } else {
+        setSettings(docSnap.data());
+      }
+    });
+
+    // 7. Sync Categories
+    const unsubscribeCategories = onSnapshot(collection(db, "categories"), (snapshot) => {
+      const rows = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+      const sorted = rows.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+      setCategories(sorted.map((row) => row.name).filter(Boolean));
+      const imageMap = {};
+      sorted.forEach((row) => {
+        if (row.name && row.image) imageMap[row.name] = row.image;
+      });
+      setCategoryImages(imageMap);
+    });
+
+    return () => {
+      unsubscribeProducts();
+      unsubscribeCoupons();
+      unsubscribeSlides();
+      unsubscribeOrders();
+      unsubscribePayments();
+      unsubscribeSettings();
+      unsubscribeCategories();
+    };
+  }, []);
 
   // Monitor Auth State
   useEffect(() => {
@@ -214,7 +207,6 @@ export const AppProvider = ({ children }) => {
           if (userDocSnap.exists()) {
             setUser({ uid: currentUser.uid, email: currentUser.email, ...userDocSnap.data() });
           } else {
-            // Fallback if no doc exists
             setUser({ uid: currentUser.uid, email: currentUser.email });
           }
         } catch (error) {
@@ -229,143 +221,6 @@ export const AppProvider = ({ children }) => {
 
     return () => unsubscribe();
   }, []);
-  const [orders, setOrders] = useState([
-    {
-      id: "ORD-9281-2026",
-      date: "2026-05-12",
-      total: 6298,
-      status: "Delivered",
-      items: [
-        {
-          id: "ns1",
-          name: "Luxe Silk Satin Pajama Set",
-          price: 2499,
-          quantity: 1,
-          size: "M",
-          color: "Emerald Green",
-          image: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=600&q=80"
-        },
-        {
-          id: "ls1",
-          name: "Premium Ribbed Knit Lounge Set",
-          price: 3799,
-          quantity: 1,
-          size: "S",
-          color: "Oatmeal Heather",
-          image: "https://images.unsplash.com/photo-1608231387042-66d1773070a5?auto=format&fit=crop&w=600&q=80"
-        }
-      ],
-      address: "Flat 405, Rosewood Apartments, Linking Road, Mumbai, Maharashtra - 400054",
-      paymentMethod: "UPI"
-    },
-    {
-      id: "ORD-1102-2026",
-      date: "2026-05-24",
-      total: 3299,
-      status: "In Transit",
-      trackingStep: 2,
-      items: [
-        {
-          id: "bw1",
-          name: "Tailored High-Waist Pleated Pants",
-          price: 3299,
-          quantity: 1,
-          size: "28",
-          color: "Classic Beige",
-          image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&q=80"
-        }
-      ],
-      address: "Flat 405, Rosewood Apartments, Linking Road, Mumbai, Maharashtra - 400054",
-      paymentMethod: "Credit Card"
-    }
-  ]);
-  const [payments, setPayments] = useState([
-    {
-      id: "TXN-839201",
-      orderId: "ORD-9281-2026",
-      customerName: "Ajeet Kumar",
-      customerEmail: "ajeet@example.com",
-      customerPhone: "+91 98765 43210",
-      amount: 6298,
-      paymentMethod: "UPI",
-      date: "2026-05-12",
-      time: "14:32",
-      status: "Success"
-    },
-    {
-      id: "TXN-482019",
-      orderId: "ORD-1102-2026",
-      customerName: "Ajeet Kumar",
-      customerEmail: "ajeet@example.com",
-      customerPhone: "+91 98765 43210",
-      amount: 3299,
-      paymentMethod: "Credit Card",
-      date: "2026-05-24",
-      time: "10:15",
-      status: "Success"
-    },
-    {
-      id: "TXN-102938",
-      orderId: "ORD-5832-2026",
-      customerName: "Priyanka Sharma",
-      customerEmail: "priyanka@example.com",
-      customerPhone: "+91 99887 76655",
-      amount: 4500,
-      paymentMethod: "Net Banking",
-      date: "2026-05-25",
-      time: "18:40",
-      status: "Failed",
-      errorMessage: "Authentication failed / Timeout"
-    },
-    {
-      id: "TXN-293847",
-      orderId: "ORD-2049-2026",
-      customerName: "Rahul Verma",
-      customerEmail: "rahul@example.com",
-      customerPhone: "+91 91234 56789",
-      amount: 1899,
-      paymentMethod: "UPI",
-      date: "2026-05-26",
-      time: "11:22",
-      status: "Refunded",
-      refundReason: "Customer cancelled before shipment"
-    },
-    {
-      id: "TXN-902834",
-      orderId: "ORD-3048-2026",
-      customerName: "Sneha Patel",
-      customerEmail: "sneha@example.com",
-      customerPhone: "+91 98989 89898",
-      amount: 2799,
-      paymentMethod: "Cash on Delivery (COD)",
-      date: "2026-05-27",
-      time: "09:05",
-      status: "Pending"
-    }
-  ]);
-  const [promoDiscount, setPromoDiscount] = useState(null);
-  const [toasts, setToasts] = useState([]);
-  const [coupons, setCoupons] = useState(INITIAL_COUPONS);
-  const [slides, setSlides] = useState(INITIAL_SLIDES);
-  const [settings, setSettings] = useState(() => {
-    const saved = localStorage.getItem("anikara_settings");
-    return saved ? JSON.parse(saved) : {
-      businessName: "Anikara",
-      gstPercent: 5,
-      shippingThreshold: 1500,
-      shippingFee: 150,
-      maintenanceMode: false
-    };
-  });
-
-  const adminUpdateSettings = (updated) => {
-    setSettings((prev) => {
-      const next = { ...prev, ...updated };
-      localStorage.setItem("anikara_settings", JSON.stringify(next));
-      return next;
-    });
-    addToast("Settings updated successfully!", "success");
-  };
 
   // Toast utilities
   const addToast = (message, type = "success") => {
@@ -457,16 +312,14 @@ export const AppProvider = ({ children }) => {
   // Coupon management
   const applyCoupon = (code) => {
     const upperCode = code.toUpperCase();
-    if (upperCode === "WELCOME10") {
-      setPromoDiscount({ code: "WELCOME10", discountPercent: 10 });
-      addToast("10% Coupon Applied Successfully!", "success");
-      return true;
-    } else if (upperCode === "ANIKARA20") {
-      setPromoDiscount({ code: "ANIKARA20", discountPercent: 20 });
-      addToast("20% Coupon Applied Successfully!", "success");
+    const found = coupons.find((c) => c.code.toUpperCase() === upperCode && c.active);
+    if (found) {
+      const pct = Number(found.discountPercent) || 10;
+      setPromoDiscount({ code: upperCode, discountPercent: pct });
+      addToast(`${pct}% Coupon Applied Successfully!`, "success");
       return true;
     }
-    addToast("Invalid Coupon Code", "error");
+    addToast("Invalid or Inactive Coupon Code", "error");
     return false;
   };
 
@@ -476,87 +329,142 @@ export const AppProvider = ({ children }) => {
   };
 
   // Admin: Coupon CRUD
-  const adminAddCoupon = (coupon) => {
-    const newCoupon = {
-      ...coupon,
-      id: Date.now(),
-      active: true,
-    };
-    setCoupons((prev) => [...prev, newCoupon]);
-    addToast("Coupon added successfully!", "success");
+  const adminAddCoupon = async (coupon) => {
+    try {
+      const newCoupon = {
+        ...coupon,
+        id: Date.now(),
+        active: true,
+      };
+      await setDoc(doc(db, "coupons", newCoupon.id.toString()), newCoupon);
+      addToast("Coupon added successfully!", "success");
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to add coupon", "error");
+    }
   };
 
-  const adminUpdateCoupon = (id, updated) => {
-    setCoupons((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, ...updated } : c))
-    );
-    addToast("Coupon updated!", "success");
+  const adminUpdateCoupon = async (id, updated) => {
+    try {
+      await setDoc(doc(db, "coupons", id.toString()), updated, { merge: true });
+      addToast("Coupon updated!", "success");
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to update coupon", "error");
+    }
   };
 
-  const adminDeleteCoupon = (id) => {
-    setCoupons((prev) => prev.filter((c) => c.id !== id));
-    addToast("Coupon deleted.", "info");
+  const adminDeleteCoupon = async (id) => {
+    try {
+      await deleteDoc(doc(db, "coupons", id.toString()));
+      addToast("Coupon deleted.", "info");
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to delete coupon", "error");
+    }
   };
 
-  const adminToggleCoupon = (id) => {
-    setCoupons((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, active: !c.active } : c))
-    );
+  const adminToggleCoupon = async (id) => {
+    try {
+      const couponRef = doc(db, "coupons", id.toString());
+      const snap = await getDoc(couponRef);
+      if (snap.exists()) {
+        await setDoc(couponRef, { active: !snap.data().active }, { merge: true });
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // Admin: Slide CRUD
-  const adminAddSlide = (slide) => {
-    const newSlide = { ...slide, id: Date.now(), active: true };
-    setSlides((prev) => [...prev, newSlide]);
-    addToast("Slide added!", "success");
+  const adminAddSlide = async (slide) => {
+    try {
+      const newSlide = { ...slide, id: Date.now(), active: true };
+      await setDoc(doc(db, "slides", newSlide.id.toString()), newSlide);
+      addToast("Slide added!", "success");
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to add slide", "error");
+    }
   };
 
-  const adminUpdateSlide = (id, updated) => {
-    setSlides((prev) => prev.map((s) => (s.id === id ? { ...s, ...updated } : s)));
-    addToast("Slide updated!", "success");
+  const adminUpdateSlide = async (id, updated) => {
+    try {
+      await setDoc(doc(db, "slides", id.toString()), updated, { merge: true });
+      addToast("Slide updated!", "success");
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to update slide", "error");
+    }
   };
 
-  const adminDeleteSlide = (id) => {
-    setSlides((prev) => prev.filter((s) => s.id !== id));
-    addToast("Slide deleted.", "info");
+  const adminDeleteSlide = async (id) => {
+    try {
+      await deleteDoc(doc(db, "slides", id.toString()));
+      addToast("Slide deleted.", "info");
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to delete slide", "error");
+    }
   };
 
-  const adminToggleSlide = (id) => {
-    setSlides((prev) => prev.map((s) => (s.id === id ? { ...s, active: !s.active } : s)));
+  const adminToggleSlide = async (id) => {
+    try {
+      const slideRef = doc(db, "slides", id.toString());
+      const snap = await getDoc(slideRef);
+      if (snap.exists()) {
+        await setDoc(slideRef, { active: !snap.data().active }, { merge: true });
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const adminMoveSlide = (id, direction) => {
-    setSlides((prev) => {
-      const idx = prev.findIndex((s) => s.id === id);
-      if (idx < 0) return prev;
-      const newIdx = direction === "up" ? idx - 1 : idx + 1;
-      if (newIdx < 0 || newIdx >= prev.length) return prev;
-      const arr = [...prev];
-      [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
-      return arr;
-    });
+  const adminMoveSlide = async (id, direction) => {
+    const idx = slides.findIndex((s) => s.id === id);
+    if (idx < 0) return;
+    const newIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (newIdx < 0 || newIdx >= slides.length) return;
+    
+    const arr = [...slides];
+    [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
+    
+    try {
+      const batch = writeBatch(db);
+      arr.forEach((slide) => {
+        batch.set(doc(db, "slides", slide.id.toString()), slide);
+      });
+      await batch.commit();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // Admin: Category CRUD
-  const adminAddCategory = (categoryName, imageUrl) => {
+  const adminAddCategory = async (categoryName, imageUrl) => {
     const trimmed = categoryName.trim();
     if (!trimmed) return false;
     if (categories.some((cat) => cat.toLowerCase() === trimmed.toLowerCase())) {
       addToast("Category already exists!", "error");
       return false;
     }
-    setCategories((prev) => [...prev, trimmed]);
-    if (imageUrl && imageUrl.trim()) {
-      setCategoryImages((prev) => ({
-        ...prev,
-        [trimmed]: imageUrl.trim()
-      }));
+    try {
+      const id = trimmed.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      await setDoc(doc(db, "categories", id), {
+        name: trimmed,
+        image: imageUrl?.trim() || "",
+        updatedAt: new Date().toISOString()
+      });
+      addToast("Category added successfully!", "success");
+      return true;
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to add category", "error");
+      return false;
     }
-    addToast("Category added successfully!", "success");
-    return true;
   };
 
-  const adminDeleteCategory = (categoryName) => {
+  const adminDeleteCategory = async (categoryName) => {
     const hasProducts = products.some(
       (p) => p.category.toLowerCase() === categoryName.toLowerCase()
     );
@@ -564,36 +472,86 @@ export const AppProvider = ({ children }) => {
       addToast("Cannot delete: Products exist in this category!", "error");
       return false;
     }
-    setCategories((prev) => prev.filter((cat) => cat.toLowerCase() !== categoryName.toLowerCase()));
-    setCategoryImages((prev) => {
-      const copy = { ...prev };
-      delete copy[categoryName];
-      return copy;
-    });
-    addToast("Category deleted.", "info");
-    return true;
+    try {
+      const id = categoryName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      await deleteDoc(doc(db, "categories", id));
+      addToast("Category deleted.", "info");
+      return true;
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to delete category", "error");
+      return false;
+    }
+  };
+
+  const adminUpdateCategory = async (oldCategoryName, updatedCategoryName, imageUrl) => {
+    const oldName = oldCategoryName?.trim();
+    const newName = updatedCategoryName?.trim();
+    if (!oldName || !newName) return false;
+    const duplicate =
+      oldName.toLowerCase() !== newName.toLowerCase() &&
+      categories.some((cat) => cat.toLowerCase() === newName.toLowerCase());
+    if (duplicate) {
+      addToast("Category with same name already exists!", "error");
+      return false;
+    }
+    try {
+      const oldId = oldName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      const newId = newName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      const batch = writeBatch(db);
+      batch.set(doc(db, "categories", newId), {
+        name: newName,
+        image: imageUrl?.trim() || "",
+        updatedAt: new Date().toISOString()
+      });
+      if (oldId !== newId) {
+        batch.delete(doc(db, "categories", oldId));
+      }
+      products
+        .filter((p) => p.category?.toLowerCase() === oldName.toLowerCase())
+        .forEach((p) => {
+          batch.set(doc(db, "products", p.id), { category: newName }, { merge: true });
+        });
+      await batch.commit();
+      addToast("Category updated successfully!", "success");
+      return true;
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to update category", "error");
+      return false;
+    }
   };
 
   // Admin: Product CRUD
-  const adminAddProduct = (product) => {
-    const newProduct = {
-      ...product,
-      id: `p-${Date.now()}`,
-      rating: 5.0,
-      ratingCount: 0,
-      reviews: []
-    };
-    setProducts((prev) => [newProduct, ...prev]);
-    addToast("Product added successfully!", "success");
+  const adminAddProduct = async (product) => {
+    try {
+      const newProduct = {
+        ...product,
+        id: product.id || `p-${Date.now()}`,
+        rating: product.rating || 5.0,
+        ratingCount: product.ratingCount || 0,
+        reviews: product.reviews || []
+      };
+      await setDoc(doc(db, "products", newProduct.id), newProduct);
+      addToast("Product updated successfully!", "success");
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to save product", "error");
+    }
   };
 
-  const adminDeleteProduct = (id) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
-    addToast("Product deleted.", "info");
+  const adminDeleteProduct = async (id) => {
+    try {
+      await deleteDoc(doc(db, "products", id));
+      addToast("Product deleted.", "info");
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to delete product", "error");
+    }
   };
 
   // Checkout and orders
-  const placeOrder = (addressDetails, paymentMethod) => {
+  const placeOrder = async (addressDetails, paymentMethod) => {
     if (cart.length === 0) return null;
 
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -614,9 +572,6 @@ export const AppProvider = ({ children }) => {
       paymentMethod
     };
 
-    setOrders((prev) => [newOrder, ...prev]);
-
-    // Automatically generate a payment log record
     const newPayment = {
       id: `TXN-${Math.floor(100000 + Math.random() * 900000)}`,
       orderId: newOrder.id,
@@ -629,12 +584,155 @@ export const AppProvider = ({ children }) => {
       time: new Date().toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit" }),
       status: paymentMethod === "COD" ? "Pending" : "Success"
     };
-    setPayments((prev) => [newPayment, ...prev]);
 
-    setCart([]);
-    setPromoDiscount(null);
-    addToast("Order Placed Successfully!", "success");
-    return newOrder;
+    try {
+      await setDoc(doc(db, "orders", newOrder.id), newOrder);
+      await setDoc(doc(db, "payments", newPayment.id), newPayment);
+      setCart([]);
+      setPromoDiscount(null);
+      addToast("Order Placed Successfully!", "success");
+      return newOrder;
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to place order", "error");
+      return null;
+    }
+  };
+
+  const adminUpdateSettings = async (updated) => {
+    try {
+      await setDoc(doc(db, "settings", "general"), updated, { merge: true });
+      addToast("Settings updated successfully!", "success");
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to update settings", "error");
+    }
+  };
+
+  const adminUpdatePaymentStatus = async (id, status, extraFields = {}) => {
+    try {
+      await setDoc(doc(db, "payments", id), { status, ...extraFields }, { merge: true });
+      if (status === "Refunded") {
+        addToast(`Payment ${id} has been refunded.`, "info");
+      } else if (status === "Success") {
+        addToast(`Payment ${id} completed successfully!`, "success");
+      } else {
+        addToast(`Payment status updated to ${status}.`, "success");
+      }
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to update payment status", "error");
+    }
+  };
+
+  const adminAddPayment = async (payment) => {
+    const newPayment = {
+      ...payment,
+      id: payment.id || `TXN-${Math.floor(100000 + Math.random() * 900000)}`,
+      date: payment.date || new Date().toISOString().split("T")[0],
+      time: payment.time || new Date().toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit" }),
+    };
+    try {
+      await setDoc(doc(db, "payments", newPayment.id), newPayment);
+      addToast("Payment record logged successfully!", "success");
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to log payment record", "error");
+    }
+  };
+
+  const adminDeletePayment = async (id) => {
+    try {
+      await deleteDoc(doc(db, "payments", id));
+      addToast("Payment record deleted.", "info");
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to delete payment record", "error");
+    }
+  };
+
+  const adminUpdateOrderStatus = async (id, status, trackingStep) => {
+    try {
+      const updatePayload = { status };
+      if (trackingStep !== undefined) {
+        updatePayload.trackingStep = trackingStep;
+      } else {
+        // Keep tracking step consistent even when admin updates only status.
+        if (status === "Processing") updatePayload.trackingStep = 1;
+        else if (status === "Shipped") updatePayload.trackingStep = 2;
+        else if (status === "In Transit" || status === "Out for Delivery") updatePayload.trackingStep = 3;
+        else if (status === "Delivered") updatePayload.trackingStep = 4;
+      }
+      await setDoc(doc(db, "orders", id), updatePayload, { merge: true });
+      addToast(`Order ${id} status updated to ${status}`, "success");
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to update order status", "error");
+    }
+  };
+
+  const adminDeleteOrder = async (id) => {
+    try {
+      await deleteDoc(doc(db, "orders", id));
+      addToast(`Order ${id} has been deleted.`, "info");
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to delete order", "error");
+    }
+  };
+
+  const adminAddOrder = async (orderPayload) => {
+    try {
+      const now = new Date();
+      const status = orderPayload.status || "Processing";
+      const trackingStep =
+        orderPayload.trackingStep ||
+        (status === "Processing"
+          ? 1
+          : status === "Shipped"
+            ? 2
+            : status === "In Transit" || status === "Out for Delivery"
+              ? 3
+              : status === "Delivered"
+                ? 4
+                : 1);
+
+      const newOrder = {
+        id: orderPayload.id || `ORD-${Math.floor(1000 + Math.random() * 9000)}-2026`,
+        date: orderPayload.date || now.toISOString().split("T")[0],
+        total: Number(orderPayload.total) || 0,
+        status,
+        trackingStep,
+        items: Array.isArray(orderPayload.items) ? orderPayload.items : [],
+        address: orderPayload.address || "",
+        paymentMethod: orderPayload.paymentMethod || "COD"
+      };
+
+      const paymentStatus =
+        status === "Cancelled" ? "Failed" : status === "Delivered" ? "Success" : "Pending";
+
+      const newPayment = {
+        id: orderPayload.paymentId || `TXN-${Math.floor(100000 + Math.random() * 900000)}`,
+        orderId: newOrder.id,
+        customerName: orderPayload.customerName || "Guest Customer",
+        customerEmail: orderPayload.customerEmail || "guest@example.com",
+        customerPhone: orderPayload.customerPhone || "",
+        amount: newOrder.total,
+        paymentMethod: newOrder.paymentMethod === "COD" ? "Cash on Delivery (COD)" : newOrder.paymentMethod,
+        date: newOrder.date,
+        time: orderPayload.time || now.toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit" }),
+        status: paymentStatus
+      };
+
+      await setDoc(doc(db, "orders", newOrder.id), newOrder);
+      await setDoc(doc(db, "payments", newPayment.id), newPayment);
+      addToast(`Order ${newOrder.id} added successfully.`, "success");
+      return true;
+    } catch (err) {
+      console.error(err);
+      addToast("Failed to add order", "error");
+      return false;
+    }
   };
 
   // Real Firebase Auth
@@ -690,7 +788,6 @@ export const AppProvider = ({ children }) => {
   const updateProfile = async (updatedUser) => {
     try {
       if (!user || !user.uid) throw new Error("No active user");
-      // Remove email/uid from update payload as they shouldn't change
       const { uid, email, ...updatePayload } = updatedUser; 
       await setDoc(doc(db, "users", user.uid), updatePayload, { merge: true });
       setUser(updatedUser);
@@ -699,42 +796,6 @@ export const AppProvider = ({ children }) => {
       console.error(error);
       addToast("Failed to update profile", "error");
     }
-  };
-
-  const adminUpdatePaymentStatus = (id, status, extraFields = {}) => {
-    setPayments((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, status, ...extraFields } : p))
-    );
-    if (status === "Refunded") {
-      addToast(`Payment ${id} has been refunded.`, "info");
-    } else if (status === "Success") {
-      addToast(`Payment ${id} completed successfully!`, "success");
-    } else {
-      addToast(`Payment status updated to ${status}.`, "success");
-    }
-  };
-
-  const adminAddPayment = (payment) => {
-    const newPayment = {
-      ...payment,
-      id: payment.id || `TXN-${Math.floor(100000 + Math.random() * 900000)}`,
-      date: payment.date || new Date().toISOString().split("T")[0],
-      time: payment.time || new Date().toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit" }),
-    };
-    setPayments((prev) => [newPayment, ...prev]);
-    addToast("Payment record logged successfully!", "success");
-  };
-
-  const adminUpdateOrderStatus = (id, status, trackingStep) => {
-    setOrders((prev) =>
-      prev.map((o) => (o.id === id ? { ...o, status, trackingStep: trackingStep || o.trackingStep } : o))
-    );
-    addToast(`Order ${id} status updated to ${status}`, "success");
-  };
-
-  const adminDeleteOrder = (id) => {
-    setOrders((prev) => prev.filter((o) => o.id !== id));
-    addToast(`Order ${id} has been deleted.`, "info");
   };
 
   return (
@@ -746,6 +807,7 @@ export const AppProvider = ({ children }) => {
         cart,
         wishlist,
         user,
+        authLoading,
         orders,
         promoDiscount,
         toasts,
@@ -778,6 +840,7 @@ export const AppProvider = ({ children }) => {
         categoryImages,
         adminAddCategory,
         adminDeleteCategory,
+        adminUpdateCategory,
         adminAddProduct,
         adminDeleteProduct,
         settings,
@@ -785,11 +848,15 @@ export const AppProvider = ({ children }) => {
         payments,
         adminUpdatePaymentStatus,
         adminAddPayment,
+        adminDeletePayment,
+        adminAddOrder,
         adminUpdateOrderStatus,
         adminDeleteOrder,
+        uploadToImageKit
       }}
     >
       {children}
     </AppContext.Provider>
   );
 };
+

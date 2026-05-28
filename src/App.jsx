@@ -21,7 +21,7 @@ import MaintenanceMode from "./admin panel/MaintenanceMode";
 
 
 function AppContent() {
-  const { settings } = useApp();
+  const { settings, user, authLoading } = useApp();
   const [currentPage, setCurrentPage] = useState("home");
   const [currentParams, setCurrentParams] = useState({});
   const navCountRef = useRef(0);
@@ -83,7 +83,7 @@ function AppContent() {
       case "wishlist":
         return <Wishlist navigate={navigate} goBack={goBack} />;
       case "login":
-        return <Login navigate={navigate} goBack={goBack} />;
+        return <Login navigate={navigate} goBack={goBack} currentParams={currentParams} />;
       case "checkout":
         return <Checkout navigate={navigate} goBack={goBack} />;
       case "profile":
@@ -91,7 +91,31 @@ function AppContent() {
       case "order-success":
         return <OrderSuccess navigate={navigate} currentParams={currentParams} goBack={goBack} />;
       case "admin":
-        return <AdminPanel navigate={navigate} />;
+        {
+          if (authLoading) {
+            return (
+              <div className="min-h-[60vh] flex items-center justify-center text-xs text-neutral-500 font-sans">
+                Verifying admin access...
+              </div>
+            );
+          }
+
+          const rawAdminEmails =
+            import.meta.env.VITE_ADMIN_EMAILS ||
+            import.meta.env.VITE_ADMIN_EMAIL ||
+            settings?.adminEmail ||
+            "";
+          const adminEmails = String(rawAdminEmails)
+            .split(",")
+            .map((e) => e.toLowerCase().trim())
+            .filter(Boolean);
+          const userEmail = (user?.email || "").toLowerCase().trim();
+          const isAuthorizedAdmin = !!userEmail && adminEmails.includes(userEmail);
+          if (!isAuthorizedAdmin) {
+            return <Login navigate={navigate} goBack={goBack} currentParams={{ redirectTo: "admin" }} />;
+          }
+          return <AdminPanel navigate={navigate} />;
+        }
       default:
         return <Home navigate={navigate} />;
     }

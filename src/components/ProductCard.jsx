@@ -9,7 +9,7 @@ const isImageKitUrl = (url) => {
 };
 
 export default function ProductCard({ product, navigate }) {
-  const { toggleWishlist, wishlist, addToCart, addToast } = useApp();
+  const { toggleWishlist, wishlist, addToCart, addToast, user } = useApp();
   const [isHovered, setIsHovered] = useState(false);
 
   const isWishlisted = wishlist.some((item) => item.id === product.id);
@@ -143,6 +143,11 @@ export default function ProductCard({ product, navigate }) {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
+              if (!user) {
+                addToast("Please log in to add items to your cart.", "warning");
+                navigate("login");
+                return;
+              }
               addToCart(product, 1, "M");
             }}
             className="w-full py-2.5 bg-[#111111] hover:bg-[#FF4D6D] text-white text-[11px] font-bold tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer focus:outline-none rounded-sm"
@@ -200,6 +205,11 @@ export default function ProductCard({ product, navigate }) {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
+            if (!user) {
+              addToast("Please log in to add items to your cart.", "warning");
+              navigate("login");
+              return;
+            }
             addToCart(product, 1, "M");
           }}
           className="mt-3 w-full py-2 bg-neutral-50 hover:bg-[#111111] border border-neutral-200 hover:border-[#111111] text-[#111111] hover:text-white text-[10px] font-bold tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-1.5 md:hidden cursor-pointer focus:outline-none"

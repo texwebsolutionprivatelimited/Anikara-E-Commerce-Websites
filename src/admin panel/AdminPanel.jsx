@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
+import { collection, doc, onSnapshot, setDoc } from "firebase/firestore";
+import { db } from "../firebase";
 import {
   Shield, Tag, Plus, Pencil, Trash2, X, Check,
   AlertTriangle, ChevronRight, Eye, EyeOff, Palette,
@@ -36,20 +38,12 @@ export default function AdminPanel({ navigate }) {
   const { settings } = useApp();
 
   // Notification center states
-  const [notifications, setNotifications] = useState([
-    { id: 1, title: "New payment received", desc: "ORD-9938 from Ajeet Kumar • ₹2,499", time: "2 mins ago", read: false },
-    { id: 2, title: "Stock Alert: Linen Dress", desc: "Inventory count is low (less than 5 units left)", time: "1 hour ago", read: false },
-    { id: 3, title: "Coupon activated", desc: "Promo FLAT300 has been set to live", time: "3 hours ago", read: true },
-  ]);
+  const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
 
   // Message center states
-  const [messages, setMessages] = useState([
-    { id: 1, sender: "Ajeet Kumar", text: "Can I return the linen dress if it doesn't fit?", time: "5 mins ago", read: false },
-    { id: 2, sender: "Priya Sharma", text: "Do you ship to Bangalore? I need it by next week.", time: "2 hours ago", read: false },
-    { id: 3, sender: "Rohan Mehta", text: "The FLAT300 coupon isn't working for my order.", time: "1 day ago", read: true },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [showMessages, setShowMessages] = useState(false);
 
   // Search bar dropdown states
@@ -85,6 +79,37 @@ export default function AdminPanel({ navigate }) {
     document.addEventListener("mousedown", handleOutsideClick);
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
+
+  useEffect(() => {
+    const unsubNotifications = onSnapshot(collection(db, "admin_notifications"), (snap) => {
+      const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      setNotifications(rows.sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || "")));
+    });
+    const unsubMessages = onSnapshot(collection(db, "admin_messages"), (snap) => {
+      const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      setMessages(rows.sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || "")));
+    });
+    return () => {
+      unsubNotifications();
+      unsubMessages();
+    };
+  }, []);
+
+  const markAllNotificationsRead = async () => {
+    await Promise.all(
+      notifications.map((n) =>
+        setDoc(doc(db, "admin_notifications", String(n.id)), { read: true }, { merge: true })
+      )
+    );
+  };
+
+  const markAllMessagesRead = async () => {
+    await Promise.all(
+      messages.map((m) =>
+        setDoc(doc(db, "admin_messages", String(m.id)), { read: true }, { merge: true })
+      )
+    );
+  };
 
   return (
     <div className="min-h-screen bg-neutral-50 font-sans flex flex-col md:flex-row">
@@ -193,7 +218,7 @@ export default function AdminPanel({ navigate }) {
                       <span className="text-[11px] font-bold text-neutral-800">Notifications</span>
                       <button
                         onClick={() => {
-                          setNotifications(notifications.map(n => ({ ...n, read: true })));
+                          markAllNotificationsRead();
                         }}
                         className="text-[9px] font-bold text-[#FF4D6D] hover:underline focus:outline-none"
                       >
@@ -236,7 +261,7 @@ export default function AdminPanel({ navigate }) {
                       <span className="text-[11px] font-bold text-neutral-800">Messages</span>
                       <button
                         onClick={() => {
-                          setMessages(messages.map(m => ({ ...m, read: true })));
+                          markAllMessagesRead();
                         }}
                         className="text-[9px] font-bold text-[#FF4D6D] hover:underline focus:outline-none"
                       >
@@ -458,7 +483,7 @@ export default function AdminPanel({ navigate }) {
                     <span className="text-xs font-bold text-neutral-800">Notifications</span>
                     <button
                       onClick={() => {
-                        setNotifications(notifications.map(n => ({ ...n, read: true })));
+                        markAllNotificationsRead();
                       }}
                       className="text-[10px] font-bold text-[#FF4D6D] hover:underline focus:outline-none"
                     >
@@ -501,7 +526,7 @@ export default function AdminPanel({ navigate }) {
                     <span className="text-xs font-bold text-neutral-800">Messages Center</span>
                     <button
                       onClick={() => {
-                        setMessages(messages.map(m => ({ ...m, read: true })));
+                        markAllMessagesRead();
                       }}
                       className="text-[10px] font-bold text-[#FF4D6D] hover:underline focus:outline-none"
                     >
@@ -585,3 +610,4 @@ export default function AdminPanel({ navigate }) {
     </div>
   );
 }
+

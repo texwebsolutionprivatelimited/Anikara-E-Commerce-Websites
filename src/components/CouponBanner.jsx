@@ -2,42 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Tag, Copy, Check, ShoppingBag, Sparkles } from "lucide-react";
 import { useApp } from "../context/AppContext";
 
-const COUPONS = [
-  {
-    id: 1,
-    label: "1ST ORDER",
-    headline: "FLAT ₹300 OFF",
-    subtext: "On your 1st purchase",
-    code: "ANIKARA300",
-    condition: "Min. order ₹999 • New users only",
-    accent: "#FF4D6D",
-    bg: "from-[#fff5f7] to-[#fff0f3]",
-    badgeBg: "#FF4D6D",
-  },
-  {
-    id: 2,
-    label: "APP EXCLUSIVE",
-    headline: "FLAT 20% OFF",
-    subtext: "Sitewide — limited time",
-    code: "ANIKARA20",
-    condition: "All categories • No min. order",
-    accent: "#111111",
-    bg: "from-[#f5f5f5] to-[#f0f0f0]",
-    badgeBg: "#111111",
-  },
-  {
-    id: 3,
-    label: "FESTIVE SPECIAL",
-    headline: "BUY 2 GET 1 FREE",
-    subtext: "On selected ethnic wear",
-    code: "NIKFEST3",
-    condition: "Applies on Ethnic Wear category",
-    accent: "#c9860a",
-    bg: "from-[#fffbf0] to-[#fff8e6]",
-    badgeBg: "#c9860a",
-  },
-];
-
 function SingleCoupon({ coupon, navigate, addToast }) {
   const [copied, setCopied] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -295,3 +259,4 @@ export default function CouponBanner({ navigate }) {
     </div>
   );
 }
+

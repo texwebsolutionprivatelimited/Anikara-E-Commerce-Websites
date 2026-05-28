@@ -12,7 +12,7 @@ const isImageKitUrl = (url) => {
 
 export default function ProductDetails({ navigate, currentParams = {}, goBack }) {
   const productId = currentParams.productId;
-  const { products, addToCart, toggleWishlist, wishlist, addToast } = useApp();
+  const { products, addToCart, toggleWishlist, wishlist, addToast, user } = useApp();
 
   const product = products.find((p) => p.id === productId);
 
@@ -77,10 +77,20 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
   };
 
   const handleAddToCart = () => {
+    if (!user) {
+      addToast("Please log in to add items to your cart.", "warning");
+      navigate("login");
+      return;
+    }
     addToCart(product, quantity, selectedSize, selectedColor);
   };
 
   const handleBuyNow = () => {
+    if (!user) {
+      addToast("Please log in to buy items.", "warning");
+      navigate("login");
+      return;
+    }
     addToCart(product, quantity, selectedSize, selectedColor);
     navigate("checkout");
   };
@@ -227,6 +237,21 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
                 )}
               </button>
             )}
+            {product.images && product.images.map((imgUrl, index) => (
+              <button
+                key={index}
+                onClick={() => setActiveImage(imgUrl)}
+                className={`relative aspect-[4/5] w-16 bg-neutral-100 shrink-0 border-2 rounded-xs overflow-hidden cursor-pointer focus:outline-none ${
+                  activeImage === imgUrl ? "border-[#FF4D6D]" : "border-transparent"
+                }`}
+              >
+                {isImageKitUrl(imgUrl) ? (
+                  <IKImage src={imgUrl} alt={`Gallery view thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                ) : (
+                  <img src={imgUrl} alt={`Gallery view thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                )}
+              </button>
+            ))}
           </div>
         </div>
 

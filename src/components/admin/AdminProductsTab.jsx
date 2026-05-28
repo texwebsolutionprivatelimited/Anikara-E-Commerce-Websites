@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useApp } from "../../context/AppContext";
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "../../firebase";
+import { db } from "../../firebase";
 import { Plus, Search, Pencil, Trash2, X, Check, Package, Image as ImageIcon, AlertTriangle } from "lucide-react";
 
 const INITIAL_PRODUCT = {
@@ -14,8 +13,6 @@ const INITIAL_PRODUCT = {
   description: "",
   sizes: ["S", "M", "L", "XL"],
 };
-
-const CATEGORIES = ["Dress", "Night Suit", "Lounge Suit", "Co-ords", "Ethnic Wear", "Denim", "Top & Blouse"];
 
 // ═══════════════════════════════════════════════════════════════════
 // SHARED — Delete Confirm Modal
@@ -44,7 +41,7 @@ function DeleteModal({ item, label, onConfirm, onClose }) {
 }
 
 export default function AdminProductsTab() {
-  const { addToast } = useApp();
+  const { addToast, categories, uploadToImageKit } = useApp();
   
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -117,11 +114,9 @@ export default function AdminProductsTab() {
     try {
       let imageUrl = editTarget?.image || "";
 
-      // 1. Upload Image to Storage if selected
+      // 1. Upload Image to ImageKit if selected
       if (imageFile) {
-        const fileRef = ref(storage, `products/${Date.now()}_${imageFile.name}`);
-        const snapshot = await uploadBytes(fileRef, imageFile);
-        imageUrl = await getDownloadURL(snapshot.ref);
+        imageUrl = await uploadToImageKit(imageFile);
       }
 
       // 2. Prepare Payload
@@ -203,7 +198,7 @@ export default function AdminProductsTab() {
             className="px-3 py-2 text-xs border border-neutral-200 rounded-lg focus:outline-none bg-white text-neutral-700"
           >
             <option value="">All Categories</option>
-            {CATEGORIES.map(c => (
+            {categories.map(c => (
               <option key={c} value={c}>{c}</option>
             ))}
           </select>
@@ -311,7 +306,7 @@ export default function AdminProductsTab() {
                     <div>
                       <label className={labelCls}>Category <span className="text-[#FF4D6D]">*</span></label>
                       <select required value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className={inputCls}>
-                        {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                        {categories.map(c => <option key={c} value={c}>{c}</option>)}
                       </select>
                     </div>
                     <div>

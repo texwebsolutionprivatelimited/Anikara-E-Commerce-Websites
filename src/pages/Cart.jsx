@@ -204,7 +204,7 @@ export default function Cart({ navigate }) {
             )}
             
             <p className="text-[10px] text-neutral-400 font-light leading-normal">
-              * Try using **ANIKARA20** (20% off) or **WELCOME10** (10% off) to apply dynamic discounts.
+              * Available promo codes are managed live from the admin panel.
             </p>
           </div>
 

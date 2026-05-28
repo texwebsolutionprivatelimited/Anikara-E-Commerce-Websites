@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useApp } from "../context/AppContext";
 import {
   FileText, X, Check, AlertTriangle, Search, Download, RotateCcw,
-  Pencil, Trash2, ChevronUp, ChevronDown
+  Pencil, Trash2, ChevronUp, ChevronDown, Plus
 } from "lucide-react";
 import { InvoiceModal } from "./PaymentRecords";
 import { StatCard } from "./AdminShared";
@@ -213,8 +213,183 @@ function DeleteOrderModal({ order, onConfirm, onClose }) {
 // ═══════════════════════════════════════════════════════════════════
 // ORDER TRACKING TAB - MAIN COMPONENT
 // ═══════════════════════════════════════════════════════════════════
+function ManualOrderModal({ onSave, onClose }) {
+  const [form, setForm] = useState({
+    orderId: "",
+    date: new Date().toISOString().split("T")[0],
+    customerName: "",
+    customerEmail: "",
+    customerPhone: "",
+    address: "",
+    paymentMethod: "COD",
+    status: "Processing",
+    itemName: "",
+    itemPrice: "",
+    quantity: "1",
+    size: "M",
+    color: "Default",
+    itemImage: ""
+  });
+
+  const set = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
+  const inputCls = "w-full text-xs bg-neutral-50 border border-neutral-200 rounded px-3 py-2.5 focus:outline-none focus:border-[#FF4D6D] transition-all font-sans";
+  const labelCls = "block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5";
+
+  const getTrackingStep = (status) => {
+    if (status === "Processing") return 1;
+    if (status === "Shipped" || status === "In Transit") return 2;
+    if (status === "Out for Delivery") return 3;
+    if (status === "Delivered") return 4;
+    return 1;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const price = Number(form.itemPrice);
+    const quantity = Number(form.quantity);
+    if (!form.customerName || !form.customerEmail || !form.address || !form.itemName || !price || quantity < 1) {
+      return;
+    }
+
+    const payload = {
+      id: form.orderId.trim() || undefined,
+      date: form.date,
+      status: form.status,
+      trackingStep: getTrackingStep(form.status),
+      address: form.address.trim(),
+      paymentMethod: form.paymentMethod,
+      total: price * quantity,
+      customerName: form.customerName.trim(),
+      customerEmail: form.customerEmail.trim(),
+      customerPhone: form.customerPhone.trim(),
+      items: [
+        {
+          id: `manual-item-${Date.now()}`,
+          name: form.itemName.trim(),
+          price,
+          quantity,
+          size: form.size.trim() || "M",
+          color: form.color.trim() || "Default",
+          image: form.itemImage.trim() || "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=300&q=80"
+        }
+      ]
+    };
+    onSave(payload);
+  };
+
+  const total = (Number(form.itemPrice) || 0) * (Number(form.quantity) || 0);
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in font-sans">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-6 font-sans border border-neutral-200 max-h-[92vh] overflow-y-auto">
+        <div className="flex items-center justify-between border-b border-neutral-100 pb-3 mb-4">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-900 font-display flex items-center gap-2">
+            <Plus size={16} className="text-[#FF4D6D]" />
+            Add Manual Order
+          </h2>
+          <button onClick={onClose} className="text-neutral-400 hover:text-black focus:outline-none">
+            <X size={18} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Order ID (Optional)</label>
+              <input value={form.orderId} onChange={(e) => set("orderId", e.target.value)} className={inputCls} placeholder="Auto-generate if empty" />
+            </div>
+            <div>
+              <label className={labelCls}>Order Date</label>
+              <input type="date" value={form.date} onChange={(e) => set("date", e.target.value)} className={inputCls} required />
+            </div>
+            <div>
+              <label className={labelCls}>Customer Name</label>
+              <input value={form.customerName} onChange={(e) => set("customerName", e.target.value)} className={inputCls} required />
+            </div>
+            <div>
+              <label className={labelCls}>Customer Email</label>
+              <input type="email" value={form.customerEmail} onChange={(e) => set("customerEmail", e.target.value)} className={inputCls} required />
+            </div>
+            <div>
+              <label className={labelCls}>Customer Phone</label>
+              <input value={form.customerPhone} onChange={(e) => set("customerPhone", e.target.value)} className={inputCls} />
+            </div>
+            <div>
+              <label className={labelCls}>Payment Method</label>
+              <select value={form.paymentMethod} onChange={(e) => set("paymentMethod", e.target.value)} className={inputCls}>
+                <option value="COD">Cash on Delivery (COD)</option>
+                <option value="UPI">UPI</option>
+                <option value="Card">Card</option>
+                <option value="Net Banking">Net Banking</option>
+              </select>
+            </div>
+            <div className="md:col-span-2">
+              <label className={labelCls}>Shipping Address</label>
+              <textarea value={form.address} onChange={(e) => set("address", e.target.value)} className={`${inputCls} min-h-[76px] resize-y`} required />
+            </div>
+            <div>
+              <label className={labelCls}>Order Status</label>
+              <select value={form.status} onChange={(e) => set("status", e.target.value)} className={inputCls}>
+                <option value="Processing">Processing</option>
+                <option value="Shipped">Shipped</option>
+                <option value="In Transit">In Transit</option>
+                <option value="Out for Delivery">Out for Delivery</option>
+                <option value="Delivered">Delivered</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="border-t border-neutral-100 pt-4">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-3">Item Details</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={labelCls}>Item Name</label>
+                <input value={form.itemName} onChange={(e) => set("itemName", e.target.value)} className={inputCls} required />
+              </div>
+              <div>
+                <label className={labelCls}>Image URL (Optional)</label>
+                <input value={form.itemImage} onChange={(e) => set("itemImage", e.target.value)} className={inputCls} placeholder="https://..." />
+              </div>
+              <div>
+                <label className={labelCls}>Unit Price</label>
+                <input type="number" min="1" step="1" value={form.itemPrice} onChange={(e) => set("itemPrice", e.target.value)} className={inputCls} required />
+              </div>
+              <div>
+                <label className={labelCls}>Quantity</label>
+                <input type="number" min="1" step="1" value={form.quantity} onChange={(e) => set("quantity", e.target.value)} className={inputCls} required />
+              </div>
+              <div>
+                <label className={labelCls}>Size</label>
+                <input value={form.size} onChange={(e) => set("size", e.target.value)} className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Color</label>
+                <input value={form.color} onChange={(e) => set("color", e.target.value)} className={inputCls} />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-neutral-50 border border-neutral-100 rounded-lg p-3 text-xs text-neutral-700">
+            Estimated Order Total: <span className="font-black text-[#FF4D6D]">₹{total.toLocaleString("en-IN")}</span>
+          </div>
+
+          <div className="flex gap-3 pt-2 border-t border-neutral-100">
+            <button type="submit" className="flex-1 py-2.5 bg-[#111111] hover:bg-[#FF4D6D] text-white text-xs font-bold tracking-widest uppercase transition-colors rounded focus:outline-none flex items-center justify-center gap-1.5 shadow-xs font-sans">
+              <Check size={13} /> Save Manual Order
+            </button>
+            <button type="button" onClick={onClose} className="px-5 py-2.5 border border-neutral-200 text-neutral-700 text-xs font-bold tracking-widest uppercase hover:bg-neutral-50 transition-colors rounded focus:outline-none">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function OrderTracking() {
-  const { orders, adminUpdateOrderStatus, adminDeleteOrder, payments, addToast } = useApp();
+  const { orders, adminUpdateOrderStatus, adminDeleteOrder, adminAddOrder, payments, addToast } = useApp();
   const [search, setSearch] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedMethod, setSelectedMethod] = useState("");
@@ -224,6 +399,7 @@ export default function OrderTracking() {
   const [activeInvoice, setActiveInvoice] = useState(null);
   const [activeUpdateStatus, setActiveUpdateStatus] = useState(null);
   const [activeDeleteOrder, setActiveDeleteOrder] = useState(null);
+  const [activeCreateOrder, setActiveCreateOrder] = useState(false);
 
   // Helper: Retrieve customer details using payments ledger
   const getCustomerInfo = (orderId) => {
@@ -339,6 +515,13 @@ export default function OrderTracking() {
 
         {/* Action Buttons */}
         <div className="flex gap-2 shrink-0">
+          <button
+            onClick={() => setActiveCreateOrder(true)}
+            className="flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#111111] hover:bg-[#FF4D6D] text-white text-xs font-bold uppercase rounded-lg transition-colors focus:outline-none"
+            title="Add Manual Order"
+          >
+            <Plus size={13} /> <span className="hidden sm:inline">Add Order</span>
+          </button>
           <button
             onClick={handleExportCSV}
             className="flex items-center justify-center gap-1.5 px-4 py-2.5 border border-neutral-200 hover:bg-neutral-50 text-neutral-700 text-xs font-bold uppercase rounded-lg transition-colors focus:outline-none"
@@ -818,6 +1001,18 @@ export default function OrderTracking() {
             setActiveDeleteOrder(null);
           }}
           onClose={() => setActiveDeleteOrder(null)}
+        />
+      )}
+
+      {activeCreateOrder && (
+        <ManualOrderModal
+          onSave={async (payload) => {
+            const ok = await adminAddOrder(payload);
+            if (ok) {
+              setActiveCreateOrder(false);
+            }
+          }}
+          onClose={() => setActiveCreateOrder(false)}
         />
       )}
     </>

@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { useApp } from "../context/AppContext";
 import {
-  Plus, Trash2, X, Check, AlertTriangle, Search, Heart, Star,
+  Plus, Trash2, X, Check, AlertTriangle, Search, Heart, Star, Pencil,
   Monitor, Package, Flame, Clock, Sparkles, LayoutGrid, Upload, Image as ImageIcon
 } from "lucide-react";
 import { StatCard } from "./AdminShared";
@@ -56,35 +56,47 @@ function DeleteProductConfirmModal({ product, onConfirm, onClose }) {
 
 // Image upload component with drag & drop
 function ImageUploader({ currentImage, onImageChange, label, required }) {
+  const { uploadToImageKit } = useApp();
   const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(currentImage || "");
   const fileInputRef = React.useRef(null);
 
-  const handleFile = (file) => {
+  React.useEffect(() => {
+    setPreviewUrl(currentImage || "");
+  }, [currentImage]);
+
+  const handleFile = async (file) => {
     if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const dataUrl = reader.result;
-        setPreviewUrl(dataUrl);
-        onImageChange(dataUrl);
-      };
-      reader.readAsDataURL(file);
+      setIsUploading(true);
+      try {
+        const cdnUrl = await uploadToImageKit(file);
+        setPreviewUrl(cdnUrl);
+        onImageChange(cdnUrl);
+      } catch (err) {
+        console.error(err);
+        alert("Image upload failed. Please try again.");
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 
   const handleDrop = useCallback((e) => {
     e.preventDefault();
     setIsDragging(false);
+    if (isUploading) return;
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith('image/')) {
       handleFile(file);
     }
-  }, []);
+  }, [isUploading]);
 
   const handleDragOver = useCallback((e) => {
     e.preventDefault();
+    if (isUploading) return;
     setIsDragging(true);
-  }, []);
+  }, [isUploading]);
 
   const handleDragLeave = useCallback((e) => {
     e.preventDefault();
@@ -92,6 +104,7 @@ function ImageUploader({ currentImage, onImageChange, label, required }) {
   }, []);
 
   const handleClickUpload = () => {
+    if (isUploading) return;
     fileInputRef.current?.click();
   };
 
@@ -123,7 +136,13 @@ function ImageUploader({ currentImage, onImageChange, label, required }) {
           }
         `}
       >
-        {previewUrl ? (
+        {isUploading ? (
+          <div className="flex flex-col items-center justify-center py-8 px-4 text-center min-h-[160px] animate-pulse">
+            <div className="w-8 h-8 border-2 border-[#FF4D6D] border-t-transparent rounded-full animate-spin mb-3"></div>
+            <p className="text-xs font-semibold text-neutral-800">Uploading to ImageKit...</p>
+            <p className="text-[9px] text-neutral-400 mt-1">Please wait a moment</p>
+          </div>
+        ) : previewUrl ? (
           <div className="relative w-full h-full min-h-[160px] group">
             <img 
               src={previewUrl} 
@@ -183,6 +202,7 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
     badge: editingProduct?.badge || "",
     image: editingProduct?.image || "",
     altImage: editingProduct?.altImage || "",
+    images: editingProduct?.images || [],
     description: editingProduct?.description || "",
     sizes: editingProduct?.sizes || ["S", "M", "L"],
     colors: editingProduct?.colors || [],
@@ -262,6 +282,7 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
       badge: form.badge || null,
       image: form.image,
       altImage: form.altImage || null,
+      images: form.images || [],
       description: form.description,
       sizes: form.sizes,
       colors: form.colors.length > 0 ? form.colors : [{ name: "Default", hex: "#111111" }],
@@ -392,6 +413,50 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
                 currentImage={form.altImage}
                 onImageChange={(url) => handleImageChange("altImage", url)}
                 label="Alt Image (Hover View)"
+                required={false}
+              />
+            </div>
+
+            {/* Gallery Images (Multiple Images) */}
+            <div className="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
+              <label className={labelCls}>Additional Gallery Images</label>
+              <p className="text-[9px] text-neutral-400 mb-3">Upload multiple images that will show up as thumbnails on the product details page</p>
+              
+              {/* Existing Gallery Preview Grid */}
+              {form.images && form.images.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
+                  {form.images.map((imgUrl, index) => (
+                    <div key={index} className="relative aspect-[4/5] bg-white border border-neutral-200 rounded-lg overflow-hidden group">
+                      <img src={imgUrl} alt={`Gallery Preview ${index + 1}`} className="w-full h-full object-cover animate-fade-in" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setForm(f => ({
+                            ...f,
+                            images: f.images.filter((_, idx) => idx !== index)
+                          }));
+                        }}
+                        className="absolute top-1.5 right-1.5 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all duration-200 cursor-pointer shadow-md focus:outline-none"
+                      >
+                        <X size={10} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Add New Gallery Image */}
+              <ImageUploader
+                currentImage=""
+                onImageChange={(url) => {
+                  if (url) {
+                    setForm(f => ({
+                      ...f,
+                      images: [...(f.images || []), url]
+                    }));
+                  }
+                }}
+                label="Add Gallery Image"
                 required={false}
               />
             </div>
@@ -587,6 +652,7 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
 export default function ProductsTab() {
   const { products, categories, adminAddProduct, adminDeleteProduct } = useApp();
   const [showAdd, setShowAdd] = useState(false);
+  const [editTarget, setEditTarget] = useState(null);
   const [delTarget, setDelTarget] = useState(null);
   const [search, setSearch] = useState("");
   const [selectedCat, setSelectedCat] = useState("");
@@ -766,6 +832,12 @@ export default function ProductsTab() {
                       </td>
                       <td className="py-3 px-4 text-center">
                         <button
+                          onClick={() => setEditTarget(p)}
+                          className="p-1.5 rounded-lg text-neutral-400 hover:text-[#111111] hover:bg-neutral-100 transition-colors focus:outline-none"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                        <button
                           onClick={() => setDelTarget(p)}
                           className="p-1.5 rounded-lg text-neutral-400 hover:text-red-500 hover:bg-red-50 transition-colors focus:outline-none"
                         >
@@ -785,6 +857,14 @@ export default function ProductsTab() {
         <ProductModal
           onSave={(form) => { adminAddProduct(form); setShowAdd(false); }}
           onClose={() => setShowAdd(false)}
+        />
+      )}
+
+      {editTarget && (
+        <ProductModal
+          editingProduct={editTarget}
+          onSave={(form) => { adminAddProduct(form); setEditTarget(null); }}
+          onClose={() => setEditTarget(null)}
         />
       )}
 

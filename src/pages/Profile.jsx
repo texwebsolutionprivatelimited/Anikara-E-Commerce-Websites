@@ -19,6 +19,15 @@ export default function Profile({ navigate }) {
     setExpandedOrder((prev) => (prev === orderId ? null : orderId));
   };
 
+  const getTrackingStepFromOrder = (order) => {
+    if (order?.trackingStep) return order.trackingStep;
+    if (order?.status === "Processing") return 1;
+    if (order?.status === "Shipped") return 2;
+    if (order?.status === "In Transit" || order?.status === "Out for Delivery") return 3;
+    if (order?.status === "Delivered") return 4;
+    return 1;
+  };
+
   const handleUpdateProfile = (e) => {
     e.preventDefault();
     const updatedUser = {
@@ -222,7 +231,7 @@ export default function Profile({ navigate }) {
             {orders.length > 0 ? (
               orders.map((order) => {
                 const isExpanded = expandedOrder === order.id;
-                const activeStep = order.trackingStep || 4;
+                const activeStep = getTrackingStepFromOrder(order);
 
                 return (
                   <div
@@ -253,7 +262,7 @@ export default function Profile({ navigate }) {
                           className={`text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${
                             order.status === "Delivered"
                               ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                              : order.status === "In Transit"
+                              : order.status === "In Transit" || order.status === "Shipped" || order.status === "Out for Delivery"
                               ? "bg-blue-50 text-blue-700 border border-blue-100"
                               : "bg-amber-50 text-amber-700 border border-amber-100"
                           }`}
