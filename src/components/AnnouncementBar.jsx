@@ -1,24 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Sparkles, Zap, Package } from "lucide-react";
-
-const ANNOUNCEMENTS = [
-  { icon: Sparkles, text: "FREE SHIPPING ON ALL ORDERS ABOVE ₹1,500" },
-  { icon: Zap, text: "LIMITED TIME SALE: USE CODE 'ANIKARA20' TO GET 20% OFF" },
-  { icon: Package, text: "EASY RETURNS & 15-DAY HASSLE-FREE EXCHANGES" },
-];
+import { useApp } from "../context/AppContext";
 
 export default function AnnouncementBar() {
+  const { settings } = useApp();
   const [index, setIndex] = useState(0);
+
+  const announcements = [
+    { icon: Sparkles, text: `FREE SHIPPING ON ALL ORDERS ABOVE ₹${(settings?.shippingThreshold || 1500).toLocaleString("en-IN")}` },
+    { icon: Zap, text: "LIMITED TIME SALE: USE CODE 'ANIKARA20' TO GET 20% OFF" },
+    { icon: Package, text: "EASY RETURNS & 15-DAY HASSLE-FREE EXCHANGES" },
+  ];
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % ANNOUNCEMENTS.length);
+      setIndex((prev) => (prev + 1) % announcements.length);
     }, 4500);
     return () => clearInterval(timer);
-  }, []);
+  }, [announcements.length]);
 
-  const { icon: Icon, text } = ANNOUNCEMENTS[index];
+  const currentAnnouncement = announcements[index] || announcements[0];
+  const Icon = currentAnnouncement.icon;
+  const text = currentAnnouncement.text;
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-[#111111] text-white text-[8px] min-[360px]:text-[9px] sm:text-[10.5px] md:text-xs tracking-[0.10em] sm:tracking-[0.12em] font-medium h-[32px] md:h-[36px] flex items-center justify-center overflow-hidden border-b border-white/10 font-display">

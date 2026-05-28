@@ -94,7 +94,43 @@ export const useApp = () => {
 };
 
 export const AppProvider = ({ children }) => {
-  const [products] = useState(initialProducts);
+  const [products, setProducts] = useState(initialProducts);
+  const [categories, setCategories] = useState([
+    "Night Suit",
+    "Lounge Suit",
+    "Dress",
+    "T-Shirt",
+    "Top & Blouse",
+    "Bottom Wear",
+    "Lingerie",
+    "Co-ords",
+    "Suit",
+    "Denim",
+    "Ethnic Wear",
+    "Sports Wear",
+    "Footwear",
+    "Bags",
+    "Cosmetics",
+    "Accessories"
+  ]);
+  const [categoryImages, setCategoryImages] = useState({
+    "Dress": "https://images.unsplash.com/photo-1618932260643-eee4a2f6c9d6?auto=format&fit=crop&w=600&q=80",
+    "Top & Blouse": "https://images.unsplash.com/photo-1564227901-6b1d20bebe9d?auto=format&fit=crop&w=600&q=80",
+    "T-Shirt": "https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=600&q=80",
+    "Denim": "https://images.unsplash.com/photo-1604176354204-9268737828e4?auto=format&fit=crop&w=600&q=80",
+    "Co-ords": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=600&q=80",
+    "Bottom Wear": "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=600&q=80",
+    "Night Suit": "https://images.unsplash.com/photo-1608231387042-66d1773070a5?auto=format&fit=crop&w=600&q=80",
+    "Lounge Suit": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80",
+    "Lingerie": "https://images.unsplash.com/photo-1569591159212-b02ea8a9f239?auto=format&fit=crop&w=600&q=80",
+    "Suit": "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=600&q=80",
+    "Sports Wear": "https://images.unsplash.com/photo-1571008887538-b36bb32f4571?auto=format&fit=crop&w=600&q=80",
+    "Footwear": "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=600&q=80",
+    "Bags": "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=600&q=80",
+    "Cosmetics": "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80",
+    "Accessories": "https://images.unsplash.com/photo-1576243345690-4e4b79b63288?auto=format&fit=crop&w=600&q=80",
+    "Ethnic Wear": "https://images.unsplash.com/photo-1610030469668-93535c17b6b3?auto=format&fit=crop&w=600&q=80",
+  });
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [user, setUser] = useState({
@@ -163,6 +199,25 @@ export const AppProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
   const [coupons, setCoupons] = useState(INITIAL_COUPONS);
   const [slides, setSlides] = useState(INITIAL_SLIDES);
+  const [settings, setSettings] = useState(() => {
+    const saved = localStorage.getItem("anikara_settings");
+    return saved ? JSON.parse(saved) : {
+      businessName: "Anikara",
+      gstPercent: 5,
+      shippingThreshold: 1500,
+      shippingFee: 150,
+      maintenanceMode: false
+    };
+  });
+
+  const adminUpdateSettings = (updated) => {
+    setSettings((prev) => {
+      const next = { ...prev, ...updated };
+      localStorage.setItem("anikara_settings", JSON.stringify(next));
+      return next;
+    });
+    addToast("Settings updated successfully!", "success");
+  };
 
   // Toast utilities
   const addToast = (message, type = "success") => {
@@ -334,13 +389,68 @@ export const AppProvider = ({ children }) => {
     });
   };
 
+  // Admin: Category CRUD
+  const adminAddCategory = (categoryName, imageUrl) => {
+    const trimmed = categoryName.trim();
+    if (!trimmed) return false;
+    if (categories.some((cat) => cat.toLowerCase() === trimmed.toLowerCase())) {
+      addToast("Category already exists!", "error");
+      return false;
+    }
+    setCategories((prev) => [...prev, trimmed]);
+    if (imageUrl && imageUrl.trim()) {
+      setCategoryImages((prev) => ({
+        ...prev,
+        [trimmed]: imageUrl.trim()
+      }));
+    }
+    addToast("Category added successfully!", "success");
+    return true;
+  };
+
+  const adminDeleteCategory = (categoryName) => {
+    const hasProducts = products.some(
+      (p) => p.category.toLowerCase() === categoryName.toLowerCase()
+    );
+    if (hasProducts) {
+      addToast("Cannot delete: Products exist in this category!", "error");
+      return false;
+    }
+    setCategories((prev) => prev.filter((cat) => cat.toLowerCase() !== categoryName.toLowerCase()));
+    setCategoryImages((prev) => {
+      const copy = { ...prev };
+      delete copy[categoryName];
+      return copy;
+    });
+    addToast("Category deleted.", "info");
+    return true;
+  };
+
+  // Admin: Product CRUD
+  const adminAddProduct = (product) => {
+    const newProduct = {
+      ...product,
+      id: `p-${Date.now()}`,
+      rating: 5.0,
+      ratingCount: 0,
+      reviews: []
+    };
+    setProducts((prev) => [newProduct, ...prev]);
+    addToast("Product added successfully!", "success");
+  };
+
+  const adminDeleteProduct = (id) => {
+    setProducts((prev) => prev.filter((p) => p.id !== id));
+    addToast("Product deleted.", "info");
+  };
+
   // Checkout and orders
   const placeOrder = (addressDetails, paymentMethod) => {
     if (cart.length === 0) return null;
 
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const discountAmount = promoDiscount ? (subtotal * promoDiscount.discountPercent) / 100 : 0;
-    const shipping = subtotal > 1500 ? 0 : 150;
+    const shipping = subtotal > settings.shippingThreshold ? 0 : settings.shippingFee;
     const finalTotal = subtotal - discountAmount + shipping;
 
     const formattedAddress = `${addressDetails.street}, ${addressDetails.city}, ${addressDetails.state} - ${addressDetails.zip}`;
@@ -441,6 +551,14 @@ export const AppProvider = ({ children }) => {
         adminDeleteSlide,
         adminToggleSlide,
         adminMoveSlide,
+        categories,
+        categoryImages,
+        adminAddCategory,
+        adminDeleteCategory,
+        adminAddProduct,
+        adminDeleteProduct,
+        settings,
+        adminUpdateSettings,
       }}
     >
       {children}

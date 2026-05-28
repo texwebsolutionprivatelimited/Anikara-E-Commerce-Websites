@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { AppProvider } from "./context/AppContext";
+import { AppProvider, useApp } from "./context/AppContext";
 import AnnouncementBar from "./components/AnnouncementBar";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -16,8 +16,10 @@ import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
 import OrderSuccess from "./pages/OrderSuccess";
 import AdminPanel from "./pages/AdminPanel";
+import MaintenanceMode from "./pages/MaintenanceMode";
 
-export default function App() {
+function AppContent() {
+  const { settings } = useApp();
   const [currentPage, setCurrentPage] = useState("home");
   const [currentParams, setCurrentParams] = useState({});
   const navCountRef = useRef(0);
@@ -64,6 +66,10 @@ export default function App() {
   };
 
   const renderPage = () => {
+    if (settings?.maintenanceMode && currentPage !== "admin") {
+      return <MaintenanceMode navigate={navigate} />;
+    }
+
     switch (currentPage) {
       case "home":
         return <Home navigate={navigate} />;
@@ -91,24 +97,31 @@ export default function App() {
   };
 
   const isAdmin = currentPage === "admin";
+  const isMaintenance = settings?.maintenanceMode && !isAdmin;
 
   return (
-    <AppProvider>
-      <div className="min-h-screen flex flex-col bg-white text-[#111111] selection:bg-[#FF4D6D] selection:text-white">
-        
-        {/* Core Layout fixed nodes — hidden on admin */}
-        {!isAdmin && <AnnouncementBar />}
-        {!isAdmin && <Navbar currentPage={currentPage} navigate={navigate} currentParams={currentParams} />}
-        
-        {/* Page content window with sticky margins top offset */}
-        <main className={`flex-grow ${!isAdmin ? "pt-[104px] md:pt-[116px] lg:pt-[120px]" : ""}`}>
-          {renderPage()}
-        </main>
-        
-        {!isAdmin && <Footer navigate={navigate} />}
-        <Toast />
+    <div className="min-h-screen flex flex-col bg-white text-[#111111] selection:bg-[#FF4D6D] selection:text-white">
+      
+      {/* Core Layout fixed nodes — hidden on admin or maintenance mode */}
+      {!isAdmin && !isMaintenance && <AnnouncementBar />}
+      {!isAdmin && !isMaintenance && <Navbar currentPage={currentPage} navigate={navigate} currentParams={currentParams} />}
+      
+      {/* Page content window with sticky margins top offset */}
+      <main className={`flex-grow ${!isAdmin && !isMaintenance ? "pt-[104px] md:pt-[116px] lg:pt-[120px]" : ""}`}>
+        {renderPage()}
+      </main>
+      
+      {!isAdmin && !isMaintenance && <Footer navigate={navigate} />}
+      <Toast />
 
-      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AppProvider>
+      <AppContent />
     </AppProvider>
   );
 }

@@ -49,7 +49,7 @@ const HOT_CATEGORIES = [
 ];
 
 export default function Navbar({ currentPage, navigate, currentParams = {} }) {
-  const { cart, wishlist, user } = useApp();
+  const { cart, wishlist, user, settings } = useApp();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -200,7 +200,7 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
             >
               <img
                 src="/logo.png"
-                alt="Anikara Logo"
+                alt={`${settings?.businessName || "Anikara"} Logo`}
                 className="h-8 min-[360px]:h-9 sm:h-10 md:h-12 w-auto object-contain"
               />
             </button>
@@ -475,7 +475,7 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
                 >
                   <img
                     src="/logo.png"
-                    alt="Anikara Logo"
+                    alt={`${settings?.businessName || "Anikara"} Logo`}
                     className="h-9 w-auto object-contain"
                   />
                 </button>

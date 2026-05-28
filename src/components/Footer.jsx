@@ -3,7 +3,7 @@ import { Mail, Phone, MapPin, Shield } from "lucide-react";
 import { useApp } from "../context/AppContext";
 
 export default function Footer({ navigate }) {
-  const { addToast } = useApp();
+  const { addToast, settings } = useApp();
 
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
@@ -26,7 +26,7 @@ export default function Footer({ navigate }) {
         </div>
         <div className="space-y-2">
           <h2 className="text-xl md:text-2xl font-bold tracking-wider uppercase font-display text-white">
-            Join the Anikara Club
+            Join the {settings?.businessName || "Anikara"} Club
           </h2>
           <p className="text-xs md:text-sm text-neutral-400 font-light max-w-md mx-auto leading-relaxed">
             Subscribe to get exclusive early access to drop collections, limited-edition codes, and premium lookbooks.
@@ -158,7 +158,7 @@ export default function Footer({ navigate }) {
 
       {/* Copyright row */}
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between text-center md:text-left text-gray-500 text-sm font-light gap-3 md:gap-6">
-        <p>© 2026 ANIKARA. All Rights Reserved.</p>
+        <p>© 2026 {(settings?.businessName || "Anikara").toUpperCase()}. All Rights Reserved.</p>
         <p className="tracking-wide text-xs">Designed for the Modern Minimalist.</p>
         <button
           onClick={() => navigate("admin")}

@@ -3,7 +3,7 @@ import { useApp } from "../context/AppContext";
 import { Mail, Lock, User, ArrowRight } from "lucide-react";
 
 export default function Login({ navigate }) {
-  const { loginUser, registerUser } = useApp();
+  const { loginUser, registerUser, settings } = useApp();
   const [isLoginView, setIsLoginView] = useState(true);
 
   // Form Fields
@@ -38,7 +38,7 @@ export default function Login({ navigate }) {
         {/* Header Title */}
         <div className="text-center space-y-2">
           <h2 className="text-lg font-bold tracking-[0.2em] font-display text-neutral-900 uppercase">
-            ANIKARA FASHION
+            {(settings?.businessName || "Anikara").toUpperCase()} FASHION
           </h2>
           <p className="text-xs text-neutral-400 font-light leading-normal">
             {isLoginView

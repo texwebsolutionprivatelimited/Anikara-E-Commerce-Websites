@@ -3,7 +3,7 @@ import { useApp } from "../context/AppContext";
 import { MapPin, Truck, CreditCard, ClipboardCheck, ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react";
 
 export default function Checkout({ navigate }) {
-  const { cart, user, promoDiscount, placeOrder } = useApp();
+  const { cart, user, promoDiscount, placeOrder, settings } = useApp();
 
   // Redirect if cart is empty
   useEffect(() => {
@@ -35,10 +35,10 @@ export default function Checkout({ navigate }) {
     ? Math.round((subtotal * promoDiscount.discountPercent) / 100)
     : 0;
 
-  const standardShippingPrice = subtotal > 1500 ? 0 : 150;
+  const standardShippingPrice = subtotal > settings.shippingThreshold ? 0 : settings.shippingFee;
   const shippingPrice = shippingMethod === "Standard" ? standardShippingPrice : 250;
   
-  const tax = Math.round((subtotal - discountAmount) * 0.05);
+  const tax = Math.round((subtotal - discountAmount) * (settings.gstPercent / 100));
   const grandTotal = subtotal - discountAmount + shippingPrice + tax;
 
   const handleNextStep = (e) => {
@@ -461,8 +461,8 @@ export default function Checkout({ navigate }) {
               )}
             </div>
 
-            <div className="flex justify-between font-light">
-              <span>GST / Taxes (5%)</span>
+             <div className="flex justify-between font-light">
+              <span>GST / Taxes ({settings.gstPercent}%)</span>
               <span className="font-bold text-neutral-900">₹{tax}</span>
             </div>
 
