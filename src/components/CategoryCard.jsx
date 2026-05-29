@@ -1,5 +1,12 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { Image as IKImage } from "@imagekit/react";
+
+const isImageKitUrl = (url) => {
+  if (!url) return false;
+  return url.includes("ik.imagekit.io") || url.startsWith("/") || !url.startsWith("http");
+};
+
 
 // Sparkle/Twinkle 4-pointed star SVGs
 const Sparkles = () => {
@@ -59,12 +66,19 @@ export default function CategoryCard({ category, navigate }) {
 
         {/* Inner arch masking the image */}
         <div className="relative w-full h-full rounded-t-full rounded-b-[16px] sm:rounded-b-[30px] overflow-hidden bg-gradient-to-b from-[#FFF0F3] to-white flex items-center justify-center">
-          <img
-            src={category.image}
-            alt={category.displayName}
-            className="w-full h-full object-cover transition-transform duration-750 ease-out group-hover:scale-106"
-            loading="lazy"
-          />
+          {isImageKitUrl(category.image) ? (
+            <IKImage
+              src={category.image}
+              alt={category.displayName}
+              className="w-full h-full object-cover transition-transform duration-750 ease-out group-hover:scale-106"
+            />
+          ) : (
+            <img
+              src={category.image}
+              alt={category.displayName}
+              className="w-full h-full object-cover transition-transform duration-750 ease-out group-hover:scale-106"
+            />
+          )}
           {/* Subtle gradient overlay for blending */}
           <div className="absolute inset-0 bg-gradient-to-t from-pink-500/5 to-transparent mix-blend-overlay" />
         </div>
