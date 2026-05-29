@@ -3,12 +3,24 @@ import { Mail, Phone, MapPin, Truck, RotateCcw, Lock, Award } from "lucide-react
 import { useApp } from "../context/AppContext";
 
 export default function Footer({ navigate }) {
-  const { addToast, settings, categories = [] } = useApp();
+  const { addToast, settings, categories = [], user } = useApp();
   const supportAddress = settings?.supportAddress || "Address not configured";
   const supportPhone = settings?.supportPhone || "+91 00000 00000";
   const supportEmail = settings?.supportEmail || "support@example.com";
   const shippingThreshold = Number(settings?.shippingThreshold) || 1500;
   const footerCategories = categories.filter(Boolean).slice(0, 5);
+
+  const rawAdminEmails =
+    import.meta.env.VITE_ADMIN_EMAILS ||
+    import.meta.env.VITE_ADMIN_EMAIL ||
+    settings?.adminEmail ||
+    "";
+  const adminEmails = String(rawAdminEmails)
+    .split(",")
+    .map((email) => email.toLowerCase().trim())
+    .filter(Boolean);
+  const userEmail = (user?.email || "").toLowerCase().trim();
+  const isAdminUser = !!userEmail && adminEmails.includes(userEmail);
 
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
@@ -191,6 +203,16 @@ export default function Footer({ navigate }) {
               <li>
                 <a href="#" className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 inline-block text-neutral-400">FAQs</a>
               </li>
+              {isAdminUser && (
+                <li className="pt-1 border-t border-white/5">
+                  <button
+                    onClick={() => navigate("admin")}
+                    className="footer-link-underline text-[#FF4D6D] hover:text-[#FF758F] hover:translate-x-1.5 transition-all duration-300 cursor-pointer text-left focus:outline-none font-bold inline-block bg-transparent border-none p-0"
+                  >
+                    Admin Dashboard
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
 

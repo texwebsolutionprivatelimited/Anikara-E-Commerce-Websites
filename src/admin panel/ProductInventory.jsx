@@ -3,9 +3,11 @@ import { useApp } from "../context/AppContext";
 import {
   Plus, Trash2, X, Check, AlertTriangle, Search, Heart, Star, Pencil,
   Monitor, Package, Flame, Clock, Sparkles, LayoutGrid, Upload, Image as ImageIcon,
-  HelpCircle, Boxes
+  HelpCircle, Boxes, MessageSquare, Pipette
 } from "lucide-react";
 import { StatCard } from "./AdminShared";
+import { db } from "../firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 // Section options - products will ONLY appear in their assigned section
 const SECTION_OPTIONS = [
@@ -56,7 +58,7 @@ function DeleteProductConfirmModal({ product, onConfirm, onClose }) {
 }
 
 // Image upload component with drag & drop
-function ImageUploader({ currentImage, onImageChange, label, required }) {
+function ImageUploader({ currentImage, onImageChange, label, required, isPickingColor, onImageClick }) {
   const { uploadToImageKit } = useApp();
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -105,7 +107,7 @@ function ImageUploader({ currentImage, onImageChange, label, required }) {
   }, []);
 
   const handleClickUpload = () => {
-    if (isUploading) return;
+    if (isUploading || isPickingColor) return;
     fileInputRef.current?.click();
   };
 
@@ -144,29 +146,47 @@ function ImageUploader({ currentImage, onImageChange, label, required }) {
             <p className="text-[9px] text-neutral-400 mt-1">Please wait a moment</p>
           </div>
         ) : previewUrl ? (
-          <div className="relative w-full h-full min-h-[160px] group">
+          <div className="relative w-full h-full min-h-[160px] group flex items-center justify-center p-2">
             <img 
               src={previewUrl} 
               alt="Preview" 
-              className="w-full h-full max-h-[200px] object-contain rounded-lg"
-            />
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-              <div className="text-white text-center">
-                <Upload size={24} className="mx-auto mb-1" />
-                <p className="text-[10px] font-medium">Click or drag to replace</p>
-              </div>
-            </div>
-            <button
-              type="button"
+              crossOrigin="anonymous"
+              className={`w-full h-full max-h-[200px] object-contain rounded-lg ${isPickingColor ? 'cursor-crosshair border-2 border-dashed border-[#FF4D6D] animate-pulse ring-4 ring-[#FF4D6D]/10' : ''}`}
               onClick={(e) => {
-                e.stopPropagation();
-                setPreviewUrl("");
-                onImageChange("");
+                if (isPickingColor && onImageClick) {
+                  e.stopPropagation();
+                  onImageClick(e);
+                }
               }}
-              className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-            >
-              <X size={12} />
-            </button>
+            />
+            {isPickingColor && (
+              <div className="absolute inset-0 bg-[#FF4D6D]/5 backdrop-blur-[0.5px] border-2 border-dashed border-[#FF4D6D] rounded-lg pointer-events-none flex items-center justify-center">
+                <span className="bg-[#FF4D6D] text-white text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded shadow-md flex items-center gap-1 select-none">
+                  <Pipette size={10} className="animate-bounce" /> Click to Pick Color
+                </span>
+              </div>
+            )}
+            {!isPickingColor && (
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                <div className="text-white text-center">
+                  <Upload size={24} className="mx-auto mb-1" />
+                  <p className="text-[10px] font-medium">Click or drag to replace</p>
+                </div>
+              </div>
+            )}
+            {!isPickingColor && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setPreviewUrl("");
+                  onImageChange("");
+                }}
+                className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+              >
+                <X size={12} />
+              </button>
+            )}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
@@ -240,7 +260,7 @@ const normalizeHex = (value) => {
 const getHexFromColorName = (name) => COLOR_NAME_TO_HEX[name.trim().toLowerCase()] || "";
 
 function ProductModal({ onSave, onClose, editingProduct = null }) {
-  const { categories } = useApp();
+  const { categories, addToast } = useApp();
 
   // IMPORTANT: Default displaySection must be one of the specific sections, not "all"
   const [form, setForm] = useState({
@@ -263,6 +283,56 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
   const [colorInput, setColorInput] = useState({ name: "", hex: "" });
   const [colorError, setColorError] = useState("");
   const [imageError, setImageError] = useState("");
+  const [isPickingColor, setIsPickingColor] = useState(false);
+
+  const triggerNativeEyeDropper = async () => {
+    if ("EyeDropper" in window) {
+      try {
+        const eyeDropper = new window.EyeDropper();
+        const result = await eyeDropper.open();
+        setColorInput(c => ({ ...c, hex: result.sRGBHex }));
+        addToast("Color picked from screen!", "success");
+      } catch (err) {
+        console.log("EyeDropper closed or failed", err);
+      }
+    }
+  };
+
+  const handleImageColorPick = (e) => {
+    const img = e.currentTarget;
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    ctx.drawImage(img, 0, 0);
+    
+    const rect = img.getBoundingClientRect();
+    const x = Math.floor(((e.clientX - rect.left) / rect.width) * img.naturalWidth);
+    const y = Math.floor(((e.clientY - rect.top) / rect.height) * img.naturalHeight);
+    
+    try {
+      const pixel = ctx.getImageData(x, y, 1, 1).data;
+      const hex = "#" + [pixel[0], pixel[1], pixel[2]]
+        .map(val => val.toString(16).padStart(2, "0"))
+        .join("");
+      
+      setColorInput(c => ({
+        ...c,
+        hex: hex
+      }));
+      setIsPickingColor(false);
+      addToast("Color picked from image!", "success");
+    } catch (err) {
+      console.error("Failed to pick color from image:", err);
+      // Fallback to native eyedropper if image was cross-origin and blocked
+      if ("EyeDropper" in window) {
+        triggerNativeEyeDropper();
+      } else {
+        addToast("Cross-origin image security blocked picking. Please use a local image or enter Hex code manually.", "error");
+      }
+    }
+  };
 
   const set = (key, val) => setForm((f) => ({ ...f, [key]: val }));
 
@@ -528,6 +598,8 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
                   onImageChange={(url) => handleImageChange("image", url)}
                   label="Main Image"
                   required={true}
+                  isPickingColor={isPickingColor}
+                  onImageClick={handleImageColorPick}
                 />
                 {imageError && <p className="text-[10px] text-red-500 mt-1">{imageError}</p>}
                 <p className={hintCls}>Main image appears on product cards and product page.</p>
@@ -538,6 +610,8 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
                   onImageChange={(url) => handleImageChange("altImage", url)}
                   label="Second Image (Hover View)"
                   required={false}
+                  isPickingColor={isPickingColor}
+                  onImageClick={handleImageColorPick}
                 />
                 <p className={hintCls}>Optional. Customers see this on hover.</p>
               </div>
@@ -584,6 +658,8 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
                 }}
                 label="Add Gallery Image"
                 required={false}
+                isPickingColor={isPickingColor}
+                onImageClick={handleImageColorPick}
               />
             </div>
 
@@ -591,7 +667,7 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
               <div>
                 <label className={labelCls}>Sizes Available</label>
                 <div className="flex flex-wrap gap-1.5 mt-1">
-                  {["S", "M", "L", "XL", "26", "28", "30", "32", "One Size"].map((size) => {
+                  {["XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL", "26", "28", "30", "32", "34", "36", "38", "40", "One Size"].map((size) => {
                     const isChecked = form.sizes.includes(size);
                     return (
                       <button
@@ -613,8 +689,15 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
             </div>
 
             <div>
-              <label className={labelCls}>Add Color Variants</label>
-              <div className="grid grid-cols-1 sm:grid-cols-[1fr_120px_auto_auto] gap-2 items-center mb-2">
+              <div className="flex items-center justify-between mb-1">
+                <label className={labelCls}>Add Color Variants</label>
+                {isPickingColor && (
+                  <span className="text-[9px] font-black text-[#FF4D6D] bg-red-50 border border-red-100 rounded px-1.5 py-0.5 animate-pulse uppercase tracking-wider font-sans">
+                    Pipette Active: Tap product image above!
+                  </span>
+                )}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-[1fr_120px_auto_auto_auto] gap-2 items-center mb-2">
                 <input
                   value={colorInput.name}
                   onChange={(e) => {
@@ -651,6 +734,18 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
                   className={inputCls}
                   aria-label="Color hex code"
                 />
+                <button
+                  type="button"
+                  onClick={() => setIsPickingColor(!isPickingColor)}
+                  className={`p-2 rounded border focus:outline-none transition-all flex items-center justify-center ${
+                    isPickingColor 
+                      ? "bg-[#FF4D6D] border-[#FF4D6D] text-white shadow-sm scale-95" 
+                      : "bg-neutral-50 hover:bg-neutral-100 border-neutral-200 text-neutral-600 hover:border-[#FF4D6D]/45"
+                  }`}
+                  title="Pick color from product image"
+                >
+                  <Pipette size={14} className={isPickingColor ? "animate-pulse" : ""} />
+                </button>
                 <input
                   type="color"
                   value={normalizeHex(colorInput.hex) || getHexFromColorName(colorInput.name) || "#111111"}
@@ -666,7 +761,7 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
                   Add Color
                 </button>
               </div>
-              <p className={hintCls}>Type a common color name like red/yellow/green, or enter a hex code like #ff0000. Pressing Enter also adds it.</p>
+              <p className={hintCls}>Type name or enter hex. Or click the pipette (🧪/🎨) button to pick any color directly from the product image above!</p>
               {colorError && <p className="text-[10px] text-red-500 mt-1">{colorError}</p>}
               {normalizeColors(form.colors).length > 0 ? (
                 <div className="flex flex-wrap gap-2 p-3 bg-neutral-50 border border-neutral-100 rounded">
@@ -813,11 +908,125 @@ function ProductModal({ onSave, onClose, editingProduct = null }) {
   );
 }
 
+function ManageReviewsModal({ product: initialProduct, onClose }) {
+  const { products, addToast } = useApp();
+  
+  // Dynamically find the latest product from context to stay reactive
+  const product = products.find(p => p.id === initialProduct.id) || initialProduct;
+  const [reviews, setReviews] = useState(product.reviews || []);
+
+  React.useEffect(() => {
+    setReviews(product.reviews || []);
+  }, [product.reviews]);
+
+  const handleDeleteReview = async (reviewIndex) => {
+    if (!window.confirm("Are you sure you want to delete this review?")) return;
+    
+    try {
+      const updatedReviews = reviews.filter((_, idx) => idx !== reviewIndex);
+      
+      // Calculate new rating and ratingCount
+      const newRatingCount = updatedReviews.length;
+      let newRating = 0;
+      if (newRatingCount > 0) {
+        const totalRating = updatedReviews.reduce((sum, r) => sum + Number(r.rating || 0), 0);
+        newRating = Number((totalRating / newRatingCount).toFixed(1));
+      }
+      
+      // Write back to Firestore!
+      const productRef = doc(db, "products", product.id);
+      await setDoc(productRef, {
+        reviews: updatedReviews,
+        rating: newRating,
+        ratingCount: newRatingCount
+      }, { merge: true });
+      
+      setReviews(updatedReviews);
+      addToast("Review deleted successfully!", "success");
+    } catch (err) {
+      console.error("Error deleting review:", err);
+      addToast("Failed to delete review. Please try again.", "error");
+    }
+  };
+
+  const averageRating = reviews.length > 0 
+    ? (reviews.reduce((sum, r) => sum + Number(r.rating || 0), 0) / reviews.length).toFixed(1)
+    : "0.0";
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm font-sans">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden">
+        
+        {/* Modal Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 sticky top-0 bg-white z-10">
+          <div>
+            <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-900 font-display flex items-center gap-2">
+              <MessageSquare size={16} className="text-[#FF4D6D]" />
+              Manage Reviews: {product.name}
+            </h2>
+            <p className="text-[10px] text-neutral-400 mt-0.5 font-medium">
+              Review count: {reviews.length} • Average rating: {averageRating} ★
+            </p>
+          </div>
+          <button onClick={onClose} className="text-neutral-400 hover:text-black focus:outline-none">
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Modal Body */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          {reviews.length === 0 ? (
+            <div className="text-center py-16 bg-neutral-50/50 border border-dashed border-neutral-200 rounded-xl flex flex-col items-center justify-center gap-2">
+              <Star size={24} className="text-neutral-200" />
+              <p className="text-xs text-neutral-400 font-light font-sans">No customer reviews for this product yet.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {reviews.map((review, idx) => (
+                <div key={idx} className="p-4 bg-neutral-50/50 border border-neutral-200 rounded-xl flex items-start justify-between gap-4 hover:border-red-100 hover:bg-red-50/5 transition-all duration-300">
+                  <div className="space-y-1.5 flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-bold text-neutral-800">{review.user}</span>
+                      <span className="text-[9px] text-neutral-400 font-sans">{review.date}</span>
+                      <span className="inline-flex items-center gap-0.5 text-amber-500 bg-amber-50 border border-amber-250/20 px-1.5 py-0.5 rounded text-[10px] font-black font-sans leading-none">
+                        {review.rating} ★
+                      </span>
+                    </div>
+                    <p className="text-xs text-neutral-600 font-light leading-relaxed font-sans font-normal">
+                      {review.comment}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteReview(idx)}
+                    className="p-2 text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors focus:outline-none shrink-0"
+                    title="Delete Review"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Modal Footer */}
+        <div className="px-6 py-4 border-t border-neutral-100 flex justify-end bg-neutral-50/50">
+          <button onClick={onClose} className="px-5 py-2.5 bg-neutral-900 hover:bg-neutral-805 text-white text-xs font-bold tracking-widest uppercase rounded-lg transition-colors focus:outline-none shadow-xs font-sans">
+            Done
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
 export default function ProductsTab() {
   const { products, categories, adminAddProduct, adminDeleteProduct } = useApp();
   const [showAdd, setShowAdd] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [delTarget, setDelTarget] = useState(null);
+  const [reviewsTarget, setReviewsTarget] = useState(null);
   const [search, setSearch] = useState("");
   const [selectedCat, setSelectedCat] = useState("");
   const [selectedSection, setSelectedSection] = useState("all");
@@ -1012,18 +1221,29 @@ export default function ProductsTab() {
                         )}
                       </td>
                       <td className="py-3 px-4 text-center">
-                        <button
-                          onClick={() => setEditTarget(p)}
-                          className="p-1.5 rounded-lg text-neutral-400 hover:text-[#111111] hover:bg-neutral-100 transition-colors focus:outline-none"
-                        >
-                          <Pencil size={14} />
-                        </button>
-                        <button
-                          onClick={() => setDelTarget(p)}
-                          className="p-1.5 rounded-lg text-neutral-400 hover:text-red-500 hover:bg-red-50 transition-colors focus:outline-none"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        <div className="flex items-center justify-center gap-1">
+                          <button
+                            onClick={() => setEditTarget(p)}
+                            className="p-1.5 rounded-lg text-neutral-400 hover:text-[#111111] hover:bg-neutral-100 transition-colors focus:outline-none"
+                            title="Edit Product"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            onClick={() => setReviewsTarget(p)}
+                            className="p-1.5 rounded-lg text-neutral-400 hover:text-amber-500 hover:bg-amber-50 transition-colors focus:outline-none"
+                            title="Manage Reviews"
+                          >
+                            <MessageSquare size={14} />
+                          </button>
+                          <button
+                            onClick={() => setDelTarget(p)}
+                            className="p-1.5 rounded-lg text-neutral-400 hover:text-red-500 hover:bg-red-50 transition-colors focus:outline-none"
+                            title="Delete Product"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -1056,7 +1276,13 @@ export default function ProductsTab() {
           onClose={() => setDelTarget(null)}
         />
       )}
+
+      {reviewsTarget && (
+        <ManageReviewsModal
+          product={reviewsTarget}
+          onClose={() => setReviewsTarget(null)}
+        />
+      )}
     </>
   );
 }
-

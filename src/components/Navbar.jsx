@@ -376,19 +376,7 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
 
 
 
-            {/* Wishlist Button */}
-            {isAdminUser && (
-              <button
-                onClick={() => navigate("admin")}
-                className={`relative p-1 min-[360px]:p-1.5 transition-colors cursor-pointer focus:outline-none ${
-                  currentPage === "admin" ? "text-[#FF4D6D]" : "text-neutral-700 hover:text-[#FF4D6D]"
-                }`}
-                aria-label="Open Admin Dashboard"
-                title="Admin Dashboard"
-              >
-                <LayoutDashboard className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px]" strokeWidth={1.8} />
-              </button>
-            )}
+
 
             {/* Wishlist Button */}
             <button
@@ -554,18 +542,7 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
 
               {/* User Account Quick Link */}
               <div className="shrink-0 mt-8 pt-6 border-t border-neutral-100 font-sans">
-                {isAdminUser && (
-                  <button
-                    onClick={() => {
-                      navigate("admin");
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="mb-4 flex items-center gap-3 text-sm font-semibold text-neutral-800 hover:text-[#FF4D6D] cursor-pointer focus:outline-none"
-                  >
-                    <LayoutDashboard size={18} />
-                    <span>Admin Dashboard</span>
-                  </button>
-                )}
+
 
                 {user ? (
                   <button

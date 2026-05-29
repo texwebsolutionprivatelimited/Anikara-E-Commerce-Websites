@@ -193,28 +193,13 @@ export default function CouponBanner({ navigate }) {
   const activeCoupons = coupons.filter((c) => c.active);
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-
-  useEffect(() => {
-    if (isPaused || activeCoupons.length <= 1) return;
-    const timer = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % activeCoupons.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, [activeCoupons.length, isPaused]);
 
   if (activeCoupons.length === 0) return null;
 
   return (
     <div className="w-full">
       {/* Mobile Slider View */}
-      <div
-        className="block sm:hidden relative overflow-hidden w-full"
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
-        onTouchStart={() => setIsPaused(true)}
-        onTouchEnd={() => setIsPaused(false)}
-      >
+      <div className="block sm:hidden relative overflow-hidden w-full">
         <div
           className="flex transition-transform duration-500 ease-out"
           style={{ transform: `translateX(-${activeIndex * 100}%)` }}
