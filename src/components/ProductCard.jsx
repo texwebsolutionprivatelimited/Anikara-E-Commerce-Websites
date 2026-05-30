@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useApp } from "../context/AppContext";
 import { Heart, ShoppingBag, Star, Share2 } from "lucide-react";
-import { Image as IKImage } from "@imagekit/react";
+import ImageKitImage from "./ImageKitImage";
 
 const isImageKitUrl = (url) => {
   if (!url) return false;
@@ -59,7 +59,7 @@ export default function ProductCard({ product, navigate }) {
       >
         {/* Main Image */}
         {isImageKitUrl(product.image) ? (
-          <IKImage
+          <ImageKitImage
             src={product.image}
             alt={product.name}
             className={`absolute inset-0 h-full w-full object-cover object-top rounded-t-xl transition-all duration-[1000ms] ease-out group-hover:scale-[1.04] ${
@@ -80,7 +80,7 @@ export default function ProductCard({ product, navigate }) {
         {/* Hover Image */}
         {product.altImage && (
           isImageKitUrl(product.altImage) ? (
-            <IKImage
+            <ImageKitImage
               src={product.altImage}
               alt={`${product.name} alternate view`}
               className={`absolute inset-0 h-full w-full object-cover object-top rounded-t-xl transition-all duration-[1000ms] ease-out group-hover:scale-[1.04] ${

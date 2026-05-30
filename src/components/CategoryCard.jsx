@@ -1,12 +1,11 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Image as IKImage } from "@imagekit/react";
+import ImageKitImage from "./ImageKitImage";
 
 const isImageKitUrl = (url) => {
   if (!url) return false;
   return url.includes("ik.imagekit.io") || url.startsWith("/") || !url.startsWith("http");
 };
-
 
 // Sparkle/Twinkle 4-pointed star SVGs
 const Sparkles = () => {
@@ -59,7 +58,7 @@ export default function CategoryCard({ category, navigate }) {
       onClick={() => navigate("products", { category: category.dbCategory })}
     >
       {/* Arched/Dome Image Container with Glassmorphism Pink-White Backdrop & Glow Border */}
-      <div className="relative w-full min-w-0 h-[118px] min-[420px]:h-[138px] sm:h-[210px] md:h-[188px] lg:h-[250px] rounded-t-full rounded-b-[20px] sm:rounded-b-[36px] bg-gradient-to-b from-[#FFF3F6]/55 via-[#FFFBFD]/30 to-white/70 backdrop-blur-xs border border-[#FFC0D3] shadow-[0_5px_15px_rgba(255,182,193,0.12)] flex items-center justify-center p-1 sm:p-2.5 overflow-visible transition-all duration-300 ease-out group-hover:shadow-[0_10px_22px_rgba(255,77,109,0.22)] group-hover:border-[#FF4D6D]">
+      <div className="relative w-full min-w-0 h-[130px] min-[420px]:h-[150px] sm:h-[160px] md:h-[175px] lg:h-[240px] rounded-t-full rounded-b-[20px] sm:rounded-b-[36px] bg-gradient-to-b from-[#FFF3F6]/55 via-[#FFFBFD]/30 to-white/70 backdrop-blur-xs border border-[#FFC0D3] shadow-[0_5px_15px_rgba(255,182,193,0.12)] flex items-center justify-center p-1 sm:p-2 overflow-visible transition-all duration-300 ease-out group-hover:shadow-[0_10px_22px_rgba(255,77,109,0.22)] group-hover:border-[#FF4D6D]">
         
         {/* Soft Pink Glow Backdrop */}
         <div className="absolute inset-0 rounded-t-full rounded-b-[18px] sm:rounded-b-[34px] bg-[#FF4D6D]/4 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-md" />
@@ -67,7 +66,7 @@ export default function CategoryCard({ category, navigate }) {
         {/* Inner arch masking the image */}
         <div className="relative w-full h-full rounded-t-full rounded-b-[16px] sm:rounded-b-[30px] overflow-hidden bg-gradient-to-b from-[#FFF0F3] to-white flex items-center justify-center">
           {isImageKitUrl(category.image) ? (
-            <IKImage
+            <ImageKitImage
               src={category.image}
               alt={category.displayName}
               className="w-full h-full object-cover transition-transform duration-750 ease-out group-hover:scale-106"
@@ -87,11 +86,11 @@ export default function CategoryCard({ category, navigate }) {
         <Sparkles />
 
         {/* Overlapping Pill-Shaped Glassmorphic Badge at the bottom of the arch */}
-        <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 z-20 bg-white/85 backdrop-blur-md border border-[#FFA3C4]/60 px-1 py-1 sm:px-3.5 sm:py-1.5 rounded-full shadow-[0_4px_8px_rgba(255,182,193,0.18)] group-hover:shadow-[0_6px_12px_rgba(255,182,193,0.35)] group-hover:border-[#FF4D6D] group-hover:bg-white transition-all duration-300 w-[96%] min-w-0 h-8 sm:h-10 text-center flex flex-col items-center justify-center gap-0.5 overflow-hidden">
-          <h3 className="w-full px-1 truncate text-[6px] min-[360px]:text-[7px] sm:text-[9.5px] font-semibold tracking-[0.04em] text-neutral-800 uppercase font-display leading-none">
+        <div className="absolute -bottom-5 sm:-bottom-6 left-1/2 transform -translate-x-1/2 z-20 bg-white/90 backdrop-blur-md border border-[#FFA3C4]/60 px-1 py-1 sm:px-3 sm:py-1.5 rounded-full shadow-[0_4px_8px_rgba(255,182,193,0.18)] group-hover:shadow-[0_6px_12px_rgba(255,182,193,0.35)] group-hover:border-[#FF4D6D] group-hover:bg-white transition-all duration-300 w-[96%] min-w-0 h-10 sm:h-12 text-center flex flex-col items-center justify-center gap-0.5 overflow-hidden">
+          <h3 className="w-full px-1 truncate text-[11px] min-[360px]:text-[12.5px] sm:text-[15px] font-black tracking-[0.04em] text-[#000000] uppercase font-display leading-none">
             {category.displayName}
           </h3>
-          <span className="w-full px-1 truncate text-[5px] min-[360px]:text-[6px] sm:text-[7.5px] font-bold text-[#FF4D6D]/75 tracking-widest uppercase leading-none">
+          <span className="w-full px-1 truncate text-[7.5px] min-[360px]:text-[8.5px] sm:text-[10px] font-extrabold text-neutral-500 tracking-widest uppercase leading-none">
             {category.itemsCount}
           </span>
         </div>

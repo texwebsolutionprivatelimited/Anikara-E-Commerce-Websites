@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ImageKitProvider } from "@imagekit/react";
 import { AppProvider, useApp } from "./context/AppContext";
 import AnnouncementBar from "./components/AnnouncementBar";
 import Navbar from "./components/Navbar";
@@ -142,13 +141,9 @@ function AppContent() {
 }
 
 export default function App() {
-  const imageKitUrl = import.meta.env.VITE_IMAGEKIT_URL || "https://ik.imagekit.io/feu3swboqb";
-
   return (
-    <ImageKitProvider urlEndpoint={imageKitUrl}>
-      <AppProvider>
-        <AppContent />
-      </AppProvider>
-    </ImageKitProvider>
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
   );
 }

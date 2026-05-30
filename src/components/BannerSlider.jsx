@@ -112,7 +112,7 @@ export default function BannerSlider({ slides, navigate }) {
         effect="fade"
         autoplay={{ delay: 5000, disableOnInteraction: false }}
         pagination={{ clickable: true }}
-        loop
+        loop={slides.length > 1}
         className="w-full h-full"
       >
         {slides.map((slide) => (

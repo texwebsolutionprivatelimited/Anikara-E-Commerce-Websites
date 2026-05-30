@@ -3,7 +3,7 @@ import { useApp } from "../context/AppContext";
 import ProductCard from "../components/ProductCard";
 import { Star, Heart, ShoppingBag, CreditCard, ChevronRight, ChevronLeft, Plus, Minus, ArrowLeft, Package, RefreshCcw, Share2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { Image as IKImage } from "@imagekit/react";
+import ImageKitImage from "../components/ImageKitImage";
 
 const isImageKitUrl = (url) => {
   if (!url) return false;
@@ -242,7 +242,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
                 }`}
               >
                 {isImageKitUrl(product.image) ? (
-                  <IKImage src={product.image} alt="Main view thumbnail" className="w-full h-full object-contain bg-white rounded-lg" />
+                  <ImageKitImage src={product.image} alt="Main view thumbnail" className="w-full h-full object-contain bg-white rounded-lg" />
                 ) : (
                   <img src={product.image} alt="Main view thumbnail" className="w-full h-full object-contain bg-white rounded-lg" />
                 )}
@@ -255,7 +255,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
                   }`}
                 >
                   {isImageKitUrl(product.altImage) ? (
-                    <IKImage src={product.altImage} alt="Alternate view thumbnail" className="w-full h-full object-contain bg-white rounded-lg" />
+                    <ImageKitImage src={product.altImage} alt="Alternate view thumbnail" className="w-full h-full object-contain bg-white rounded-lg" />
                   ) : (
                     <img src={product.altImage} alt="Alternate view thumbnail" className="w-full h-full object-contain bg-white rounded-lg" />
                   )}
@@ -270,7 +270,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
                   }`}
                 >
                   {isImageKitUrl(imgUrl) ? (
-                    <IKImage src={imgUrl} alt={`Gallery view thumbnail ${index + 1}`} className="w-full h-full object-contain bg-white rounded-lg" />
+                    <ImageKitImage src={imgUrl} alt={`Gallery view thumbnail ${index + 1}`} className="w-full h-full object-contain bg-white rounded-lg" />
                   ) : (
                     <img src={imgUrl} alt={`Gallery view thumbnail ${index + 1}`} className="w-full h-full object-contain bg-white rounded-lg" />
                   )}
@@ -285,7 +285,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
               className="relative flex-1 aspect-[4/5] bg-white overflow-hidden cursor-crosshair group rounded-xl border-2 border-neutral-100 hover:border-[#FF4D6D] hover:shadow-[0_20px_40px_rgba(255,77,109,0.04)] transition-all duration-500 ease-out order-1 md:order-2"
             >
               {isImageKitUrl(activeImage) ? (
-                <IKImage
+                <ImageKitImage
                   src={activeImage}
                   alt={product.name}
                   className="w-full h-full object-contain bg-white group-hover:opacity-0 transition-opacity duration-200 rounded-xl"
