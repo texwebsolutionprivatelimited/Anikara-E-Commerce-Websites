@@ -50,8 +50,7 @@ export default function Categories({ navigate }) {
         <motion.div
           variants={containerVariants}
           initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-60px" }}
+          animate="visible"
           className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 auto-rows-fr gap-x-2.5 sm:gap-x-4 gap-y-6 sm:gap-y-8 max-w-7xl mx-auto w-full px-1 categories-grid-mobile"
         >
           {categoriesWithCounts.map((cat) => (
