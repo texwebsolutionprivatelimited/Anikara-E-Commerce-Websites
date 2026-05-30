@@ -69,24 +69,24 @@ export default function Categories({ navigate }) {
           <div className="w-12 h-[2px] bg-[#FF4D6D] mx-auto mt-3.5 rounded-full opacity-80" />
         </div>
 
-        {/* Categories Grid (exactly 6 columns on tablet/desktop) */}
+        {/* Categories Grid (4 columns on mobile, exactly 6 columns on tablet/desktop) */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-3 sm:grid-cols-6 md:grid-cols-6 lg:grid-cols-6 auto-rows-fr gap-x-2.5 sm:gap-x-4 gap-y-6 sm:gap-y-8 max-w-7xl mx-auto w-full px-1 categories-grid-mobile"
+          className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-6 lg:grid-cols-6 auto-rows-fr gap-x-1.5 sm:gap-x-4 gap-y-5 sm:gap-y-8 max-w-7xl mx-auto w-full px-0.5 categories-grid-mobile"
         >
           {categoriesWithCounts.map((cat) => (
             <CategoryCard key={cat.displayName} category={cat} navigate={navigate} />
           ))}
         </motion.div>
 
-        {/* Unique, Luxury Call-to-Action Blocks for Cosmetics and Accessories */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-5xl mx-auto mt-12 px-4">
+        {/* Unique, Luxury Call-to-Action Blocks for Cosmetics and Accessories (in one row on all screen sizes) */}
+        <div className="grid grid-cols-2 gap-3 sm:gap-5 max-w-5xl mx-auto mt-10 sm:mt-12 px-2 sm:px-4">
           {/* Cosmetics Button */}
           <button 
             onClick={() => navigate("products", { category: cosmeticsCategory })}
-            className="group relative h-[78px] sm:h-[96px] rounded-2xl overflow-hidden border border-neutral-200/10 shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_15px_35px_rgba(255,77,109,0.22)] transition-all duration-500 ease-out text-left cursor-pointer focus:outline-none min-h-unset min-w-unset w-full"
+            className="group relative h-[62px] sm:h-[80px] rounded-2xl overflow-hidden border border-neutral-200/10 shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_15px_35px_rgba(255,77,109,0.22)] transition-all duration-500 ease-out text-left cursor-pointer focus:outline-none min-h-unset min-w-unset w-full"
           >
             {/* Background Image */}
             <div 
@@ -97,28 +97,28 @@ export default function Categories({ navigate }) {
             <div className="absolute inset-0 bg-gradient-to-r from-[#20040E]/95 via-[#20040E]/70 to-[#20040E]/20" />
             
             {/* Glassmorphic border lines inside the card */}
-            <div className="absolute inset-2.5 rounded-xl border border-white/10 group-hover:border-[#FF4D6D]/40 transition-colors duration-500 pointer-events-none" />
+            <div className="absolute inset-1.5 sm:inset-2.5 rounded-xl border border-white/10 group-hover:border-[#FF4D6D]/40 transition-colors duration-500 pointer-events-none" />
 
             {/* Content Container */}
-            <div className="absolute inset-0 flex items-center justify-between px-6 sm:px-8 relative z-10">
-              <div className="flex items-center gap-4">
+            <div className="absolute inset-0 flex items-center justify-between px-3 sm:px-6 relative z-10">
+              <div className="flex items-center gap-2 sm:gap-4">
                 {/* Icon Container with glowing pink ring */}
-                <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#FF758F] group-hover:text-white group-hover:bg-[#FF4D6D] group-hover:border-[#FF4D6D] transition-all duration-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
-                  <Sparkles size={20} className="animate-pulse" />
+                <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#FF758F] group-hover:text-white group-hover:bg-[#FF4D6D] group-hover:border-[#FF4D6D] transition-all duration-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] shrink-0">
+                  <Sparkles size={16} className="sm:size-[20px] animate-pulse" />
                 </div>
                 <div>
-                  <h3 className="font-extrabold text-sm sm:text-base md:text-lg text-white tracking-[0.1em] uppercase font-display leading-none">
+                  <h3 className="font-extrabold text-[10.5px] sm:text-base md:text-lg text-white tracking-[0.05em] uppercase font-display leading-none">
                     Cosmetics
                   </h3>
-                  <p className="text-[9px] sm:text-[10px] text-[#FF758F] font-bold mt-1.5 tracking-[0.12em] uppercase leading-none font-sans">
-                    Beauty &amp; Personal Care
+                  <p className="text-[8px] sm:text-[10px] text-[#FF758F] font-bold mt-1 sm:mt-1.5 tracking-[0.08em] uppercase leading-none font-sans">
+                    Beauty &amp; Care
                   </p>
                 </div>
               </div>
               
-              {/* Luxury Arrow Circle */}
-              <div className="w-9 h-9 rounded-full bg-white/10 hover:bg-white text-white hover:text-black flex items-center justify-center border border-white/15 group-hover:bg-gradient-to-r group-hover:from-[#FF4D6D] group-hover:to-[#FF758F] group-hover:border-[#FF4D6D] group-hover:translate-x-2 transition-all duration-300 shadow-sm shrink-0">
-                <ArrowRight size={16} />
+              {/* Luxury Arrow Circle - hidden on tiny mobile viewports to prevent crowding */}
+              <div className="hidden min-[380px]:flex w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-white/10 hover:bg-white text-white hover:text-black items-center justify-center border border-white/15 group-hover:bg-gradient-to-r group-hover:from-[#FF4D6D] group-hover:to-[#FF758F] group-hover:border-[#FF4D6D] group-hover:translate-x-2 transition-all duration-300 shadow-sm shrink-0">
+                <ArrowRight size={13} className="sm:size-[16px]" />
               </div>
             </div>
           </button>
@@ -126,7 +126,7 @@ export default function Categories({ navigate }) {
           {/* Accessories Button */}
           <button 
             onClick={() => navigate("products", { category: accessoriesCategory })}
-            className="group relative h-[78px] sm:h-[96px] rounded-2xl overflow-hidden border border-neutral-200/10 shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_15px_35px_rgba(255,77,109,0.22)] transition-all duration-500 ease-out text-left cursor-pointer focus:outline-none min-h-unset min-w-unset w-full"
+            className="group relative h-[62px] sm:h-[80px] rounded-2xl overflow-hidden border border-neutral-200/10 shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_15px_35px_rgba(255,77,109,0.22)] transition-all duration-500 ease-out text-left cursor-pointer focus:outline-none min-h-unset min-w-unset w-full"
           >
             {/* Background Image */}
             <div 
@@ -137,28 +137,28 @@ export default function Categories({ navigate }) {
             <div className="absolute inset-0 bg-gradient-to-r from-[#20040E]/95 via-[#20040E]/70 to-[#20040E]/20" />
             
             {/* Glassmorphic border lines inside the card */}
-            <div className="absolute inset-2.5 rounded-xl border border-white/10 group-hover:border-[#FF4D6D]/40 transition-colors duration-500 pointer-events-none" />
+            <div className="absolute inset-1.5 sm:inset-2.5 rounded-xl border border-white/10 group-hover:border-[#FF4D6D]/40 transition-colors duration-500 pointer-events-none" />
 
             {/* Content Container */}
-            <div className="absolute inset-0 flex items-center justify-between px-6 sm:px-8 relative z-10">
-              <div className="flex items-center gap-4">
+            <div className="absolute inset-0 flex items-center justify-between px-3 sm:px-6 relative z-10">
+              <div className="flex items-center gap-2 sm:gap-4">
                 {/* Icon Container with glowing pink ring */}
-                <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#FF758F] group-hover:text-white group-hover:bg-[#FF4D6D] group-hover:border-[#FF4D6D] transition-all duration-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
-                  <ShoppingBag size={20} className="animate-pulse" />
+                <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#FF758F] group-hover:text-white group-hover:bg-[#FF4D6D] group-hover:border-[#FF4D6D] transition-all duration-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] shrink-0">
+                  <ShoppingBag size={16} className="sm:size-[20px] animate-pulse" />
                 </div>
                 <div>
-                  <h3 className="font-extrabold text-sm sm:text-base md:text-lg text-white tracking-[0.1em] uppercase font-display leading-none">
+                  <h3 className="font-extrabold text-[10.5px] sm:text-base md:text-lg text-white tracking-[0.05em] uppercase font-display leading-none">
                     Accessories
                   </h3>
-                  <p className="text-[9px] sm:text-[10px] text-[#FF758F] font-bold mt-1.5 tracking-[0.12em] uppercase leading-none font-sans">
-                    Style &amp; Accents
+                  <p className="text-[8px] sm:text-[10px] text-[#FF758F] font-bold mt-1 sm:mt-1.5 tracking-[0.08em] uppercase leading-none font-sans">
+                    Style &amp; Accent
                   </p>
                 </div>
               </div>
               
-              {/* Luxury Arrow Circle */}
-              <div className="w-9 h-9 rounded-full bg-white/10 hover:bg-white text-white hover:text-black flex items-center justify-center border border-white/15 group-hover:bg-gradient-to-r group-hover:from-[#FF4D6D] group-hover:to-[#FF758F] group-hover:border-[#FF4D6D] group-hover:translate-x-2 transition-all duration-300 shadow-sm shrink-0">
-                <ArrowRight size={16} />
+              {/* Luxury Arrow Circle - hidden on tiny mobile viewports to prevent crowding */}
+              <div className="hidden min-[380px]:flex w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-white/10 hover:bg-white text-white hover:text-black items-center justify-center border border-white/15 group-hover:bg-gradient-to-r group-hover:from-[#FF4D6D] group-hover:to-[#FF758F] group-hover:border-[#FF4D6D] group-hover:translate-x-2 transition-all duration-300 shadow-sm shrink-0">
+                <ArrowRight size={13} className="sm:size-[16px]" />
               </div>
             </div>
           </button>

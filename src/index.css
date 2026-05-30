@@ -237,8 +237,8 @@ footer button {
 @media (max-width: 426px) {
   .categories-grid-mobile {
     display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 32px 16px !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 20px 6px !important;
     justify-items: center !important;
   }
 }

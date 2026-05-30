@@ -20,7 +20,8 @@ function SingleCoupon({ coupon, navigate, addToast }) {
       className={`relative flex items-stretch bg-gradient-to-r ${coupon.bg} border overflow-hidden group cursor-pointer select-none transition-all duration-350 ease-out`}
       style={{
         borderRadius: "8px",
-        minHeight: "72px",
+        minHeight: "84px",
+        height: "100%",
         borderColor: isHovered ? coupon.accent : "rgba(229, 229, 229, 0.85)",
         boxShadow: isHovered
           ? `0 10px 25px -5px ${coupon.accent}22, 0 8px 10px -6px ${coupon.accent}22`
@@ -201,7 +202,7 @@ export default function CouponBanner({ navigate }) {
       {/* Mobile Slider View */}
       <div className="block sm:hidden relative overflow-hidden w-full">
         <div
-          className="flex transition-transform duration-500 ease-out"
+          className="flex items-stretch transition-transform duration-500 ease-out"
           style={{ transform: `translateX(-${activeIndex * 100}%)` }}
         >
           {activeCoupons.map((coupon) => (
