@@ -9,47 +9,67 @@ import { StatCard, DeleteModal } from "./AdminShared";
 const EMPTY_SLIDE = {
   title: "", subtitle: "", desc: "",
   image: "", navigatePage: "products", navigateParams: {},
+  isFullWidth: false
 };
 
 function SlidePreview({ slide }) {
+  const isFullWidth = !!slide.isFullWidth;
   return (
     <div className="relative w-full h-28 overflow-hidden bg-white border border-neutral-200 rounded-lg">
-      {slide.image && (
-        <div
-          className="absolute inset-y-0 right-0 w-[55%] bg-cover bg-center"
-          style={{ backgroundImage: `url(${slide.image})` }}
-        >
-          <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white to-transparent" />
-        </div>
-      )}
-      <div className="absolute inset-0 flex items-center px-4">
-        <div className="max-w-[45%]">
-          {slide.subtitle && (
-            <p className="text-[7px] font-black tracking-[0.2em] text-[#FF4D6D] uppercase mb-0.5">
-              {slide.subtitle}
-            </p>
+      {isFullWidth ? (
+        slide.image ? (
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${slide.image})` }}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-neutral-100 flex items-center justify-center">
+            <ImageIcon size={24} className="text-neutral-300" />
+          </div>
+        )
+      ) : (
+        <>
+          {slide.image && (
+            <div
+              className="absolute inset-y-0 right-0 w-[55%] bg-cover bg-center"
+              style={{ backgroundImage: `url(${slide.image})` }}
+            >
+              <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white to-transparent" />
+            </div>
           )}
-          <p className="text-xs font-extrabold text-[#111111] leading-tight">
-            {slide.title || "Slide Title"}
-          </p>
-          {slide.desc && (
-            <p className="text-[7px] text-neutral-500 font-light mt-0.5 line-clamp-2">
-              {slide.desc}
-            </p>
+          <div className="absolute inset-0 flex items-center px-4">
+            <div className="max-w-[45%]">
+              {slide.subtitle && (
+                <p className="text-[7px] font-black tracking-[0.2em] text-[#FF4D6D] uppercase mb-0.5">
+                  {slide.subtitle}
+                </p>
+              )}
+              <p className="text-xs font-extrabold text-[#111111] leading-tight">
+                {slide.title || "Slide Title"}
+              </p>
+              {slide.desc && (
+                <p className="text-[7px] text-neutral-500 font-light mt-0.5 line-clamp-2">
+                  {slide.desc}
+                </p>
+              )}
+            </div>
+          </div>
+          {!slide.image && (
+            <div className="absolute inset-y-0 right-0 w-[55%] bg-neutral-100 flex items-center justify-center">
+              <ImageIcon size={24} className="text-neutral-300" />
+            </div>
           )}
-        </div>
-      </div>
-      {!slide.image && (
-        <div className="absolute inset-y-0 right-0 w-[55%] bg-neutral-100 flex items-center justify-center">
-          <ImageIcon size={24} className="text-neutral-300" />
-        </div>
+        </>
       )}
     </div>
   );
 }
 
 function SlideModal({ initial, onSave, onClose }) {
-  const { categories } = useApp();
+  const { categories, uploadToImageKit, addToast } = useApp();
+  const [isDragActive, setIsDragActive] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
   const dynamicNavOptions = [
     { label: "Home", page: "home", params: {} },
     { label: "All Products", page: "products", params: {} },
@@ -64,7 +84,7 @@ function SlideModal({ initial, onSave, onClose }) {
 
   const [form, setForm] = useState(
     initial
-      ? { ...initial }
+      ? { isFullWidth: false, ...initial }
       : { ...EMPTY_SLIDE }
   );
 
@@ -78,6 +98,50 @@ function SlideModal({ initial, onSave, onClose }) {
   const handleNav = (idx) => {
     const opt = dynamicNavOptions[idx];
     setForm((f) => ({ ...f, navigatePage: opt.page, navigateParams: opt.params }));
+  };
+
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setIsDragActive(true);
+    } else if (e.type === "dragleave") {
+      setIsDragActive(false);
+    }
+  };
+
+  const processFile = async (file) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      addToast("Please upload an image file!", "error");
+      return;
+    }
+    try {
+      setUploading(true);
+      const url = await uploadToImageKit(file);
+      set("image", url);
+      addToast("Image uploaded successfully!", "success");
+    } catch (err) {
+      console.error(err);
+      addToast("Image upload failed. Check ImageKit keys or try again.", "error");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      void processFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      void processFile(e.target.files[0]);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -130,13 +194,66 @@ function SlideModal({ initial, onSave, onClose }) {
               className={`${inputCls} resize-none`} />
           </div>
 
-          <div>
-            <label className={labelCls}>Image URL <span className="text-[#FF4D6D]">*</span></label>
-            <input required value={form.image} onChange={(e) => set("image", e.target.value)}
-              placeholder="https://images.unsplash.com/..." className={inputCls} />
-            <p className="text-[9px] text-neutral-400 mt-0.5">
-              Use Unsplash URLs or any direct image link. Recommended: 1600×900px or wider.
-            </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Image URL <span className="text-[#FF4D6D]">*</span></label>
+              <input required value={form.image} onChange={(e) => set("image", e.target.value)}
+                placeholder="https://images.unsplash.com/..." className={inputCls} />
+              <p className="text-[9px] text-neutral-400 mt-1">
+                Enter direct image URL or drag & drop a file to upload.
+              </p>
+            </div>
+            <div>
+              <label className={labelCls}>Upload Banner Image</label>
+              <div
+                onDragEnter={handleDrag}
+                onDragOver={handleDrag}
+                onDragLeave={handleDrag}
+                onDrop={handleDrop}
+                onClick={() => document.getElementById("slide-file-input").click()}
+                className={`border border-dashed rounded-lg h-[64px] flex flex-col items-center justify-center p-2 text-center cursor-pointer transition-all duration-300 relative overflow-hidden ${isDragActive ? "border-[#FF4D6D] bg-[#FF4D6D]/5 scale-[0.99]"
+                  : form.image ? "border-emerald-500 bg-neutral-50"
+                    : "border-neutral-200 bg-neutral-50/50 hover:border-[#FF4D6D] hover:bg-neutral-50"
+                  }`}
+              >
+                <input
+                  id="slide-file-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                {uploading ? (
+                  <div className="flex items-center gap-1.5 text-xs text-[#FF4D6D] font-bold">
+                    <span className="w-3 h-3 border-2 border-[#FF4D6D] border-t-transparent rounded-full animate-spin" />
+                    Uploading...
+                  </div>
+                ) : form.image ? (
+                  <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-bold uppercase tracking-wider">
+                    <Check size={14} className="bg-emerald-100 p-0.5 rounded-full" />
+                    Image Ready
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-neutral-400">
+                    <ImageIcon size={16} className="mb-0.5 text-neutral-300" />
+                    <p className="text-[9px] font-bold text-neutral-600">Drag & Drop or Click to Upload</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 py-1">
+            <input
+              type="checkbox"
+              id="isFullWidth"
+              checked={!!form.isFullWidth}
+              onChange={(e) => set("isFullWidth", e.target.checked)}
+              className="w-4 h-4 text-[#FF4D6D] border-neutral-300 rounded focus:ring-[#FF4D6D] accent-[#FF4D6D] cursor-pointer"
+            />
+            <label htmlFor="isFullWidth" className="text-xs font-bold text-neutral-700 select-none cursor-pointer">
+              Full-Width Banner Graphic (Hides title, subtitle, description, and "Shop Now" HTML overlay)
+            </label>
           </div>
 
           <div>
@@ -265,6 +382,7 @@ export default function SlidesTab() {
 
               {/* Info bar */}
               <div className="px-4 py-2 bg-neutral-50 border-t border-neutral-100 flex flex-wrap gap-4 text-[10px] text-neutral-500 font-light">
+                <span><span className="font-bold text-neutral-700">Type:</span> {slide.isFullWidth ? "Full-Width Banner" : "Standard Split"}</span>
                 <span><span className="font-bold text-neutral-700">Title:</span> {slide.title}</span>
                 <span><span className="font-bold text-neutral-700">Subtitle:</span> {slide.subtitle}</span>
                 <span><span className="font-bold text-neutral-700">Links to:</span> {slide.navigatePage}{slide.navigateParams?.category ? ` › ${slide.navigateParams.category}` : slide.navigateParams?.badge ? ` › ${slide.navigateParams.badge}` : ""}</span>
