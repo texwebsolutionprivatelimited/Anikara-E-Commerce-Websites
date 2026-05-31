@@ -22,6 +22,12 @@ export default function ImageKitImage({
 
   const width = Number.parseInt(imageProps.width, 10);
 
+  // Default to format: "webp" to guarantee WebP delivery for better load/response times
+  const hasFormat = transformation.some(t => t.format || t.f);
+  const finalTransformation = hasFormat 
+    ? transformation 
+    : [{ format: "webp" }, ...transformation];
+
   if (!responsive) {
     return (
       <img
@@ -29,7 +35,7 @@ export default function ImageKitImage({
         loading={loading}
         src={buildSrc({
           src,
-          transformation,
+          transformation: finalTransformation,
           queryParameters,
           urlEndpoint,
           transformationPosition
@@ -40,7 +46,7 @@ export default function ImageKitImage({
 
   const responsiveAttrs = getResponsiveImageAttributes({
     src,
-    transformation,
+    transformation: finalTransformation,
     width: Number.isNaN(width) ? undefined : width,
     sizes,
     queryParameters,
@@ -60,3 +66,4 @@ export default function ImageKitImage({
     />
   );
 }
+
