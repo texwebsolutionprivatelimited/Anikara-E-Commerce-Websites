@@ -21,13 +21,30 @@ import MaintenanceMode from "./admin panel/MaintenanceMode";
 
 function AppContent() {
   const { settings, user, authLoading } = useApp();
-  const [currentPage, setCurrentPage] = useState("home");
+
+  const rawAdminEmails =
+    import.meta.env.VITE_ADMIN_EMAILS ||
+    import.meta.env.VITE_ADMIN_EMAIL ||
+    settings?.adminEmail ||
+    "";
+  const adminEmails = String(rawAdminEmails)
+    .split(",")
+    .map((e) => e.toLowerCase().trim())
+    .filter(Boolean);
+  const userEmail = (user?.email || "").toLowerCase().trim();
+  const isAuthorizedAdmin = !!userEmail && adminEmails.includes(userEmail);
+
+  const [currentPage, setCurrentPage] = useState(() => {
+    const isLocalAdmin = localStorage.getItem("isAdmin") === "true";
+    return isLocalAdmin ? "admin" : "home";
+  });
   const [currentParams, setCurrentParams] = useState({});
   const navCountRef = useRef(0);
 
   useEffect(() => {
+    const isLocalAdmin = localStorage.getItem("isAdmin") === "true";
     if (!window.history.state) {
-      window.history.replaceState({ page: "home", params: {} }, "");
+      window.history.replaceState({ page: isLocalAdmin ? "admin" : "home", params: {} }, "");
     }
 
     const handlePopState = (event) => {
@@ -45,19 +62,42 @@ function AppContent() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
+  useEffect(() => {
+    if (!authLoading) {
+      if (isAuthorizedAdmin) {
+        localStorage.setItem("isAdmin", "true");
+        if (currentPage !== "admin") {
+          setCurrentPage("admin");
+          window.history.replaceState({ page: "admin", params: {} }, "");
+        }
+      } else {
+        localStorage.setItem("isAdmin", "false");
+        if (currentPage === "admin") {
+          setCurrentPage("home");
+          window.history.replaceState({ page: "home", params: {} }, "");
+        }
+      }
+    }
+  }, [authLoading, isAuthorizedAdmin, currentPage]);
+
   const navigate = (page, params = {}, replace = false) => {
-    setCurrentPage(page);
+    const targetPage = isAuthorizedAdmin ? "admin" : page;
+    setCurrentPage(targetPage);
     setCurrentParams(params);
     if (replace) {
-      window.history.replaceState({ page, params }, "");
+      window.history.replaceState({ page: targetPage, params }, "");
     } else {
-      window.history.pushState({ page, params }, "");
+      window.history.pushState({ page: targetPage, params }, "");
       navCountRef.current += 1;
     }
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const goBack = () => {
+    if (isAuthorizedAdmin) {
+      navigate("admin", {}, true);
+      return;
+    }
     if (navCountRef.current > 0) {
       window.history.back();
     } else {
@@ -99,17 +139,6 @@ function AppContent() {
             );
           }
 
-          const rawAdminEmails =
-            import.meta.env.VITE_ADMIN_EMAILS ||
-            import.meta.env.VITE_ADMIN_EMAIL ||
-            settings?.adminEmail ||
-            "";
-          const adminEmails = String(rawAdminEmails)
-            .split(",")
-            .map((e) => e.toLowerCase().trim())
-            .filter(Boolean);
-          const userEmail = (user?.email || "").toLowerCase().trim();
-          const isAuthorizedAdmin = !!userEmail && adminEmails.includes(userEmail);
           if (!isAuthorizedAdmin) {
             return <Login navigate={navigate} goBack={goBack} currentParams={{ redirectTo: "admin" }} />;
           }
@@ -120,7 +149,7 @@ function AppContent() {
     }
   };
 
-  const isAdmin = currentPage === "admin";
+  const isAdmin = currentPage === "admin" || isAuthorizedAdmin;
   const isMaintenance = settings?.maintenanceMode && !isAdmin;
 
   return (

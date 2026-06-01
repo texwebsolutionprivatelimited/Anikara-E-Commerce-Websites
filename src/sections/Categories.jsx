@@ -15,7 +15,7 @@ const containerVariants = {
 };
 
 export default function Categories({ navigate }) {
-  const { categories = [], products } = useApp();
+  const { categories = [], categoryImages = {}, products } = useApp();
 
   // 12 categories in the exact order requested (optimized WebP format and small file sizes)
   const orderedCategories = [
@@ -43,7 +43,7 @@ export default function Categories({ navigate }) {
     return {
       displayName: item.key.toUpperCase(),
       dbCategory: matchName,
-      image: item.image,
+      image: categoryImages[matchName] || item.image,
       itemsCount: `${count} ${count === 1 ? "Item" : "Items"}`
     };
   });
@@ -91,7 +91,7 @@ export default function Categories({ navigate }) {
             {/* Background Image */}
             <div 
               className="absolute inset-0 bg-cover bg-center transition-transform duration-[1500ms] ease-out group-hover:scale-110"
-              style={{ backgroundImage: "url('https://ik.imagekit.io/feu3swboqb/categories/cosmetics_banner.webp')" }}
+              style={{ backgroundImage: `url(${categoryImages[cosmeticsCategory] || "https://ik.imagekit.io/feu3swboqb/categories/cosmetics_banner.webp"})` }}
             />
             {/* Dark & Pink Tint Gradient Overlay */}
             <div className="absolute inset-0 bg-gradient-to-r from-[#20040E]/95 via-[#20040E]/70 to-[#20040E]/20" />
@@ -131,7 +131,7 @@ export default function Categories({ navigate }) {
             {/* Background Image */}
             <div 
               className="absolute inset-0 bg-cover bg-center transition-transform duration-[1500ms] ease-out group-hover:scale-110"
-              style={{ backgroundImage: "url('https://ik.imagekit.io/feu3swboqb/categories/accessories_banner.webp')" }}
+              style={{ backgroundImage: `url(${categoryImages[accessoriesCategory] || "https://ik.imagekit.io/feu3swboqb/categories/accessories_banner.webp"})` }}
             />
             {/* Dark & Pink Tint Gradient Overlay */}
             <div className="absolute inset-0 bg-gradient-to-r from-[#20040E]/95 via-[#20040E]/70 to-[#20040E]/20" />

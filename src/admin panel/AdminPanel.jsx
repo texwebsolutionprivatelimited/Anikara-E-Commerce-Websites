@@ -35,7 +35,7 @@ const TABS = [
 export default function AdminPanel({ navigate }) {
   const [activeTab, setActiveTab] = useState("orders");
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const { settings } = useApp();
+  const { settings, logoutUser } = useApp();
   const mainContentRef = useRef(null);
 
   // Notification center states
@@ -323,12 +323,13 @@ export default function AdminPanel({ navigate }) {
                       <button
                         onClick={() => {
                           setShowProfile(false);
+                          logoutUser();
                           navigate("home");
                         }}
                         className="w-full text-left px-3 py-1.5 hover:bg-neutral-50 text-red-500 transition-colors border-t border-neutral-100/50 flex items-center gap-2"
                       >
                         <User size={12} className="text-red-400" />
-                        <span>Storefront View</span>
+                        <span>Sign Out</span>
                       </button>
                     </div>
                   </div>
@@ -399,10 +400,13 @@ export default function AdminPanel({ navigate }) {
 
         <div className="p-4 border-t border-neutral-100 bg-neutral-50/50">
           <button
-            onClick={() => navigate("home")}
+            onClick={() => {
+              logoutUser();
+              navigate("home");
+            }}
             className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-neutral-900 hover:bg-[#FF4D6D] text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-all duration-300 shadow-xs focus:outline-none group"
           >
-            <span>View Storefront</span>
+            <span>Sign Out</span>
             <ChevronRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
           </button>
           <div className="text-center mt-3 text-[9px] text-neutral-400 font-light">
@@ -588,12 +592,13 @@ export default function AdminPanel({ navigate }) {
                     <button
                       onClick={() => {
                         setShowProfile(false);
+                        logoutUser();
                         navigate("home");
                       }}
                       className="w-full text-left px-4 py-2 hover:bg-neutral-50 text-red-500 transition-colors border-t border-neutral-100/50 flex items-center gap-2"
                     >
                       <User size={13} className="text-red-400" />
-                      <span>Storefront View</span>
+                      <span>Sign Out</span>
                     </button>
                   </div>
                 </div>
