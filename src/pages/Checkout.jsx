@@ -59,9 +59,9 @@ export default function Checkout({ navigate }) {
     setStep((prev) => Math.max(prev - 1, 1));
   };
 
-  const handleFinalCheckout = () => {
+  const handleFinalCheckout = async () => {
     const addressDetails = { street, city, state: stateName, zip };
-    const createdOrder = placeOrder(addressDetails, paymentMethod);
+    const createdOrder = await placeOrder(addressDetails, paymentMethod);
     if (createdOrder) {
       navigate("order-success", { orderId: createdOrder.id });
     }

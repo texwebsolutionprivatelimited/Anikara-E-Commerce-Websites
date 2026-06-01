@@ -44,6 +44,125 @@ export const uploadToImageKit = async (file) => {
 
 const AppContext = createContext();
 
+export const getAutoTrackedOrder = (order) => {
+  if (!order || !order.date) return order;
+
+  // Respect manually marked statuses like "Cancelled", "Refunded", "Returned"
+  if (order.status === "Cancelled" || order.status === "Refunded" || order.status === "Returned") {
+    return order;
+  }
+
+  let orderDate;
+  try {
+    if (typeof order.date === "string" && order.date.includes("-")) {
+      const parts = order.date.split("T")[0].split("-").map(Number);
+      if (parts.length === 3) {
+        orderDate = new Date(parts[0], parts[1] - 1, parts[2]);
+      } else {
+        orderDate = new Date(order.date);
+      }
+    } else {
+      orderDate = new Date(order.date);
+    }
+  } catch (e) {
+    orderDate = new Date(order.date);
+  }
+
+  if (!orderDate || isNaN(orderDate.getTime())) {
+    return order;
+  }
+
+  // Today's date (reset time to midnight for clean comparison in days)
+  const today = new Date();
+  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+  // Difference in milliseconds
+  const diffTime = todayMidnight - orderDate;
+  // Difference in days
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  const getStepPriority = (status, trackingStep) => {
+    if (status === "Delivered" || trackingStep === 4) return 4;
+    if (status === "Out for Delivery" || status === "In Transit" || trackingStep === 3) return 3;
+    if (status === "Shipped" || trackingStep === 2) return 2;
+    return 1;
+  };
+
+  const dbPriority = getStepPriority(order.status, order.trackingStep);
+
+  let calculatedStatus = "Processing";
+  let calculatedStep = 1;
+
+  if (diffDays >= 4) {
+    calculatedStatus = "Delivered";
+    calculatedStep = 4;
+  } else if (diffDays === 3) {
+    calculatedStatus = "Out for Delivery";
+    calculatedStep = 3;
+  } else if (diffDays >= 2) {
+    calculatedStatus = "Shipped";
+    calculatedStep = 2;
+  }
+
+  const calculatedPriority = getStepPriority(calculatedStatus, calculatedStep);
+
+  let status = calculatedStatus;
+  let trackingStep = calculatedStep;
+
+  // If the database has a manually advanced/higher priority, respect the database status
+  if (dbPriority > calculatedPriority) {
+    status = order.status;
+    trackingStep = order.trackingStep || dbPriority;
+  }
+
+  return {
+    ...order,
+    status,
+    trackingStep
+  };
+};
+
+export const getAutoTrackedPayment = (payment, ordersList) => {
+  if (!payment) return payment;
+
+  // Respect manually marked failed or refunded states
+  if (payment.status === "Failed" || payment.status === "Refunded") {
+    return payment;
+  }
+
+  // Find corresponding order
+  const order = ordersList.find((o) => o.id === payment.orderId);
+  const isCOD = payment.paymentMethod === "Cash on Delivery (COD)" || payment.paymentMethod === "COD";
+
+  if (isCOD) {
+    if (order) {
+      if (order.status === "Delivered") {
+        return {
+          ...payment,
+          status: "Success"
+        };
+      } else if (order.status === "Cancelled") {
+        return {
+          ...payment,
+          status: "Failed"
+        };
+      } else {
+        return {
+          ...payment,
+          status: "Pending"
+        };
+      }
+    } else {
+      return {
+        ...payment,
+        status: "Pending"
+      };
+    }
+  }
+
+  return payment;
+};
+
 const normalizeProductColors = (colors) => {
   if (!Array.isArray(colors) || colors.length === 0) {
     return [{ name: "Default", hex: "#000000" }];
@@ -149,7 +268,11 @@ export const AppProvider = ({ children }) => {
 
     // 4. Sync Orders
     const unsubscribeOrders = onSnapshot(collection(db, "orders"), (snapshot) => {
-      setOrders(snapshot.docs.map((docSnap) => docSnap.data()));
+      const mappedOrders = snapshot.docs.map((docSnap) => {
+        const orderData = docSnap.data();
+        return getAutoTrackedOrder(orderData);
+      });
+      setOrders(mappedOrders);
     });
 
     // 5. Sync Payments
@@ -640,6 +763,7 @@ export const AppProvider = ({ children }) => {
       customerName: user?.name || "Guest Customer",
       customerPhone: user?.phone || "",
       date: new Date().toISOString().split("T")[0],
+      time: new Date().toLocaleTimeString("en-US", { hour12: true, hour: "2-digit", minute: "2-digit" }),
       total: finalTotal,
       status: "Processing",
       trackingStep: 1,
@@ -940,7 +1064,7 @@ export const AppProvider = ({ children }) => {
         adminDeleteProduct,
         settings,
         adminUpdateSettings,
-        payments,
+        payments: payments.map(p => getAutoTrackedPayment(p, orders)),
         adminUpdatePaymentStatus,
         adminAddPayment,
         adminDeletePayment,

@@ -13,6 +13,19 @@ export default function Profile({ navigate }) {
     )
     .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
+  const getExpectedDeliveryDate = (orderDateStr) => {
+    if (!orderDateStr) return "";
+    try {
+      const [year, month, day] = orderDateStr.split("-").map(Number);
+      const date = new Date(year, month - 1, day);
+      date.setDate(date.getDate() + 4);
+      const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+      return date.toLocaleDateString("en-IN", options);
+    } catch (e) {
+      return orderDateStr;
+    }
+  };
+
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(user?.name || "");
   const [editPhone, setEditPhone] = useState(user?.phone || "");
@@ -263,6 +276,16 @@ export default function Profile({ navigate }) {
                           <p className="text-[10px] font-bold uppercase text-neutral-400 mb-0.5">Total Amount</p>
                           <p className="font-bold text-neutral-950">₹{order.total.toLocaleString("en-IN")}</p>
                         </div>
+                        {order.status !== "Cancelled" && (
+                          <div>
+                            <p className="text-[10px] font-bold uppercase text-neutral-400 mb-0.5">
+                              {order.status === "Delivered" ? "Delivered On" : "Expected Delivery"}
+                            </p>
+                            <p className={`font-bold ${order.status === "Delivered" ? "text-emerald-700" : "text-[#FF4D6D]"}`}>
+                              {getExpectedDeliveryDate(order.date)}
+                            </p>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex items-center gap-3">

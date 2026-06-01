@@ -408,6 +408,18 @@ export default function PaymentsTab() {
     return matchesSearch && matchesMethod && matchesStatus;
   });
 
+  // Sort Logic: latest payments first
+  const sortedPayments = [...filtered].sort((a, b) => {
+    const dateA = a.date || "";
+    const dateB = b.date || "";
+    if (dateA !== dateB) {
+      return dateB.localeCompare(dateA);
+    }
+    const timeA = a.time || "";
+    const timeB = b.time || "";
+    return timeB.localeCompare(timeA);
+  });
+
   const handleExportCSV = () => {
     addToast("Exporting financial transactions as CSV...", "success");
     setTimeout(() => {
@@ -517,7 +529,7 @@ export default function PaymentsTab() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-100 text-xs">
-                  {filtered.map(p => (
+                  {sortedPayments.map(p => (
                     <tr key={p.id} className="hover:bg-neutral-50/30 transition-colors">
                       <td className="py-3.5 px-4 font-mono font-bold text-neutral-700">{p.id}</td>
                       <td className="py-3.5 px-4">
@@ -589,7 +601,7 @@ export default function PaymentsTab() {
 
           {/* MOBILE CARDS VIEW */}
           <div className="block md:hidden space-y-4 font-sans">
-            {filtered.map(p => (
+            {sortedPayments.map(p => (
               <div key={p.id} className="bg-white border border-neutral-200 rounded-xl p-4 space-y-3 hover:shadow-md transition-all duration-200">
                 <div className="flex justify-between items-start">
                   <div>
