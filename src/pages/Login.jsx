@@ -3,7 +3,7 @@ import { useApp } from "../context/AppContext";
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react";
 
 export default function Login({ navigate, currentParams = {} }) {
-  const { loginUser, registerUser, settings } = useApp();
+  const { loginUser, registerUser, loginWithGoogle, settings } = useApp();
   const [isLoginView, setIsLoginView] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -44,9 +44,15 @@ export default function Login({ navigate, currentParams = {} }) {
     setIsSubmitting(false);
   };
 
-  const handleGoogleLogin = () => {
-    loginUser("google.user@gmail.com", "google-oauth");
-    navigate("profile");
+  const handleGoogleLogin = async () => {
+    setIsSubmitting(true);
+    const res = await loginWithGoogle();
+    setIsSubmitting(false);
+    if (res.success) {
+      const userEmail = (res.user?.email || "").toLowerCase().trim();
+      const isAdminLogin = adminEmails.includes(userEmail);
+      navigate(redirectTo === "admin" || isAdminLogin ? "admin" : "profile");
+    }
   };
 
   return (

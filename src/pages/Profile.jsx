@@ -5,6 +5,14 @@ import { User, LogOut, Package, MapPin, Phone, Mail, ChevronDown, ChevronUp, Pac
 export default function Profile({ navigate }) {
   const { user, orders, logoutUser, updateProfile } = useApp();
 
+  const userOrders = orders
+    .filter(
+      (order) =>
+        (order.userId && order.userId === user?.uid) ||
+        (order.customerEmail && order.customerEmail.toLowerCase() === user?.email?.toLowerCase())
+    )
+    .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(user?.name || "");
   const [editPhone, setEditPhone] = useState(user?.phone || "");
@@ -224,12 +232,12 @@ export default function Profile({ navigate }) {
         <div className="lg:col-span-2 space-y-6">
           <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-900 flex items-center gap-2 font-display">
             <Package size={18} className="text-[#FF4D6D]" />
-            Order History ({orders.length})
+            Order History ({userOrders.length})
           </h2>
 
           <div className="space-y-4">
-            {orders.length > 0 ? (
-              orders.map((order) => {
+            {userOrders.length > 0 ? (
+              userOrders.map((order) => {
                 const isExpanded = expandedOrder === order.id;
                 const activeStep = getTrackingStepFromOrder(order);
 

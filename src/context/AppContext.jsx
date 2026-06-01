@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { collection, doc, setDoc, getDoc, deleteDoc, onSnapshot, writeBatch } from "firebase/firestore";
 import { db, auth } from "../firebase";
-import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 export const uploadToImageKit = async (file) => {
   const publicKey = import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY;
@@ -214,7 +214,20 @@ export const AppProvider = ({ children }) => {
             setCart(data.cart || []);
             setWishlist(data.wishlist || []);
           } else {
-            setUser({ uid: currentUser.uid, email: currentUser.email });
+            const defaultUserData = {
+              name: currentUser.displayName || "Google User",
+              phone: currentUser.phoneNumber || "",
+              address: {
+                street: "",
+                city: "",
+                state: "",
+                zip: "",
+                country: ""
+              },
+              createdAt: new Date().toISOString()
+            };
+            await setDoc(userDocRef, defaultUserData);
+            setUser({ uid: currentUser.uid, email: currentUser.email, ...defaultUserData });
             setCart([]);
             setWishlist([]);
           }
@@ -622,6 +635,10 @@ export const AppProvider = ({ children }) => {
 
     const newOrder = {
       id: `ORD-${Math.floor(1000 + Math.random() * 9000)}-2026`,
+      userId: user?.uid || null,
+      customerEmail: user?.email || "guest@example.com",
+      customerName: user?.name || "Guest Customer",
+      customerPhone: user?.phone || "",
       date: new Date().toISOString().split("T")[0],
       total: finalTotal,
       status: "Processing",
@@ -758,6 +775,10 @@ export const AppProvider = ({ children }) => {
 
       const newOrder = {
         id: orderPayload.id || `ORD-${Math.floor(1000 + Math.random() * 9000)}-2026`,
+        userId: orderPayload.userId || null,
+        customerEmail: orderPayload.customerEmail || "guest@example.com",
+        customerName: orderPayload.customerName || "Guest Customer",
+        customerPhone: orderPayload.customerPhone || "",
         date: orderPayload.date || now.toISOString().split("T")[0],
         total: Number(orderPayload.total) || 0,
         status,
@@ -800,6 +821,20 @@ export const AppProvider = ({ children }) => {
       await signInWithEmailAndPassword(auth, email, password);
       addToast("Logged In Successfully!", "success");
       return { success: true };
+    } catch (error) {
+      console.error(error);
+      addToast(error.message.replace("Firebase: ", ""), "error");
+      return { success: false, error: error.message };
+    }
+  };
+
+  const loginWithGoogle = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+      const result = await signInWithPopup(auth, provider);
+      addToast("Logged In with Google Successfully!", "success");
+      return { success: true, user: result.user };
     } catch (error) {
       console.error(error);
       addToast(error.message.replace("Firebase: ", ""), "error");
@@ -883,6 +918,7 @@ export const AppProvider = ({ children }) => {
         removeCoupon,
         placeOrder,
         loginUser,
+        loginWithGoogle,
         registerUser,
         logoutUser,
         updateProfile,
