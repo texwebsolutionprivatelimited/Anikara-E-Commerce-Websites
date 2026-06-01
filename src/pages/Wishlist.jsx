@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { useApp } from "../context/AppContext";
 import { Heart, Trash2, ShoppingCart, ChevronRight } from "lucide-react";
 
 export default function Wishlist({ navigate }) {
   const { wishlist, toggleWishlist, moveToCart, user, addToast } = useApp();
+  const [itemToRemove, setItemToRemove] = useState(null);
 
   if (wishlist.length === 0) {
     return (
@@ -66,7 +67,7 @@ export default function Wishlist({ navigate }) {
 
                 {/* Remove button */}
                 <button
-                  onClick={() => toggleWishlist(product)}
+                  onClick={() => setItemToRemove(product)}
                   className="absolute right-3 top-3 z-20 p-2 rounded-full bg-white/95 shadow-xs text-neutral-400 hover:text-red-500 transition-colors focus:outline-none cursor-pointer"
                   title="Remove from Wishlist"
                 >
@@ -131,6 +132,43 @@ export default function Wishlist({ navigate }) {
         })}
       </div>
 
+      {/* Atelier Themed Remove Confirmation Modal */}
+      {itemToRemove && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs font-sans animate-fade-in text-left">
+          <div className="bg-white border border-neutral-200 shadow-2xl p-6 max-w-sm w-full text-center space-y-5 rounded-md">
+            <div className="inline-flex p-3 bg-red-50 text-red-500 rounded-full border border-red-100">
+              <Trash2 size={24} />
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-800">
+                Remove from Wishlist?
+              </h3>
+              <p className="text-xs text-neutral-400 font-light leading-relaxed">
+                Are you sure you want to remove <strong className="text-neutral-700 font-medium">{itemToRemove.name}</strong> from your wishlist?
+              </p>
+            </div>
+            
+            <div className="flex gap-2.5">
+              <button
+                onClick={() => {
+                  toggleWishlist(itemToRemove);
+                  setItemToRemove(null);
+                }}
+                className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold tracking-widest uppercase transition-colors cursor-pointer focus:outline-none"
+              >
+                Remove
+              </button>
+              <button
+                onClick={() => setItemToRemove(null)}
+                className="flex-1 py-2.5 border border-neutral-200 text-neutral-700 text-[10px] font-bold tracking-widest uppercase transition-colors cursor-pointer focus:outline-none"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -9,18 +9,17 @@ export default function Cart({ navigate }) {
     removeFromCart,
     toggleWishlist,
     promoDiscount,
-    applyCoupon,
-    removeCoupon,
     addToast,
     settings
   } = useApp();
 
-  const [couponInput, setCouponInput] = useState("");
+  const [itemToRemove, setItemToRemove] = useState(null);
 
-  const handleApplyCoupon = (e) => {
-    e.preventDefault();
-    if (couponInput.trim()) {
-      applyCoupon(couponInput);
+  const handleDecrementQuantity = (item) => {
+    if (item.quantity <= 1) {
+      setItemToRemove(item);
+    } else {
+      updateCartQuantity(item.cartItemId, item.quantity - 1);
     }
   };
 
@@ -128,7 +127,7 @@ export default function Cart({ navigate }) {
                 <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4 mt-4 pt-3 border-t border-neutral-100">
                   <div className="flex items-center justify-between border border-neutral-200 h-9 w-24 px-2 rounded-xs bg-neutral-50">
                     <button
-                      onClick={() => updateCartQuantity(item.cartItemId, item.quantity - 1)}
+                      onClick={() => handleDecrementQuantity(item)}
                       className="text-neutral-400 hover:text-black p-0.5 cursor-pointer focus:outline-none"
                     >
                       <Minus size={12} />
@@ -152,7 +151,7 @@ export default function Cart({ navigate }) {
                       <span className="hidden sm:inline">Save</span>
                     </button>
                     <button
-                      onClick={() => removeFromCart(item.cartItemId)}
+                      onClick={() => setItemToRemove(item)}
                       className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-semibold text-neutral-400 hover:text-red-500 transition-colors cursor-pointer focus:outline-none"
                       title="Remove Item"
                     >
@@ -169,45 +168,6 @@ export default function Cart({ navigate }) {
 
         {/* Right Summary */}
         <div className="space-y-6 px-4 sm:px-0">
-          <div className="bg-white border-y border-neutral-200/60 sm:border sm:rounded-xs p-5 space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-900 flex items-center gap-1.5 font-display">
-              <Ticket size={16} className="text-[#FF4D6D]" />
-              Apply Promo Code
-            </h3>
-            
-            {promoDiscount ? (
-              <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 px-3 py-2 text-emerald-800 text-xs">
-                <span>Code <strong>{promoDiscount.code}</strong> Applied</span>
-                <button
-                  onClick={removeCoupon}
-                  className="font-bold underline text-[10px] hover:text-emerald-950 cursor-pointer focus:outline-none"
-                >
-                  Remove
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleApplyCoupon} className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="E.g., ANIKARA20"
-                  value={couponInput}
-                  onChange={(e) => setCouponInput(e.target.value)}
-                  className="flex-grow min-w-0 bg-white border border-neutral-200 text-xs px-3 py-2.5 focus:outline-none focus:border-[#111111] uppercase font-light"
-                />
-                <button
-                  type="submit"
-                  className="bg-[#111111] hover:bg-[#FF4D6D] text-white text-xs font-bold tracking-wider uppercase px-4 py-2.5 transition-colors shrink-0 cursor-pointer focus:outline-none"
-                >
-                  Apply
-                </button>
-              </form>
-            )}
-            
-            <p className="text-[10px] text-neutral-400 font-light leading-normal">
-              * Available promo codes are managed live from the admin panel.
-            </p>
-          </div>
-
           <div className="bg-neutral-50 border-y border-neutral-200/60 sm:border sm:rounded-xs p-6 space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-900 border-b border-neutral-200 pb-3 font-display">
               Order Summary
@@ -267,6 +227,43 @@ export default function Cart({ navigate }) {
 
       </div>
 
+      {/* Atelier Themed Remove Confirmation Modal */}
+      {itemToRemove && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs font-sans animate-fade-in">
+          <div className="bg-white border border-neutral-200 shadow-2xl p-6 max-w-sm w-full text-center space-y-5 rounded-md">
+            <div className="inline-flex p-3 bg-red-50 text-red-500 rounded-full border border-red-100">
+              <Trash2 size={24} />
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-800">
+                Remove from Bag?
+              </h3>
+              <p className="text-xs text-neutral-400 font-light leading-relaxed">
+                Are you sure you want to remove <strong className="text-neutral-700 font-medium">{itemToRemove.name}</strong> ({itemToRemove.size}) from your shopping bag?
+              </p>
+            </div>
+            
+            <div className="flex gap-2.5">
+              <button
+                onClick={() => {
+                  removeFromCart(itemToRemove.cartItemId);
+                  setItemToRemove(null);
+                }}
+                className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold tracking-widest uppercase transition-colors cursor-pointer focus:outline-none"
+              >
+                Remove
+              </button>
+              <button
+                onClick={() => setItemToRemove(null)}
+                className="flex-1 py-2.5 border border-neutral-200 text-neutral-700 text-[10px] font-bold tracking-widest uppercase transition-colors cursor-pointer focus:outline-none"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
