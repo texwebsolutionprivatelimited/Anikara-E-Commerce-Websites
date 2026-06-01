@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
-import { MapPin, Truck, CreditCard, ClipboardCheck, ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react";
+import { MapPin, Truck, CreditCard, ClipboardCheck, ArrowLeft, ArrowRight, ShieldCheck, Tag, Copy, Check, Sparkles } from "lucide-react";
 
 export default function Checkout({ navigate }) {
-  const { cart, user, promoDiscount, placeOrder, settings } = useApp();
+  const { cart, user, promoDiscount, placeOrder, settings, coupons = [], applyCoupon, removeCoupon } = useApp();
 
   // Redirect if cart is empty
   useEffect(() => {
@@ -28,6 +28,9 @@ export default function Checkout({ navigate }) {
 
   // Payment Method
   const [paymentMethod, setPaymentMethod] = useState("UPI");
+
+  // Coupon code input state
+  const [couponCode, setCouponCode] = useState(promoDiscount ? promoDiscount.code : "");
 
   // Total Calculations
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -346,6 +349,137 @@ export default function Checkout({ navigate }) {
                     </div>
                   </div>
                 </label>
+              </div>
+
+              {/* Offers & Coupons Panel */}
+              <div className="mt-8 pt-6 border-t border-neutral-100 space-y-4">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-800 font-display flex items-center gap-1.5">
+                  <Tag size={14} className="text-[#FF4D6D]" /> Apply Offers & Coupons
+                </h3>
+
+                {/* Manual Coupon Apply Input */}
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                    placeholder="Enter coupon code manually"
+                    disabled={!!promoDiscount}
+                    className="flex-1 text-xs bg-neutral-50 border border-neutral-200 rounded-md py-3 px-4 focus:outline-none focus:border-[#111111] uppercase tracking-wider font-semibold placeholder:normal-case placeholder:font-light"
+                  />
+                  {promoDiscount ? (
+                    <button
+                      onClick={() => {
+                        removeCoupon();
+                        setCouponCode("");
+                      }}
+                      className="px-5 bg-neutral-200 hover:bg-neutral-300 text-neutral-800 text-xs font-bold uppercase tracking-wider rounded-md transition-colors duration-250 cursor-pointer"
+                    >
+                      Remove
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        if (couponCode.trim()) {
+                          applyCoupon(couponCode);
+                        }
+                      }}
+                      className="px-6 bg-[#111111] hover:bg-[#FF4D6D] text-white text-xs font-bold uppercase tracking-wider rounded-md transition-colors duration-300 cursor-pointer"
+                    >
+                      Apply
+                    </button>
+                  )}
+                </div>
+
+                {/* Applied feedback */}
+                {promoDiscount && (
+                  <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-md text-xs flex items-center justify-between animate-fade-in font-sans">
+                    <div className="flex items-center gap-2">
+                      <div className="h-5 w-5 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-700 shrink-0">
+                        <Check size={12} strokeWidth={3} />
+                      </div>
+                      <span>
+                        Coupon <strong className="font-bold">{promoDiscount.code}</strong> applied successfully! You saved <strong className="font-bold">{promoDiscount.discountPercent}%</strong>.
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* List of active coupons */}
+                <div className="space-y-2 pt-2">
+                  <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest font-display">Available Store Offers</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {coupons.filter(c => c.active).map((c) => {
+                      const isApplied = promoDiscount?.code?.toUpperCase() === c.code?.toUpperCase();
+                      return (
+                        <div
+                          key={c.id}
+                          onClick={() => {
+                            if (isApplied) {
+                              removeCoupon();
+                              setCouponCode("");
+                            } else {
+                              applyCoupon(c.code);
+                              setCouponCode(c.code);
+                            }
+                          }}
+                          className={`relative flex items-stretch border rounded-md overflow-hidden group cursor-pointer transition-all duration-300 ${
+                            isApplied 
+                              ? "border-emerald-500 bg-emerald-50/30 shadow-sm" 
+                              : "border-neutral-200/80 bg-neutral-50/40 hover:border-neutral-800 hover:bg-neutral-50/80"
+                          }`}
+                        >
+                          {/* Left Strip */}
+                          <div
+                            className="flex items-center justify-center text-white shrink-0 font-bold"
+                            style={{
+                              background: isApplied ? "#10b981" : (c.badgeBg || "#FF4D6D"),
+                              minWidth: "48px",
+                              writingMode: "vertical-rl",
+                              textOrientation: "mixed",
+                              transform: "rotate(180deg)",
+                              letterSpacing: "0.1em",
+                              fontSize: "8px",
+                              padding: "8px 4px",
+                            }}
+                          >
+                            {isApplied ? "APPLIED" : (c.label || "OFFER")}
+                          </div>
+
+                          {/* Center Info */}
+                          <div className="flex-1 min-w-0 p-3 flex flex-col justify-center font-sans">
+                            <div className="flex items-center gap-1 text-[8px] font-bold text-neutral-400 uppercase tracking-wider mb-0.5">
+                              <Sparkles size={8} className={isApplied ? "text-emerald-500" : "text-[#FF4D6D]"} />
+                              {c.subtext || "EXCLUSIVE OFFER"}
+                            </div>
+                            <h4 className="font-extrabold text-xs text-neutral-900 leading-snug">
+                              {c.headline}
+                            </h4>
+                            <p className="text-[9px] text-neutral-500 mt-1 font-light truncate">
+                              Code: <strong className="font-semibold text-neutral-700">{c.code}</strong> • {c.condition}
+                            </p>
+                          </div>
+
+                          {/* Action Button */}
+                          <div className="flex items-center justify-center pr-3">
+                            <span 
+                              className={`text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded transition-colors ${
+                                isApplied 
+                                  ? "bg-emerald-100 text-emerald-800" 
+                                  : "bg-white text-neutral-800 border border-neutral-200 group-hover:bg-[#111111] group-hover:text-white group-hover:border-transparent"
+                              }`}
+                            >
+                              {isApplied ? "Applied" : "Apply"}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {coupons.filter(c => c.active).length === 0 && (
+                      <p className="text-xs text-neutral-400 font-light py-2">No active offers available right now.</p>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="pt-6 border-t border-neutral-100 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
