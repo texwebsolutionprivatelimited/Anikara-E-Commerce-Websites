@@ -14,6 +14,7 @@ export default function Cart({ navigate }) {
   } = useApp();
 
   const [itemToRemove, setItemToRemove] = useState(null);
+  const [itemToSaveLater, setItemToSaveLater] = useState(null);
 
   const handleDecrementQuantity = (item) => {
     if (item.quantity <= 1) {
@@ -33,15 +34,7 @@ export default function Cart({ navigate }) {
   const total = subtotal - discountAmount + shipping + tax;
 
   const handleSaveForLater = (item) => {
-    toggleWishlist({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      image: item.image,
-      sizes: ["S", "M", "L", "XL"]
-    });
-    removeFromCart(item.cartItemId);
-    addToast(`Moved ${item.name} to Wishlist`, "success");
+    setItemToSaveLater(item);
   };
 
   if (cart.length === 0) {
@@ -230,17 +223,17 @@ export default function Cart({ navigate }) {
       {/* Atelier Themed Remove Confirmation Modal */}
       {itemToRemove && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs font-sans animate-fade-in">
-          <div className="bg-white border border-neutral-200 shadow-2xl p-6 max-w-sm w-full text-center space-y-5 rounded-md">
-            <div className="inline-flex p-3 bg-red-50 text-red-500 rounded-full border border-red-100">
-              <Trash2 size={24} />
+          <div className="bg-white border-2 border-neutral-300 shadow-2xl p-6 max-w-sm w-full text-center space-y-5 rounded-lg">
+            <div className="inline-flex p-3.5 bg-red-50 text-red-650 rounded-full border border-red-100">
+              <Trash2 size={28} />
             </div>
             
-            <div className="space-y-2">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-800">
+            <div className="space-y-3">
+              <h3 className="text-base font-extrabold uppercase tracking-wide text-neutral-900">
                 Remove from Bag?
               </h3>
-              <p className="text-xs text-neutral-400 font-light leading-relaxed">
-                Are you sure you want to remove <strong className="text-neutral-700 font-medium">{itemToRemove.name}</strong> ({itemToRemove.size}) from your shopping bag?
+              <p className="text-sm text-neutral-800 font-semibold leading-relaxed">
+                Are you sure you want to remove <strong className="text-[#FF4D6D] font-extrabold">{itemToRemove.name}</strong> (Size {itemToRemove.size}) from your shopping bag?
               </p>
             </div>
             
@@ -250,13 +243,59 @@ export default function Cart({ navigate }) {
                   removeFromCart(itemToRemove.cartItemId);
                   setItemToRemove(null);
                 }}
-                className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold tracking-widest uppercase transition-colors cursor-pointer focus:outline-none"
+                className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold tracking-widest uppercase transition-colors cursor-pointer focus:outline-none rounded-md"
               >
                 Remove
               </button>
               <button
                 onClick={() => setItemToRemove(null)}
-                className="flex-1 py-2.5 border border-neutral-200 text-neutral-700 text-[10px] font-bold tracking-widest uppercase transition-colors cursor-pointer focus:outline-none"
+                className="flex-1 py-2.5 border border-neutral-200 text-neutral-700 text-[11px] font-bold tracking-widest uppercase transition-colors cursor-pointer focus:outline-none rounded-md"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Atelier Themed Save for Later Confirmation Modal */}
+      {itemToSaveLater && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs font-sans animate-fade-in text-left">
+          <div className="bg-white border-2 border-neutral-300 shadow-2xl p-6 max-w-sm w-full text-center space-y-5 rounded-lg">
+            <div className="inline-flex p-3.5 bg-pink-50 text-[#FF4D6D] rounded-full border border-pink-100">
+              <Heart size={28} />
+            </div>
+            
+            <div className="space-y-3">
+              <h3 className="text-base font-extrabold uppercase tracking-wide text-neutral-900">
+                Move to Wishlist?
+              </h3>
+              <p className="text-sm text-neutral-800 font-semibold leading-relaxed">
+                The product <strong className="text-[#FF4D6D] font-extrabold">{itemToSaveLater.name}</strong> will be removed from your shopping cart and added to your wishlist. Are you sure you want to proceed?
+              </p>
+            </div>
+            
+            <div className="flex gap-2.5">
+              <button
+                onClick={() => {
+                  toggleWishlist({
+                    id: itemToSaveLater.id,
+                    name: itemToSaveLater.name,
+                    price: itemToSaveLater.price,
+                    image: itemToSaveLater.image,
+                    sizes: ["S", "M", "L", "XL"]
+                  });
+                  removeFromCart(itemToSaveLater.cartItemId);
+                  setItemToSaveLater(null);
+                  addToast(`Moved ${itemToSaveLater.name} to Wishlist`, "success");
+                }}
+                className="flex-1 py-2.5 bg-[#FF4D6D] hover:bg-[#ff2d53] text-white text-[11px] font-bold tracking-widest uppercase transition-colors cursor-pointer focus:outline-none rounded-md"
+              >
+                Proceed
+              </button>
+              <button
+                onClick={() => setItemToSaveLater(null)}
+                className="flex-1 py-2.5 border border-neutral-200 text-neutral-700 text-[11px] font-bold tracking-widest uppercase transition-colors cursor-pointer focus:outline-none rounded-md"
               >
                 Cancel
               </button>

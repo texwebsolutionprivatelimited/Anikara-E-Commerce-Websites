@@ -135,17 +135,17 @@ export default function Wishlist({ navigate }) {
       {/* Atelier Themed Remove Confirmation Modal */}
       {itemToRemove && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs font-sans animate-fade-in text-left">
-          <div className="bg-white border border-neutral-200 shadow-2xl p-6 max-w-sm w-full text-center space-y-5 rounded-md">
-            <div className="inline-flex p-3 bg-red-50 text-red-500 rounded-full border border-red-100">
-              <Trash2 size={24} />
+          <div className="bg-white border-2 border-neutral-300 shadow-2xl p-6 max-w-sm w-full text-center space-y-5 rounded-lg">
+            <div className="inline-flex p-3.5 bg-red-50 text-red-600 rounded-full border border-red-100">
+              <Trash2 size={28} />
             </div>
             
-            <div className="space-y-2">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-800">
+            <div className="space-y-3">
+              <h3 className="text-base font-extrabold uppercase tracking-wide text-neutral-900">
                 Remove from Wishlist?
               </h3>
-              <p className="text-xs text-neutral-400 font-light leading-relaxed">
-                Are you sure you want to remove <strong className="text-neutral-700 font-medium">{itemToRemove.name}</strong> from your wishlist?
+              <p className="text-sm text-neutral-800 font-semibold leading-relaxed">
+                Are you sure you want to remove <strong className="text-[#FF4D6D] font-extrabold">{itemToRemove.name}</strong> from your wishlist?
               </p>
             </div>
             
@@ -155,13 +155,13 @@ export default function Wishlist({ navigate }) {
                   toggleWishlist(itemToRemove);
                   setItemToRemove(null);
                 }}
-                className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold tracking-widest uppercase transition-colors cursor-pointer focus:outline-none"
+                className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold tracking-widest uppercase transition-colors cursor-pointer focus:outline-none rounded-md"
               >
                 Remove
               </button>
               <button
                 onClick={() => setItemToRemove(null)}
-                className="flex-1 py-2.5 border border-neutral-200 text-neutral-700 text-[10px] font-bold tracking-widest uppercase transition-colors cursor-pointer focus:outline-none"
+                className="flex-1 py-2.5 border border-neutral-200 text-neutral-700 text-[11px] font-bold tracking-widest uppercase transition-colors cursor-pointer focus:outline-none rounded-md"
               >
                 Cancel
               </button>
