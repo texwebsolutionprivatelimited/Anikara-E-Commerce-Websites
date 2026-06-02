@@ -15,35 +15,23 @@ const containerVariants = {
 };
 
 export default function Categories({ navigate }) {
-  const { categories = [], categoryImages = {}, products } = useApp();
+  const { categories = [], categoryImages = {}, products, productsLoading } = useApp();
 
-  // 12 categories in the exact order requested (optimized WebP format and small file sizes)
-  const orderedCategories = [
-    { key: "Night Suit", image: "https://ik.imagekit.io/feu3swboqb/categories/night_suit.webp" },
-    { key: "Co-ords", image: "https://ik.imagekit.io/feu3swboqb/categories/coords.webp" },
-    { key: "Suit", image: "https://ik.imagekit.io/feu3swboqb/categories/suit.webp" },
-    { key: "T-shirt", image: "https://ik.imagekit.io/feu3swboqb/categories/t_shirt.webp" },
-    { key: "Dress", image: "https://ik.imagekit.io/feu3swboqb/categories/dress.webp" },
-    { key: "Top & Blouse", image: "https://ik.imagekit.io/feu3swboqb/categories/top_and_blouse.webp" },
-    { key: "Bottom Wear", image: "https://ik.imagekit.io/feu3swboqb/categories/bottom_wear.webp" },
-    { key: "Lingerie", image: "https://ik.imagekit.io/feu3swboqb/categories/lingerie.webp" },
-    { key: "Denim", image: "https://ik.imagekit.io/feu3swboqb/categories/denim.webp" },
-    { key: "Sports Wear", image: "https://ik.imagekit.io/feu3swboqb/categories/sports_wear.webp" },
-    { key: "Footwear", image: "https://ik.imagekit.io/feu3swboqb/categories/footwear.webp" },
-    { key: "Bags", image: "https://ik.imagekit.io/feu3swboqb/categories/bags.webp" }
-  ];
+  // Filter out Cosmetics and Accessories as they have custom CTA sections at the bottom
+  const filteredCategories = categories.filter(
+    (catName) => catName.toLowerCase() !== "cosmetics" && catName.toLowerCase() !== "accessories"
+  );
 
-  // Resolve matching DB names and dynamic item counts
-  const categoriesWithCounts = orderedCategories.map((item) => {
-    const matchName = categories.find((c) => c.toLowerCase() === item.key.toLowerCase()) || item.key;
+  // Resolve matching DB names and dynamic item counts from Firestore categories
+  const categoriesWithCounts = filteredCategories.map((catName) => {
     const count = products.filter(
-      (p) => p.category.toLowerCase() === matchName.toLowerCase()
+      (p) => p.category.toLowerCase() === catName.toLowerCase()
     ).length;
 
     return {
-      displayName: item.key.toUpperCase(),
-      dbCategory: matchName,
-      image: categoryImages[matchName] || item.image,
+      displayName: catName.toUpperCase(),
+      dbCategory: catName,
+      image: categoryImages[catName] || "https://ik.imagekit.io/feu3swboqb/categories/default_category.webp",
       itemsCount: `${count} ${count === 1 ? "Item" : "Items"}`
     };
   });
@@ -51,6 +39,33 @@ export default function Categories({ navigate }) {
   // Resolve Cosmetics and Accessories category names from DB for dynamic links
   const cosmeticsCategory = categories.find((c) => c.toLowerCase() === "cosmetics") || "Cosmetics";
   const accessoriesCategory = categories.find((c) => c.toLowerCase() === "accessories") || "Accessories";
+
+  if (productsLoading || categories.length === 0) {
+    return (
+      <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#FFF5F8] via-white to-[#FFF9FA] pt-6 pb-12 border-t border-neutral-100/60">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-10 lg:px-16 text-center">
+          <span className="text-[10px] font-bold tracking-[0.35em] text-[#FF4D6D] uppercase font-display block mb-1.5 animate-pulse">
+            Curated Departments
+          </span>
+          <h2 className="text-2xl md:text-3.5xl font-extrabold tracking-tight text-[#111111] font-display">
+            Hot Categories
+          </h2>
+          <div className="w-12 h-[2px] bg-[#FF4D6D] mx-auto mt-3.5 rounded-full opacity-80" />
+          
+          <div className="grid grid-cols-4 sm:grid-cols-6 gap-x-1.5 sm:gap-x-4 gap-y-5 sm:gap-y-8 max-w-7xl mx-auto mt-10 w-full px-0.5">
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <div key={idx} className="flex flex-col items-center pb-5 sm:pb-6 relative animate-pulse">
+                {/* Arch-like skeleton */}
+                <div className="w-full aspect-[4/5] rounded-t-full rounded-b-[20px] bg-neutral-200 border border-neutral-300/40" />
+                <div className="h-4 bg-neutral-200 w-2/3 rounded-full mt-4" />
+                <div className="h-3 bg-neutral-200 w-1/2 rounded-full mt-2" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#FFF5F8] via-white to-[#FFF9FA] pt-6 pb-12 border-t border-neutral-100/60">
