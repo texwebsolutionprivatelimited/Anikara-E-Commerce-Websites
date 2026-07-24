@@ -105,7 +105,7 @@ export default function BannerSlider({ slides, navigate }) {
   const swiperRef = useRef(null);
 
   return (
-    <section className="relative w-full aspect-[1024/545] min-h-[190px] max-h-[220px] xs:max-h-[250px] sm:max-h-[360px] md:max-h-[440px] lg:max-h-[500px] xl:max-h-[560px] overflow-hidden bg-white border-b border-neutral-100">
+    <section className="relative w-full banner-aspect-ratio min-h-[130px] sm:min-h-[200px] md:min-h-[300px] lg:min-h-[270px] overflow-hidden bg-white border-b border-neutral-100">
       <Swiper
         onSwiper={(swiper) => { swiperRef.current = swiper; }}
         modules={[Autoplay, Pagination, EffectFade]}
@@ -127,9 +127,15 @@ export default function BannerSlider({ slides, navigate }) {
                 <>
                   {/* Full-width Banner Image */}
                   <div className="absolute inset-0 w-full h-full overflow-hidden">
+                    {/* Desktop/Laptop (lg and up) */}
                     <div
-                      className="w-full h-full bg-cover bg-center"
+                      className="hidden lg:block w-full h-full bg-cover bg-center"
                       style={{ backgroundImage: `url(${slide.image})` }}
+                    />
+                    {/* Mobile/Tablet (below lg) */}
+                    <div
+                      className="block lg:hidden w-full h-full bg-cover bg-center"
+                      style={{ backgroundImage: `url(${slide.mobileImage || slide.image})` }}
                     />
                   </div>
                   {/* Screen reader accessibility content */}
@@ -140,15 +146,21 @@ export default function BannerSlider({ slides, navigate }) {
               ) : (
                 <>
                   {/* Background Image */}
-                  <div className="absolute inset-y-0 right-0 w-full md:w-[58%] overflow-hidden">
+                  <div className="absolute inset-y-0 right-0 w-full lg:w-[58%] overflow-hidden">
+                    {/* Desktop/Laptop (lg and up) */}
                     <div
-                      className="w-full h-full bg-cover bg-center"
+                      className="hidden lg:block w-full h-full bg-cover bg-center"
                       style={{ backgroundImage: `url(${slide.image})` }}
                     />
-                    {/* Mobile: strong overlay so text is readable */}
-                    <div className="md:hidden absolute inset-0 bg-white/75 z-10" />
-                    {/* Desktop: soft left fade */}
-                    <div className="hidden md:block absolute inset-y-0 left-0 w-40 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
+                    {/* Mobile/Tablet (below lg) */}
+                    <div
+                      className="block lg:hidden w-full h-full bg-cover bg-center"
+                      style={{ backgroundImage: `url(${slide.mobileImage || slide.image})` }}
+                    />
+                    {/* Mobile/Tablet: strong overlay so text is readable */}
+                    <div className="lg:hidden absolute inset-0 bg-white/75 z-10" />
+                    {/* Desktop/Laptop: soft left fade */}
+                    <div className="hidden lg:block absolute inset-y-0 left-0 w-40 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
                   </div>
 
                   {/* Slide Content */}

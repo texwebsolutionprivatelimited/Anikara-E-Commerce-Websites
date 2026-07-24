@@ -470,7 +470,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
                   <button
                     key={s}
                     onClick={() => setSelectedSize(s)}
-                    className={`min-w-[46px] h-10 px-3.5 text-xs font-extrabold rounded-lg border transition-all duration-300 cursor-pointer focus:outline-none flex items-center justify-center active:scale-95 hover:-translate-y-0.5 ${
+                    className={`min-w-[46px] h-11 md:h-10 px-3.5 text-xs font-extrabold rounded-lg border transition-all duration-300 cursor-pointer focus:outline-none flex items-center justify-center active:scale-95 hover:-translate-y-0.5 ${
                       selectedSize === s
                         ? "bg-gradient-to-r from-[#FF4D6D] to-[#FF758F] border-[#FF4D6D] text-white shadow-[0_6px_16px_rgba(255,77,109,0.3)] scale-105"
                         : "bg-neutral-50 border-neutral-200 text-neutral-700 hover:border-[#FF4D6D] hover:text-[#FF4D6D] hover:shadow-[0_4px_10px_rgba(255,77,109,0.08)]"
@@ -491,14 +491,14 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
               <div className="flex items-center justify-between border border-neutral-200 h-12 w-28 sm:w-32 px-2.5 shrink-0 rounded-xl bg-neutral-50/50">
                 <button
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="w-7 h-7 flex items-center justify-center rounded-full bg-white hover:bg-neutral-200 text-neutral-600 transition-colors focus:outline-none min-h-unset min-w-unset shadow-xs border border-neutral-200/40"
+                  className="w-9 h-9 flex items-center justify-center rounded-full bg-white hover:bg-neutral-200 text-neutral-600 transition-colors focus:outline-none min-h-unset min-w-unset shadow-xs border border-neutral-200/40"
                 >
                   <Minus size={11} />
                 </button>
                 <span className="text-xs font-black text-neutral-800 font-sans">{quantity}</span>
                 <button
                   onClick={() => setQuantity((q) => Math.min(10, q + 1))}
-                  className="w-7 h-7 flex items-center justify-center rounded-full bg-white hover:bg-neutral-200 text-neutral-600 transition-colors focus:outline-none min-h-unset min-w-unset shadow-xs border border-neutral-200/40"
+                  className="w-9 h-9 flex items-center justify-center rounded-full bg-white hover:bg-neutral-200 text-neutral-600 transition-colors focus:outline-none min-h-unset min-w-unset shadow-xs border border-neutral-200/40"
                 >
                   <Plus size={11} />
                 </button>
@@ -569,10 +569,10 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
       {/* Full-Width Accordion detail list strip (Flipkart/Amazon style) */}
       <div className="mt-10 pt-8 border-t border-neutral-300 space-y-5">
         {/* Elegant Capsule Tab Selector (Apple/Luxury layout) - Highly Responsive on all phone sizes */}
-        <div className="grid grid-cols-3 gap-1 sm:gap-2 p-1 sm:p-1.5 bg-neutral-100/80 rounded-xl w-full border border-neutral-300/80">
+        <div className="flex overflow-x-auto gap-1 sm:gap-2 p-1 sm:p-1.5 bg-neutral-100/80 rounded-xl w-full border border-neutral-300/80 scrollbar-hide md:grid md:grid-cols-3">
           <button
             onClick={() => setActiveTab("description")}
-            className={`px-1.5 sm:px-5 py-1.5 sm:py-2 text-[9px] xs:text-[10px] sm:text-[11px] font-black uppercase tracking-tight sm:tracking-wider rounded-lg transition-all duration-300 focus:outline-none cursor-pointer min-h-unset min-w-unset text-center line-clamp-1 truncate ${
+            className={`flex-1 min-w-[100px] md:min-w-0 px-1.5 sm:px-5 py-2 sm:py-2 text-[10.5px] sm:text-[11px] font-black uppercase tracking-tight sm:tracking-wider rounded-lg transition-all duration-300 focus:outline-none cursor-pointer text-center line-clamp-1 truncate ${
               activeTab === "description"
                 ? "bg-white text-neutral-900 shadow-sm border border-neutral-200/50"
                 : "text-neutral-500 hover:text-neutral-800"
@@ -582,7 +582,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
           </button>
           <button
             onClick={() => setActiveTab("shipping")}
-            className={`px-1.5 sm:px-5 py-1.5 sm:py-2 text-[9px] xs:text-[10px] sm:text-[11px] font-black uppercase tracking-tight sm:tracking-wider rounded-lg transition-all duration-300 focus:outline-none cursor-pointer min-h-unset min-w-unset text-center line-clamp-1 truncate ${
+            className={`flex-1 min-w-[120px] md:min-w-0 px-1.5 sm:px-5 py-2 sm:py-2 text-[10.5px] sm:text-[11px] font-black uppercase tracking-tight sm:tracking-wider rounded-lg transition-all duration-300 focus:outline-none cursor-pointer text-center line-clamp-1 truncate ${
               activeTab === "shipping"
                 ? "bg-white text-neutral-900 shadow-sm border border-neutral-200/50"
                 : "text-neutral-500 hover:text-neutral-800"
@@ -592,7 +592,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
           </button>
           <button
             onClick={() => setActiveTab("reviews")}
-            className={`px-1.5 sm:px-5 py-1.5 sm:py-2 text-[9px] xs:text-[10px] sm:text-[11px] font-black uppercase tracking-tight sm:tracking-wider rounded-lg transition-all duration-300 focus:outline-none cursor-pointer min-h-unset min-w-unset text-center line-clamp-1 truncate ${
+            className={`flex-1 min-w-[95px] md:min-w-0 px-1.5 sm:px-5 py-2 sm:py-2 text-[10.5px] sm:text-[11px] font-black uppercase tracking-tight sm:tracking-wider rounded-lg transition-all duration-300 focus:outline-none cursor-pointer text-center line-clamp-1 truncate ${
               activeTab === "reviews"
                 ? "bg-white text-neutral-900 shadow-sm border border-neutral-200/50"
                 : "text-neutral-500 hover:text-neutral-800"

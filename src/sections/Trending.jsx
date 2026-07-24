@@ -32,8 +32,22 @@ export default function Trending({ navigate }) {
           </h2>
         </div>
 
+        {/* Laptop-only Banner */}
+        <div 
+          onClick={() => navigate("products")}
+          className="hidden lg:block w-full h-[250px] mb-8 bg-cover bg-center rounded-xl shadow-sm cursor-pointer hover:opacity-95 transition-all duration-300"
+          style={{ backgroundImage: "url('/8.png')" }}
+        />
+
+        {/* Mobile-only Banner */}
+        <div 
+          onClick={() => navigate("products")}
+          className="block lg:hidden w-full h-[120px] sm:h-[180px] mb-6 bg-cover bg-center rounded-lg shadow-sm cursor-pointer hover:opacity-95 transition-all duration-300"
+          style={{ backgroundImage: "url('/3.jpeg')" }}
+        />
+
         {/* Dynamic Grid for Trending */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 sm:gap-x-4 gap-y-6 sm:gap-y-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 sm:gap-x-4 gap-y-6 sm:gap-y-8">
           {trendingProducts.slice(0, visibleCount).map((product) => (
             <ProductCard key={product.id} product={product} navigate={navigate} />
           ))}

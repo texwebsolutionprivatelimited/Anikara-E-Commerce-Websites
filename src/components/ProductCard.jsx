@@ -259,7 +259,7 @@ export default function ProductCard({ product, navigate }) {
             }
             addToCart(product, 1, "M");
           }}
-          className="mt-2.5 w-full py-2.5 bg-[#111111] hover:bg-[#FF4D6D] text-white text-[8px] sm:text-[9px] font-black tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-1 md:hidden cursor-pointer focus:outline-none rounded-md shadow-xs active:scale-[0.98]"
+          className="mt-2.5 w-full h-11 bg-[#111111] hover:bg-[#FF4D6D] text-white text-[9px] sm:text-[10px] font-black tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-1 md:hidden cursor-pointer focus:outline-none rounded-md shadow-xs active:scale-[0.98]"
         >
           <ShoppingBag size={10} />
           Add to Bag

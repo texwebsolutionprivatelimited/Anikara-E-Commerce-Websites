@@ -179,7 +179,7 @@ export default function Login({ navigate, currentParams = {} }) {
                   Password
                 </label>
                 {isLoginView && (
-                  <a href="#" className="text-[10px] text-neutral-400 hover:text-[#FF4D6D] hover:underline font-light">
+                  <a href="#" className="text-[10px] text-neutral-400 hover:text-[#FF4D6D] hover:underline font-light shrink-0">
                     Forgot Password?
                   </a>
                 )}

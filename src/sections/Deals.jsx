@@ -67,8 +67,22 @@ export default function Deals({ navigate }) {
           </div>
         </div>
 
+        {/* Laptop-only Banner */}
+        <div 
+          onClick={() => navigate("products", { badge: "Sale" })}
+          className="hidden lg:block w-full h-[250px] mb-8 bg-cover bg-center rounded-xl shadow-sm cursor-pointer hover:opacity-95 transition-all duration-300"
+          style={{ backgroundImage: "url('/12.png')" }}
+        />
+
+        {/* Mobile-only Banner */}
+        <div 
+          onClick={() => navigate("products", { badge: "Sale" })}
+          className="block lg:hidden w-full h-[120px] sm:h-[180px] mb-6 bg-cover bg-center rounded-lg shadow-sm cursor-pointer hover:opacity-95 transition-all duration-300"
+          style={{ backgroundImage: "url('/22.jpeg')" }}
+        />
+
         {/* Static Grid for Deals */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 sm:gap-x-4 gap-y-6 sm:gap-y-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 sm:gap-x-4 gap-y-6 sm:gap-y-8">
           {dealProducts.slice(0, 12).map((product) => (
             <ProductCard key={product.id} product={product} navigate={navigate} />
           ))}

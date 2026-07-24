@@ -162,17 +162,17 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
         <div className="relative max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-[72px] md:h-[80px] flex items-center justify-between gap-2">
           
           {/* Mobile Hamburger + Search Trigger */}
-          <div className="flex items-center gap-1.5 min-[360px]:gap-2 lg:hidden">
+          <div className="flex items-center lg:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="text-neutral-700 hover:text-black p-0.5 min-[360px]:p-1 focus:outline-none cursor-pointer"
+              className="w-11 h-11 flex items-center justify-center text-neutral-700 hover:text-black hover:bg-neutral-50 rounded-full focus:outline-none cursor-pointer"
               aria-label="Open Mobile Menu"
             >
               <Menu className="w-[20px] h-[20px] sm:w-[24px] sm:h-[24px]" strokeWidth={1.8} />
             </button>
             <button
               onClick={() => setIsMobileSearchOpen(true)}
-              className="text-neutral-700 hover:text-black p-0.5 min-[360px]:p-1 focus:outline-none cursor-pointer"
+              className="w-11 h-11 flex items-center justify-center text-neutral-700 hover:text-black hover:bg-neutral-50 rounded-full focus:outline-none cursor-pointer"
               aria-label="Open Mobile Search"
             >
               <Search className="w-[20px] h-[20px] sm:w-[22px] sm:h-[22px]" strokeWidth={1.8} />
@@ -381,14 +381,14 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
             {/* Wishlist Button */}
             <button
               onClick={() => navigate("wishlist")}
-              className={`relative p-1 min-[360px]:p-1.5 transition-colors cursor-pointer focus:outline-none ${
+              className={`relative w-11 h-11 flex items-center justify-center rounded-full transition-colors cursor-pointer focus:outline-none hover:bg-neutral-50 lg:hover:bg-transparent lg:w-auto lg:h-auto lg:p-1.5 ${
                 currentPage === "wishlist" ? "text-[#FF4D6D]" : "text-neutral-700 hover:text-[#FF4D6D]"
               }`}
               aria-label="View Wishlist"
             >
               <Heart className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px]" strokeWidth={1.8} />
               {wishlist.length > 0 && (
-                <span className="absolute top-0 right-0 bg-[#FF4D6D] text-white text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center border border-white transform translate-x-1/3 -translate-y-1/3 animate-pulse">
+                <span className="absolute top-1.5 right-1.5 bg-[#FF4D6D] text-white text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center border border-white lg:top-0 lg:right-0 lg:translate-x-1/3 lg:-translate-y-1/3 animate-pulse">
                   {wishlist.length}
                 </span>
               )}
@@ -397,14 +397,14 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
             {/* Cart Button */}
             <button
               onClick={() => navigate("cart")}
-              className={`relative p-1 min-[360px]:p-1.5 transition-colors cursor-pointer focus:outline-none ${
+              className={`relative w-11 h-11 flex items-center justify-center rounded-full transition-colors cursor-pointer focus:outline-none hover:bg-neutral-50 lg:hover:bg-transparent lg:w-auto lg:h-auto lg:p-1.5 ${
                 currentPage === "cart" ? "text-[#FF4D6D]" : "text-neutral-700 hover:text-[#FF4D6D]"
               }`}
               aria-label="View Cart"
             >
               <ShoppingBag className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px]" strokeWidth={1.8} />
               {totalCartItems > 0 && (
-                <span className="absolute top-0 right-0 bg-[#111111] text-white text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center border border-white transform translate-x-1/3 -translate-y-1/3">
+                <span className="absolute top-1.5 right-1.5 bg-[#111111] text-white text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center border border-white lg:top-0 lg:right-0 lg:translate-x-1/3 lg:-translate-y-1/3">
                   {totalCartItems}
                 </span>
               )}
@@ -413,7 +413,7 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
             {/* Profile Button */}
             <button
               onClick={() => navigate(user ? "profile" : "login")}
-              className={`p-1 min-[360px]:p-1.5 transition-colors cursor-pointer focus:outline-none ${
+              className={`w-11 h-11 flex items-center justify-center rounded-full transition-colors cursor-pointer focus:outline-none hover:bg-neutral-50 lg:hover:bg-transparent lg:w-auto lg:h-auto lg:p-1.5 ${
                 currentPage === "profile" || currentPage === "login" ? "text-[#FF4D6D]" : "text-neutral-700 hover:text-[#FF4D6D]"
               }`}
               aria-label="View Profile"

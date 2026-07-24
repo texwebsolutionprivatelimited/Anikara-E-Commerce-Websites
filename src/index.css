@@ -233,18 +233,18 @@ footer button {
   }
 }
 
-/* Categories grid for mobile (up to 426px) */
-@media (max-width: 426px) {
+/* Categories grid for mobile (up to 767px) */
+@media (max-width: 767px) {
   .categories-grid-mobile {
     display: grid !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     gap: 20px 6px !important;
     justify-items: center !important;
   }
 }
 
-/* Value Propositions horizontal row for mobile (up to 426px) */
-@media (max-width: 426px) {
+/* Value Propositions horizontal row for mobile (up to 767px) */
+@media (max-width: 767px) {
   .value-props-mobile-row {
     display: flex !important;
     flex-direction: row !important;
@@ -293,6 +293,16 @@ footer button {
   }
 }
 
+/* Custom Responsive Aspect Ratio for Banner Slider */
+.banner-aspect-ratio {
+  aspect-ratio: 6400 / 2841;
+}
+@media (min-width: 1024px) {
+  .banner-aspect-ratio {
+    aspect-ratio: 6788 / 1819;
+  }
+}
+
 /* Custom Footer Utilities */
 .footer-text-outline {
   -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.04);
@@ -315,6 +325,18 @@ footer button {
 }
 .footer-link-underline:hover::after {
   width: 100%;
+}
+
+/* Ensure input fields have proper touch targets on mobile (at least 44px) */
+@media (max-width: 767px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"],
+  textarea,
+  select {
+    min-height: 44px !important;
+  }
 }
 
 

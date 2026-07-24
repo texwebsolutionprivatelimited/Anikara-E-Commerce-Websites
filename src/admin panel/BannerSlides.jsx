@@ -8,19 +8,44 @@ import { StatCard, DeleteModal } from "./AdminShared";
 
 const EMPTY_SLIDE = {
   title: "", subtitle: "", desc: "",
-  image: "", navigatePage: "products", navigateParams: {},
+  image: "", mobileImage: "", navigatePage: "products", navigateParams: {},
   isFullWidth: false
 };
 
 function SlidePreview({ slide }) {
+  const [viewMode, setViewMode] = useState("desktop"); // "desktop" or "mobile"
   const isFullWidth = !!slide.isFullWidth;
+  const currentImage = viewMode === "desktop" ? slide.image : (slide.mobileImage || slide.image);
+
   return (
     <div className="relative w-full h-28 overflow-hidden bg-white border border-neutral-200 rounded-lg">
+      {/* View Mode Toggle */}
+      <div className="absolute top-2 right-2 z-30 flex bg-neutral-900/80 backdrop-blur-xs p-0.5 rounded border border-neutral-700/50">
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); setViewMode("desktop"); }}
+          className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider transition-colors focus:outline-none ${
+            viewMode === "desktop" ? "bg-[#FF4D6D] text-white" : "text-neutral-300 hover:text-white"
+          }`}
+        >
+          Desktop
+        </button>
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); setViewMode("mobile"); }}
+          className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider transition-colors focus:outline-none ${
+            viewMode === "mobile" ? "bg-[#FF4D6D] text-white" : "text-neutral-300 hover:text-white"
+          }`}
+        >
+          Mobile/Tablet
+        </button>
+      </div>
+
       {isFullWidth ? (
-        slide.image ? (
+        currentImage ? (
           <div
             className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${slide.image})` }}
+            style={{ backgroundImage: `url(${currentImage})` }}
           />
         ) : (
           <div className="absolute inset-0 bg-neutral-100 flex items-center justify-center">
@@ -29,16 +54,26 @@ function SlidePreview({ slide }) {
         )
       ) : (
         <>
-          {slide.image && (
+          {/* Split Slide View */}
+          {currentImage && (
             <div
-              className="absolute inset-y-0 right-0 w-[55%] bg-cover bg-center"
-              style={{ backgroundImage: `url(${slide.image})` }}
+              className={`absolute inset-y-0 right-0 bg-cover bg-center transition-all ${
+                viewMode === "desktop" ? "w-[55%]" : "w-full"
+              }`}
+              style={{ backgroundImage: `url(${currentImage})` }}
             >
-              <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white to-transparent" />
+              {/* Fade / Overlay */}
+              {viewMode === "desktop" ? (
+                <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white to-transparent" />
+              ) : (
+                <div className="absolute inset-0 bg-white/75" />
+              )}
             </div>
           )}
-          <div className="absolute inset-0 flex items-center px-4">
-            <div className="max-w-[45%]">
+
+          {/* Slide Text Content Overlay */}
+          <div className="absolute inset-0 flex items-center px-4 z-10">
+            <div className={viewMode === "desktop" ? "max-w-[45%]" : "max-w-[85%]"}>
               {slide.subtitle && (
                 <p className="text-[7px] font-black tracking-[0.2em] text-[#FF4D6D] uppercase mb-0.5">
                   {slide.subtitle}
@@ -54,7 +89,8 @@ function SlidePreview({ slide }) {
               )}
             </div>
           </div>
-          {!slide.image && (
+
+          {!currentImage && (
             <div className="absolute inset-y-0 right-0 w-[55%] bg-neutral-100 flex items-center justify-center">
               <ImageIcon size={24} className="text-neutral-300" />
             </div>
@@ -100,47 +136,67 @@ function SlideModal({ initial, onSave, onClose }) {
     setForm((f) => ({ ...f, navigatePage: opt.page, navigateParams: opt.params }));
   };
 
-  const handleDrag = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setIsDragActive(true);
-    } else if (e.type === "dragleave") {
-      setIsDragActive(false);
-    }
-  };
+  const [isDragActiveDesktop, setIsDragActiveDesktop] = useState(false);
+  const [isDragActiveMobile, setIsDragActiveMobile] = useState(false);
+  const [uploadingDesktop, setUploadingDesktop] = useState(false);
+  const [uploadingMobile, setUploadingMobile] = useState(false);
 
-  const processFile = async (file) => {
+  const processFile = async (file, target) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
       addToast("Please upload an image file!", "error");
       return;
     }
+    const isDesktop = target === "image";
+    const setUpload = isDesktop ? setUploadingDesktop : setUploadingMobile;
     try {
-      setUploading(true);
+      setUpload(true);
       const url = await uploadToImageKit(file);
-      set("image", url);
-      addToast("Image uploaded successfully!", "success");
+      set(target, url);
+      addToast(`${isDesktop ? "Desktop" : "Mobile"} image uploaded successfully!`, "success");
     } catch (err) {
       console.error(err);
-      addToast("Image upload failed. Check ImageKit keys or try again.", "error");
+      addToast(`${isDesktop ? "Desktop" : "Mobile"} image upload failed. Check ImageKit keys or try again.`, "error");
     } finally {
-      setUploading(false);
+      setUpload(false);
     }
   };
 
-  const handleDrop = (e) => {
+  const handleDragDesktop = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsDragActive(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      void processFile(e.dataTransfer.files[0]);
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setIsDragActiveDesktop(true);
+    } else if (e.type === "dragleave") {
+      setIsDragActiveDesktop(false);
     }
   };
 
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      void processFile(e.target.files[0]);
+  const handleDropDesktop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActiveDesktop(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      void processFile(e.dataTransfer.files[0], "image");
+    }
+  };
+
+  const handleDragMobile = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setIsDragActiveMobile(true);
+    } else if (e.type === "dragleave") {
+      setIsDragActiveMobile(false);
+    }
+  };
+
+  const handleDropMobile = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActiveMobile(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      void processFile(e.dataTransfer.files[0], "mobileImage");
     }
   };
 
@@ -194,41 +250,100 @@ function SlideModal({ initial, onSave, onClose }) {
               className={`${inputCls} resize-none`} />
           </div>
 
+          {/* Desktop/Laptop Image Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={labelCls}>Image URL <span className="text-[#FF4D6D]">*</span></label>
+              <label className={labelCls}>Desktop / Laptop Image URL <span className="text-[#FF4D6D]">*</span></label>
               <input required value={form.image} onChange={(e) => set("image", e.target.value)}
                 placeholder="https://images.unsplash.com/..." className={inputCls} />
               <p className="text-[9px] text-neutral-400 mt-1">
-                Enter direct image URL or drag & drop a file to upload.
+                Direct image URL for Desktop/Laptop banner layout.
               </p>
             </div>
             <div>
-              <label className={labelCls}>Upload Banner Image</label>
+              <label className={labelCls}>Upload Desktop / Laptop Image</label>
               <div
-                onDragEnter={handleDrag}
-                onDragOver={handleDrag}
-                onDragLeave={handleDrag}
-                onDrop={handleDrop}
-                onClick={() => document.getElementById("slide-file-input").click()}
-                className={`border border-dashed rounded-lg h-[64px] flex flex-col items-center justify-center p-2 text-center cursor-pointer transition-all duration-300 relative overflow-hidden ${isDragActive ? "border-[#FF4D6D] bg-[#FF4D6D]/5 scale-[0.99]"
+                onDragEnter={handleDragDesktop}
+                onDragOver={handleDragDesktop}
+                onDragLeave={handleDragDesktop}
+                onDrop={handleDropDesktop}
+                onClick={() => document.getElementById("slide-desktop-file-input").click()}
+                className={`border border-dashed rounded-lg h-[64px] flex flex-col items-center justify-center p-2 text-center cursor-pointer transition-all duration-300 relative overflow-hidden ${isDragActiveDesktop ? "border-[#FF4D6D] bg-[#FF4D6D]/5 scale-[0.99]"
                   : form.image ? "border-emerald-500 bg-neutral-50"
                     : "border-neutral-200 bg-neutral-50/50 hover:border-[#FF4D6D] hover:bg-neutral-50"
                   }`}
               >
                 <input
-                  id="slide-file-input"
+                  id="slide-desktop-file-input"
                   type="file"
                   accept="image/*"
-                  onChange={handleFileChange}
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      void processFile(e.target.files[0], "image");
+                    }
+                  }}
                   className="hidden"
                 />
-                {uploading ? (
+                {uploadingDesktop ? (
                   <div className="flex items-center gap-1.5 text-xs text-[#FF4D6D] font-bold">
                     <span className="w-3 h-3 border-2 border-[#FF4D6D] border-t-transparent rounded-full animate-spin" />
                     Uploading...
                   </div>
                 ) : form.image ? (
+                  <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-bold uppercase tracking-wider">
+                    <Check size={14} className="bg-emerald-100 p-0.5 rounded-full" />
+                    Image Ready
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-neutral-400">
+                    <ImageIcon size={16} className="mb-0.5 text-neutral-300" />
+                    <p className="text-[9px] font-bold text-neutral-600">Drag & Drop or Click to Upload</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile/Tablet Image Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Mobile / Tablet Image URL</label>
+              <input value={form.mobileImage || ""} onChange={(e) => set("mobileImage", e.target.value)}
+                placeholder="https://images.unsplash.com/..." className={inputCls} />
+              <p className="text-[9px] text-neutral-400 mt-1">
+                Direct image URL for Mobile/Tablet layout. Falls back to Desktop image if empty.
+              </p>
+            </div>
+            <div>
+              <label className={labelCls}>Upload Mobile / Tablet Image</label>
+              <div
+                onDragEnter={handleDragMobile}
+                onDragOver={handleDragMobile}
+                onDragLeave={handleDragMobile}
+                onDrop={handleDropMobile}
+                onClick={() => document.getElementById("slide-mobile-file-input").click()}
+                className={`border border-dashed rounded-lg h-[64px] flex flex-col items-center justify-center p-2 text-center cursor-pointer transition-all duration-300 relative overflow-hidden ${isDragActiveMobile ? "border-[#FF4D6D] bg-[#FF4D6D]/5 scale-[0.99]"
+                  : form.mobileImage ? "border-emerald-500 bg-neutral-50"
+                    : "border-neutral-200 bg-neutral-50/50 hover:border-[#FF4D6D] hover:bg-neutral-50"
+                  }`}
+              >
+                <input
+                  id="slide-mobile-file-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      void processFile(e.target.files[0], "mobileImage");
+                    }
+                  }}
+                  className="hidden"
+                />
+                {uploadingMobile ? (
+                  <div className="flex items-center gap-1.5 text-xs text-[#FF4D6D] font-bold">
+                    <span className="w-3 h-3 border-2 border-[#FF4D6D] border-t-transparent rounded-full animate-spin" />
+                    Uploading...
+                  </div>
+                ) : form.mobileImage ? (
                   <div className="flex items-center gap-1 text-emerald-600 text-[10px] font-bold uppercase tracking-wider">
                     <Check size={14} className="bg-emerald-100 p-0.5 rounded-full" />
                     Image Ready
