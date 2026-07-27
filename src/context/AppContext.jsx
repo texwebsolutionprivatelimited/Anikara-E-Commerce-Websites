@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { collection, doc, setDoc, getDoc, deleteDoc, onSnapshot, writeBatch } from "firebase/firestore";
+import { collection, doc, setDoc, getDoc, deleteDoc, onSnapshot, writeBatch, query, where } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
@@ -221,7 +221,7 @@ export const AppProvider = ({ children }) => {
   const [categoryImages, setCategoryImages] = useState({});
   const [categoryDocIds, setCategoryDocIds] = useState({});
 
-  // central realtime syncing logic
+  // central realtime syncing logic for public collections
   useEffect(() => {
     // 1. Sync Products
     const unsubscribeProducts = onSnapshot(collection(db, "products"), (snapshot) => {
@@ -266,20 +266,6 @@ export const AppProvider = ({ children }) => {
       setSlides(snapshot.docs.map((docSnap) => docSnap.data()));
     });
 
-    // 4. Sync Orders
-    const unsubscribeOrders = onSnapshot(collection(db, "orders"), (snapshot) => {
-      const mappedOrders = snapshot.docs.map((docSnap) => {
-        const orderData = docSnap.data();
-        return getAutoTrackedOrder(orderData);
-      });
-      setOrders(mappedOrders);
-    });
-
-    // 5. Sync Payments
-    const unsubscribePayments = onSnapshot(collection(db, "payments"), (snapshot) => {
-      setPayments(snapshot.docs.map((docSnap) => docSnap.data()));
-    });
-
     // 6. Sync Settings
     const unsubscribeSettings = onSnapshot(doc(db, "settings", "general"), async (docSnap) => {
       if (!docSnap.exists()) {
@@ -316,12 +302,92 @@ export const AppProvider = ({ children }) => {
       unsubscribeProducts();
       unsubscribeCoupons();
       unsubscribeSlides();
-      unsubscribeOrders();
-      unsubscribePayments();
       unsubscribeSettings();
       unsubscribeCategories();
     };
   }, []);
+
+  // Role-based subscription for Orders and Payments to comply with Firestore Rules
+  useEffect(() => {
+    let unsubscribeOrders = () => {};
+    let unsubscribePayments = () => {};
+
+    // Get Admin emails from env
+    const rawAdminEmails =
+      import.meta.env.VITE_ADMIN_EMAILS ||
+      import.meta.env.VITE_ADMIN_EMAIL ||
+      settings?.adminEmail ||
+      "";
+    const adminEmails = String(rawAdminEmails)
+      .split(",")
+      .map((e) => e.toLowerCase().trim())
+      .filter(Boolean);
+    const userEmail = (user?.email || "").toLowerCase().trim();
+    const isAdminUser = !!userEmail && adminEmails.includes(userEmail);
+
+    if (user && user.uid) {
+      if (isAdminUser) {
+        // Admin can read all orders and payments
+        unsubscribeOrders = onSnapshot(
+          collection(db, "orders"),
+          (snapshot) => {
+            const mappedOrders = snapshot.docs.map((docSnap) => {
+              const orderData = docSnap.data();
+              return getAutoTrackedOrder(orderData);
+            });
+            setOrders(mappedOrders);
+          },
+          (err) => {
+            console.error("Error syncing admin orders:", err);
+          }
+        );
+
+        unsubscribePayments = onSnapshot(
+          collection(db, "payments"),
+          (snapshot) => {
+            setPayments(snapshot.docs.map((docSnap) => docSnap.data()));
+          },
+          (err) => {
+            console.error("Error syncing admin payments:", err);
+          }
+        );
+      } else {
+        // Regular user can only read their own orders and payments
+        unsubscribeOrders = onSnapshot(
+          query(collection(db, "orders"), where("userId", "==", user.uid)),
+          (snapshot) => {
+            const mappedOrders = snapshot.docs.map((docSnap) => {
+              const orderData = docSnap.data();
+              return getAutoTrackedOrder(orderData);
+            });
+            setOrders(mappedOrders);
+          },
+          (err) => {
+            console.error("Error syncing user orders:", err);
+          }
+        );
+
+        unsubscribePayments = onSnapshot(
+          query(collection(db, "payments"), where("customerEmail", "==", user.email)),
+          (snapshot) => {
+            setPayments(snapshot.docs.map((docSnap) => docSnap.data()));
+          },
+          (err) => {
+            console.error("Error syncing user payments:", err);
+          }
+        );
+      }
+    } else {
+      // Guests don't have orders or payments synced
+      setOrders([]);
+      setPayments([]);
+    }
+
+    return () => {
+      unsubscribeOrders();
+      unsubscribePayments();
+    };
+  }, [user, settings?.adminEmail]);
 
   // Monitor Auth State
   useEffect(() => {
