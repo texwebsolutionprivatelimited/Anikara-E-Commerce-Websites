@@ -49,16 +49,11 @@ export default function CategoryCard({ category, navigate }) {
   return (
     <motion.div
       variants={itemVariants}
-      whileHover={{
-        y: -6,
-        scale: 1.03,
-        transition: { duration: 0.35, ease: "easeOut" }
-      }}
-      className="group cursor-pointer flex h-full w-full min-w-0 flex-col items-center pb-5 sm:pb-6 relative"
+      className="group cursor-pointer flex w-full flex-col items-center relative transition-transform duration-300 ease-out hover:-translate-y-[6px]"
       onClick={() => navigate("products", { category: category.dbCategory })}
     >
-      {/* Arched/Dome Image Container with Glassmorphism Pink-White Backdrop & Glow Border */}
-      <div className="relative w-full min-w-0 h-[105px] min-[400px]:h-[125px] sm:h-[160px] md:h-[175px] lg:h-[240px] rounded-t-full rounded-b-[20px] sm:rounded-b-[36px] bg-gradient-to-b from-[#FFF3F6]/55 via-[#FFFBFD]/30 to-white/70 backdrop-blur-xs border border-[#FFC0D3] shadow-[0_5px_15px_rgba(255,182,193,0.12)] flex items-center justify-center p-0.5 sm:p-2 overflow-visible transition-all duration-300 ease-out group-hover:shadow-[0_10px_22px_rgba(255,77,109,0.22)] group-hover:border-[#FF4D6D]">
+      {/* Arched Dome Image Container with Glassmorphism Pink-White Backdrop & Glow Border */}
+      <div className="relative w-full aspect-[3/4] rounded-t-full rounded-b-[20px] sm:rounded-b-[36px] bg-gradient-to-b from-[#FFF3F6]/55 via-[#FFFBFD]/30 to-white/70 backdrop-blur-xs border border-[#FFC0D3]/50 shadow-[0_4px_12px_rgba(255,182,193,0.1)] flex items-center justify-center p-0.5 sm:p-1.5 overflow-hidden transition-all duration-300 ease-out group-hover:shadow-[0_10px_22px_rgba(255,77,109,0.18)] group-hover:border-[#FF4D6D]">
 
         {/* Soft Pink Glow Backdrop */}
         <div className="absolute inset-0 rounded-t-full rounded-b-[18px] sm:rounded-b-[34px] bg-[#FF4D6D]/4 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-md" />
@@ -69,13 +64,15 @@ export default function CategoryCard({ category, navigate }) {
             <ImageKitImage
               src={category.image}
               alt={category.displayName}
-              className="w-full h-full object-cover transition-transform duration-750 ease-out group-hover:scale-106"
+              className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+              loading="lazy"
             />
           ) : (
             <img
               src={category.image}
               alt={category.displayName}
-              className="w-full h-full object-cover transition-transform duration-750 ease-out group-hover:scale-106"
+              className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+              loading="lazy"
             />
           )}
           {/* Subtle gradient overlay for blending */}
@@ -84,16 +81,18 @@ export default function CategoryCard({ category, navigate }) {
 
         {/* Twinkling Sparkles/Stars */}
         <Sparkles />
+      </div>
 
-        {/* Overlapping Pill-Shaped Glassmorphic Badge at the bottom of the arch */}
-        <div className="absolute -bottom-4 min-[400px]:-bottom-4.5 sm:-bottom-6 left-1/2 transform -translate-x-1/2 z-20 bg-white/90 backdrop-blur-md border border-[#FFA3C4]/60 px-1 py-0.5 sm:px-3 sm:py-1.5 rounded-full shadow-[0_4px_8px_rgba(255,182,193,0.18)] group-hover:shadow-[0_6px_12px_rgba(255,182,193,0.35)] group-hover:border-[#FF4D6D] group-hover:bg-white transition-all duration-300 w-[96%] min-w-0 h-8 min-[400px]:h-9 sm:h-12 text-center flex flex-col items-center justify-center gap-0.5 overflow-hidden">
-          <h3 className="w-full px-0.5 truncate text-[8.5px] min-[360px]:text-[9.5px] min-[400px]:text-[10.5px] sm:text-[15px] font-black tracking-[0.04em] text-[#000000] uppercase font-display leading-none">
-            {category.displayName}
-          </h3>
-          <span className="w-full px-0.5 truncate text-[6px] min-[360px]:text-[7px] sm:text-[10px] font-extrabold text-neutral-500 tracking-widest uppercase leading-none">
+      {/* Category Name & Count below the card */}
+      <div className="mt-3.5 text-center flex flex-col items-center gap-1 w-full">
+        <h3 className="text-xs sm:text-sm font-semibold tracking-wider text-neutral-900 uppercase font-display transition-colors duration-300 group-hover:text-[#FF4D6D] px-2 truncate w-full">
+          {category.displayName}
+        </h3>
+        {parseInt(category.itemsCount) > 0 && (
+          <span className="text-[9px] sm:text-[10px] font-bold text-neutral-400 tracking-widest uppercase font-sans">
             {category.itemsCount}
           </span>
-        </div>
+        )}
       </div>
     </motion.div>
   );
