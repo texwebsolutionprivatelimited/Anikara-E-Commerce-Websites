@@ -14,20 +14,20 @@ const containerVariants = {
   }
 };
 
-// Exact Handwritten categories specification with isolated cutout images (no human body)
+// Exact Handwritten categories specification with transparent WebP cutout images (no human body)
 const HANDWRITTEN_GRID_CATEGORIES = [
-  { id: "night-suit", dbCategory: "Night Suit", displayName: "NIGHT SUIT", fallback: "/categories/cutouts/night-suit.png" },
-  { id: "co-ords", dbCategory: "CO-ORDS", displayName: "CO-ORDS", fallback: "/categories/cutouts/co-ords.png" },
-  { id: "suit", dbCategory: "Suit", displayName: "SUIT", fallback: "/categories/cutouts/suit.png" },
-  { id: "t-shirt", dbCategory: "T-Shirt", displayName: "T-SHIRTS", fallback: "/categories/cutouts/t-shirt.png" },
-  { id: "dress", dbCategory: "Dress", displayName: "DRESSES", fallback: "/categories/cutouts/dress.png" },
-  { id: "tops-blouse", dbCategory: "Tops Blouse", displayName: "TOPS & BLOUSES", fallback: "/categories/cutouts/tops-blouse.png" },
-  { id: "bottom-wear", dbCategory: "Bottom wear", displayName: "BOTTOM WEAR", fallback: "/categories/cutouts/bottom-wear.png" },
-  { id: "lingerie", dbCategory: "Lingerie", displayName: "LINGERIE", fallback: "/categories/cutouts/lingerie.png" },
-  { id: "denim", dbCategory: "Denim", displayName: "DENIM", fallback: "/categories/cutouts/denim.png" },
-  { id: "sports-wear", dbCategory: "Sports wear", displayName: "SPORTS WEAR", fallback: "/categories/cutouts/sports-wear.png" },
-  { id: "footwear", dbCategory: "Footwear", displayName: "FOOTWEAR", fallback: "/categories/cutouts/footwear.png" },
-  { id: "bags", dbCategory: "Bags", displayName: "BAGS", fallback: "/categories/cutouts/bags.png" }
+  { id: "night-suit", dbCategory: "Night Suit", displayName: "NIGHT SUIT", fallback: "/categories/cutouts/night-suit.webp" },
+  { id: "co-ords", dbCategory: "CO-ORDS", displayName: "CO-ORDS", fallback: "/categories/cutouts/co-ords.webp" },
+  { id: "suit", dbCategory: "Suit", displayName: "SUIT", fallback: "/categories/cutouts/suit.webp" },
+  { id: "t-shirt", dbCategory: "T-Shirt", displayName: "T-SHIRTS", fallback: "/categories/cutouts/t-shirt.webp" },
+  { id: "dress", dbCategory: "Dress", displayName: "DRESSES", fallback: "/categories/cutouts/dress.webp" },
+  { id: "tops-blouse", dbCategory: "Tops Blouse", displayName: "TOPS & BLOUSES", fallback: "/categories/cutouts/tops-blouse.webp" },
+  { id: "bottom-wear", dbCategory: "Bottom wear", displayName: "BOTTOM WEAR", fallback: "/categories/cutouts/bottom-wear.webp" },
+  { id: "lingerie", dbCategory: "Lingerie", displayName: "LINGERIE", fallback: "/categories/cutouts/lingerie.webp" },
+  { id: "denim", dbCategory: "Denim", displayName: "DENIM", fallback: "/categories/cutouts/denim.webp" },
+  { id: "sports-wear", dbCategory: "Sports wear", displayName: "SPORTS WEAR", fallback: "/categories/cutouts/sports-wear.webp" },
+  { id: "footwear", dbCategory: "Footwear", displayName: "FOOTWEAR", fallback: "/categories/cutouts/footwear.webp" },
+  { id: "bags", dbCategory: "Bags", displayName: "BAGS", fallback: "/categories/cutouts/bags.webp" }
 ];
 
 export default function Categories({ navigate }) {

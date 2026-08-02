@@ -4,10 +4,7 @@ import { db, auth } from "../firebase";
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 export const uploadToImageKit = async (file) => {
-  const publicKey = import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY;
-  if (!publicKey) {
-    throw new Error("ImageKit public key missing. Set VITE_IMAGEKIT_PUBLIC_KEY.");
-  }
+  const publicKey = import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY || "public_FbD+wkQorgMyc9rFEjyLq1eX40c=";
 
   const authResponse = await fetch("/api/imagekit-auth");
   if (!authResponse.ok) {
@@ -100,10 +97,7 @@ export const compressImage = (file, maxWidth = 1000, maxHeight = 1000, quality =
 };
 
 export const uploadToImageKitWithProgress = async (file, onProgress) => {
-  const publicKey = import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY;
-  if (!publicKey) {
-    throw new Error("ImageKit public key missing. Set VITE_IMAGEKIT_PUBLIC_KEY.");
-  }
+  const publicKey = import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY || "public_FbD+wkQorgMyc9rFEjyLq1eX40c=";
 
   const authResponse = await fetch("/api/imagekit-auth");
   if (!authResponse.ok) {
