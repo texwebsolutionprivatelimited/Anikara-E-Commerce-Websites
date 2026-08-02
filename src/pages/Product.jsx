@@ -44,8 +44,14 @@ export default function Product({ navigate, currentParams = {}, goBack }) {
       if (!matchName && !matchCat && !matchDesc) return false;
     }
 
-    if (selectedCategory && product.category !== selectedCategory) {
-      return false;
+    if (selectedCategory) {
+      const pCat = (product.category || "").toLowerCase();
+      const sCat = selectedCategory.toLowerCase();
+      const matchesDirect = pCat === sCat;
+      const matchesIncludes = pCat.includes(sCat) || sCat.includes(pCat);
+      if (!matchesDirect && !matchesIncludes) {
+        return false;
+      }
     }
 
     if (currentParams.badge === "Sale") {

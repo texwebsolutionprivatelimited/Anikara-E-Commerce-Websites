@@ -31,7 +31,10 @@ export default function Home({ navigate }) {
       {/* 1. HERO SLIDER */}
       <HeroSection navigate={navigate} />
 
-      {/* 2. FREE SHIPPING & VALUE PROPOSITIONS */}
+      {/* 2. CATEGORIES (HOT CATEGORIES) */}
+      <Categories navigate={navigate} />
+
+      {/* 3. FREE SHIPPING & VALUE PROPOSITIONS */}
       <section className="bg-neutral-50 border-y border-neutral-100 py-4 md:py-5">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-10 lg:px-16 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 text-center value-props-mobile-row">
           <div className="flex flex-col items-center justify-center gap-1.5 py-2 md:py-0 value-prop-mobile-item">
@@ -57,11 +60,6 @@ export default function Home({ navigate }) {
           </div>
         </div>
       </section>
-
-
-
-      {/* 4. CURATED DEPARTMENTS */}
-      <Categories navigate={navigate} />
 
       {/* 5. DEALS OF THE DAY */}
       <Deals navigate={navigate} />
