@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useApp } from "../context/AppContext";
-import { User, LogOut, Package, MapPin, Phone, Mail, ChevronDown, ChevronUp, PackageOpen, Check, Star, X } from "lucide-react";
+import { User, LogOut, Package, MapPin, Phone, Mail, ChevronDown, ChevronUp, PackageOpen, Check, Star, X, Truck } from "lucide-react";
 
 export default function Profile({ navigate }) {
   const { user, orders, logoutUser, updateProfile, addToast, addProductReview } = useApp();
@@ -400,36 +400,36 @@ export default function Profile({ navigate }) {
                   >
                     <div
                       onClick={() => toggleExpandOrder(order.id)}
-                      className="p-4 bg-neutral-50/50 hover:bg-neutral-50 cursor-pointer flex items-center justify-between flex-wrap gap-3 border-b border-neutral-100"
+                      className="p-3.5 sm:p-4 bg-neutral-50/50 hover:bg-neutral-50 cursor-pointer flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap border-b border-neutral-100"
                     >
-                      <div className="flex gap-4 md:gap-8 flex-wrap text-xs font-sans text-neutral-600">
-                        <div className="min-w-0">
-                          <p className="text-[10px] font-bold uppercase text-neutral-400 mb-0.5">Order ID</p>
-                          <p className="font-bold text-neutral-950 font-display break-all">{order.id}</p>
+                      <div className="grid grid-cols-2 sm:flex sm:items-center gap-3 sm:gap-6 flex-1 text-xs font-sans text-neutral-600 min-w-0">
+                        <div className="min-w-0 col-span-2 sm:col-span-1">
+                          <p className="text-[9.5px] sm:text-[10px] font-bold uppercase text-neutral-400 mb-0.5">Order ID</p>
+                          <p className="font-bold text-neutral-950 font-display truncate text-[11px] sm:text-xs">{order.id}</p>
                         </div>
                         <div>
-                          <p className="text-[10px] font-bold uppercase text-neutral-400 mb-0.5">Placed On</p>
-                          <p className="font-semibold text-neutral-800">{order.date}</p>
+                          <p className="text-[9.5px] sm:text-[10px] font-bold uppercase text-neutral-400 mb-0.5">Placed On</p>
+                          <p className="font-semibold text-neutral-800 text-[11px] sm:text-xs">{order.date}</p>
                         </div>
                         <div>
-                          <p className="text-[10px] font-bold uppercase text-neutral-400 mb-0.5">Total Amount</p>
-                          <p className="font-bold text-neutral-950">₹{order.total.toLocaleString("en-IN")}</p>
+                          <p className="text-[9.5px] sm:text-[10px] font-bold uppercase text-neutral-400 mb-0.5">Total Amount</p>
+                          <p className="font-bold text-neutral-950 text-[11px] sm:text-xs">₹{order.total.toLocaleString("en-IN")}</p>
                         </div>
                         {order.status !== "Cancelled" && (
-                          <div>
-                            <p className="text-[10px] font-bold uppercase text-neutral-400 mb-0.5">
+                          <div className="col-span-2 sm:col-span-1">
+                            <p className="text-[9.5px] sm:text-[10px] font-bold uppercase text-neutral-400 mb-0.5">
                               {order.status === "Delivered" ? "Delivered On" : "Expected Delivery"}
                             </p>
-                            <p className={`font-bold ${order.status === "Delivered" ? "text-emerald-700" : "text-[#FF4D6D]"}`}>
+                            <p className={`font-bold text-[11px] sm:text-xs ${order.status === "Delivered" ? "text-emerald-700" : "text-[#FF4D6D]"}`}>
                               {getExpectedDeliveryDate(order.date)}
                             </p>
                           </div>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 shrink-0">
                         <span
-                          className={`text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${
+                          className={`text-[8.5px] sm:text-[9px] font-bold uppercase tracking-wider px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full ${
                             order.status === "Delivered"
                               ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
                               : order.status === "In Transit" || order.status === "Shipped" || order.status === "Out for Delivery"
@@ -444,58 +444,58 @@ export default function Profile({ navigate }) {
                     </div>
 
                     {isExpanded && (
-                      <div className="p-5 space-y-6">
+                      <div className="p-3.5 sm:p-5 space-y-5 sm:space-y-6">
                         
-                        {/* Tracker Progress bar */}
-                        <div className="max-w-xl mx-auto py-2 px-1">
-                          <div className="relative w-full flex items-center justify-between font-display text-[7.5px] min-[360px]:text-[8.5px] sm:text-[9.5px] font-bold tracking-wider uppercase text-neutral-400">
+                        {/* Tracker Progress bar (Mobile Fluid) */}
+                        <div className="max-w-xl mx-auto py-2 px-0.5">
+                          <div className="relative w-full flex items-center justify-between font-display text-[7px] min-[360px]:text-[8px] sm:text-[9.5px] font-bold tracking-wider uppercase text-neutral-400">
                             
-                            <div className="flex flex-col items-center gap-1.5 z-10">
+                            <div className="flex flex-col items-center gap-1 z-10 text-center">
                               <span
-                                className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] border ${
+                                className={`h-4.5 w-4.5 sm:h-5 sm:w-5 rounded-full flex items-center justify-center text-[9px] sm:text-[10px] border ${
                                   activeStep >= 1 ? "bg-emerald-500 border-emerald-500 text-white" : "bg-white border-neutral-200"
                                 }`}
                               >
-                                {activeStep > 1 ? <Check size={10} strokeWidth={3} /> : "1"}
+                                {activeStep > 1 ? <Check size={9} strokeWidth={3} /> : "1"}
                               </span>
                               <span>Placed</span>
                             </div>
 
-                            <div className={`h-0.5 flex-1 mx-1 -translate-y-3.5 ${activeStep >= 2 ? "bg-emerald-500" : "bg-neutral-200"}`} />
+                            <div className={`h-0.5 flex-1 mx-0.5 sm:mx-1 -translate-y-3 ${activeStep >= 2 ? "bg-emerald-500" : "bg-neutral-200"}`} />
 
-                            <div className="flex flex-col items-center gap-1.5 z-10">
+                            <div className="flex flex-col items-center gap-1 z-10 text-center">
                               <span
-                                className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] border ${
+                                className={`h-4.5 w-4.5 sm:h-5 sm:w-5 rounded-full flex items-center justify-center text-[9px] sm:text-[10px] border ${
                                   activeStep >= 2 ? "bg-emerald-500 border-emerald-500 text-white" : "bg-white border-neutral-200"
                                 }`}
                               >
-                                {activeStep > 2 ? <Check size={10} strokeWidth={3} /> : "2"}
+                                {activeStep > 2 ? <Check size={9} strokeWidth={3} /> : "2"}
                               </span>
                               <span>Shipped</span>
                             </div>
 
-                            <div className={`h-0.5 flex-1 mx-1 -translate-y-3.5 ${activeStep >= 3 ? "bg-emerald-500" : "bg-neutral-200"}`} />
+                            <div className={`h-0.5 flex-1 mx-0.5 sm:mx-1 -translate-y-3 ${activeStep >= 3 ? "bg-emerald-500" : "bg-neutral-200"}`} />
 
-                            <div className="flex flex-col items-center gap-1.5 z-10">
+                            <div className="flex flex-col items-center gap-1 z-10 text-center">
                               <span
-                                className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] border ${
+                                className={`h-4.5 w-4.5 sm:h-5 sm:w-5 rounded-full flex items-center justify-center text-[9px] sm:text-[10px] border ${
                                   activeStep >= 3 ? "bg-emerald-500 border-emerald-500 text-white" : "bg-white border-neutral-200"
                                 }`}
                               >
-                                {activeStep > 3 ? <Check size={10} strokeWidth={3} /> : "3"}
+                                {activeStep > 3 ? <Check size={9} strokeWidth={3} /> : "3"}
                               </span>
                               <span>Out for Delivery</span>
                             </div>
 
-                            <div className={`h-0.5 flex-1 mx-1 -translate-y-3.5 ${activeStep >= 4 ? "bg-emerald-500" : "bg-neutral-200"}`} />
+                            <div className={`h-0.5 flex-1 mx-0.5 sm:mx-1 -translate-y-3 ${activeStep >= 4 ? "bg-emerald-500" : "bg-neutral-200"}`} />
 
-                            <div className="flex flex-col items-center gap-1.5 z-10">
+                            <div className="flex flex-col items-center gap-1 z-10 text-center">
                               <span
-                                className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] border ${
+                                className={`h-4.5 w-4.5 sm:h-5 sm:w-5 rounded-full flex items-center justify-center text-[9px] sm:text-[10px] border ${
                                   activeStep >= 4 ? "bg-emerald-500 border-emerald-500 text-white" : "bg-white border-neutral-200"
                                 }`}
                               >
-                                {activeStep >= 4 ? <Check size={10} strokeWidth={3} /> : "4"}
+                                {activeStep >= 4 ? <Check size={9} strokeWidth={3} /> : "4"}
                               </span>
                               <span>Delivered</span>
                             </div>
@@ -546,16 +546,56 @@ export default function Profile({ navigate }) {
                           ))}
                         </div>
 
-                        {/* Shipment logs address */}
-                        <div className="bg-neutral-50 p-4 rounded-xs text-[11px] font-sans text-neutral-500 grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
+                        {/* Payment Verification, Courier Partner & Tracking Details */}
+                        <div className="bg-neutral-50 p-4 rounded-xl text-[11px] font-sans text-neutral-600 grid grid-cols-1 sm:grid-cols-2 gap-4 text-left border border-neutral-200/60">
                           <div>
-                            <p className="font-bold uppercase text-[9px] text-neutral-400 mb-1.5">Delivery Address</p>
-                            <p className="leading-relaxed font-light text-neutral-700">{order.address}</p>
+                            <p className="font-bold uppercase text-[9px] text-neutral-400 tracking-wider mb-1">Delivery Address</p>
+                            <p className="leading-relaxed font-medium text-neutral-800">{order.address}</p>
                           </div>
                           <div>
-                            <p className="font-bold uppercase text-[9px] text-neutral-400 mb-1.5">Payment Details</p>
-                            <p className="font-light text-neutral-700">Method: <strong className="font-semibold text-neutral-800">{order.paymentMethod}</strong></p>
+                            <p className="font-bold uppercase text-[9px] text-neutral-400 tracking-wider mb-1">Payment & Verification</p>
+                            <p className="font-medium text-neutral-800 mb-1">
+                              Method: <strong className="font-bold text-neutral-900">{order.paymentMethod}</strong>
+                            </p>
+                            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wide bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              <Check size={11} strokeWidth={3} />
+                              <span>{order.paymentStatus || "Verified (Paid Online)"}</span>
+                            </div>
+                            {order.transactionId && (
+                              <p className="text-[10px] text-neutral-400 font-mono mt-1">Txn ID: {order.transactionId}</p>
+                            )}
                           </div>
+                        </div>
+
+                        {/* Order Tracking History & Courier AWB */}
+                        <div className="bg-gradient-to-r from-neutral-900 to-neutral-800 text-white p-4 rounded-xl text-left space-y-3 shadow-sm font-sans">
+                          <div className="flex items-center justify-between flex-wrap gap-2 border-b border-neutral-700/80 pb-2.5">
+                            <div className="flex items-center gap-2 text-xs font-bold font-display">
+                              <Truck size={15} className="text-[#FF4D6D]" />
+                              <span>Shipment Courier: <strong className="text-white">{order.courierPartner || "Delhivery Express"}</strong></span>
+                            </div>
+                            <div className="flex items-center gap-2 text-[10.5px] bg-neutral-800 px-3 py-1 rounded-lg border border-neutral-700 font-mono text-neutral-300">
+                              <span>AWB: {order.trackingId || "DEL-74928103"}</span>
+                            </div>
+                          </div>
+
+                          {/* Tracking Log Milestones */}
+                          {Array.isArray(order.trackingHistory) && order.trackingHistory.length > 0 && (
+                            <div className="space-y-2 pt-1">
+                              <p className="text-[9px] font-bold uppercase tracking-wider text-neutral-400">Shipment Milestone History</p>
+                              <div className="space-y-2 border-l-2 border-[#FF4D6D]/40 pl-3">
+                                {order.trackingHistory.map((log, lIdx) => (
+                                  <div key={lIdx} className="text-[11px] leading-snug">
+                                    <div className="flex items-center gap-2 text-white font-bold">
+                                      <span>{log.title}</span>
+                                      <span className="text-[9.5px] text-neutral-400 font-normal">({log.timestamp})</span>
+                                    </div>
+                                    <p className="text-[10px] text-neutral-300 font-light mt-0.5">{log.note}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
 
                       </div>

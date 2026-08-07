@@ -968,9 +968,12 @@ export const AppProvider = ({ children }) => {
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const discountAmount = promoDiscount ? (subtotal * promoDiscount.discountPercent) / 100 : 0;
     const shipping = subtotal > settings.shippingThreshold ? 0 : settings.shippingFee;
-    const finalTotal = subtotal - discountAmount + shipping;
+    const finalTotal = Math.round(subtotal - discountAmount + shipping);
 
     const formattedAddress = `${addressDetails.street}, ${addressDetails.city}, ${addressDetails.state} - ${addressDetails.zip}`;
+    const txnId = `TXN-${Math.floor(100000 + Math.random() * 900000)}`;
+    const awbCode = `DEL-${Math.floor(10000000 + Math.random() * 90000000)}`;
+    const isCod = paymentMethod === "COD";
 
     const newOrder = {
       id: `ORD-${Math.floor(1000 + Math.random() * 9000)}-2026`,
@@ -983,30 +986,59 @@ export const AppProvider = ({ children }) => {
       total: finalTotal,
       status: "Processing",
       trackingStep: 1,
+      courierPartner: "Delhivery Express",
+      trackingId: awbCode,
+      trackingHistory: [
+        {
+          step: 1,
+          title: "Order Placed & Confirmed",
+          timestamp: `${new Date().toLocaleDateString("en-IN")} ${new Date().toLocaleTimeString("en-US", { hour12: true, hour: "2-digit", minute: "2-digit" })}`,
+          note: "Your order has been verified and sent to warehouse for processing."
+        }
+      ],
       items: [...cart],
       address: formattedAddress,
-      paymentMethod
+      paymentMethod,
+      paymentStatus: isCod ? "COD (Pending Payment on Delivery)" : "Verified (Paid Online)",
+      transactionId: txnId,
+      paymentVerified: !isCod
     };
 
     const newPayment = {
-      id: `TXN-${Math.floor(100000 + Math.random() * 900000)}`,
+      id: txnId,
       orderId: newOrder.id,
       customerName: user?.name || "Guest Customer",
       customerEmail: user?.email || "guest@example.com",
       customerPhone: user?.phone || "+91 99999 88888",
       amount: finalTotal,
-      paymentMethod: paymentMethod === "COD" ? "Cash on Delivery (COD)" : paymentMethod,
+      paymentMethod: isCod ? "Cash on Delivery (COD)" : paymentMethod,
       date: newOrder.date,
       time: new Date().toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit" }),
-      status: paymentMethod === "COD" ? "Pending" : "Success"
+      status: isCod ? "Pending" : "Verified",
+      verifiedAt: new Date().toISOString()
     };
 
     try {
+      // 1. Save Order & Payment records in Firestore
       await setDoc(doc(db, "orders", newOrder.id), newOrder);
       await setDoc(doc(db, "payments", newPayment.id), newPayment);
+
+      // 2. Automatically decrement stock quantity in Firestore & local state for each ordered item
+      for (const cartItem of cart) {
+        try {
+          const productRef = doc(db, "products", cartItem.id);
+          const existingProd = products.find((p) => String(p.id) === String(cartItem.id));
+          const currentStock = existingProd?.stock !== undefined && existingProd?.stock !== null ? Number(existingProd.stock) : 25;
+          const updatedStock = Math.max(0, currentStock - cartItem.quantity);
+          await setDoc(productRef, { stock: updatedStock }, { merge: true });
+        } catch (stockErr) {
+          console.error("Stock update error for item", cartItem.id, stockErr);
+        }
+      }
+
       setCart([]);
       setPromoDiscount(null);
-      addToast("Order Placed Successfully!", "success");
+      addToast("Order Placed & Payment Verified Successfully!", "success");
       return newOrder;
     } catch (err) {
       console.error(err);
@@ -1030,8 +1062,8 @@ export const AppProvider = ({ children }) => {
       await setDoc(doc(db, "payments", id), { status, ...extraFields }, { merge: true });
       if (status === "Refunded") {
         addToast(`Payment ${id} has been refunded.`, "info");
-      } else if (status === "Success") {
-        addToast(`Payment ${id} completed successfully!`, "success");
+      } else if (status === "Success" || status === "Verified") {
+        addToast(`Payment ${id} verified successfully!`, "success");
       } else {
         addToast(`Payment status updated to ${status}.`, "success");
       }
@@ -1067,19 +1099,34 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const adminUpdateOrderStatus = async (id, status, trackingStep) => {
+  const adminUpdateOrderStatus = async (id, status, trackingStep, courierDetails = {}) => {
     try {
+      const orderRef = doc(db, "orders", id);
       const updatePayload = { status };
       if (trackingStep !== undefined) {
         updatePayload.trackingStep = trackingStep;
       } else {
-        // Keep tracking step consistent even when admin updates only status.
         if (status === "Processing") updatePayload.trackingStep = 1;
         else if (status === "Shipped") updatePayload.trackingStep = 2;
         else if (status === "In Transit" || status === "Out for Delivery") updatePayload.trackingStep = 3;
         else if (status === "Delivered") updatePayload.trackingStep = 4;
       }
-      await setDoc(doc(db, "orders", id), updatePayload, { merge: true });
+      if (courierDetails.courierPartner) updatePayload.courierPartner = courierDetails.courierPartner;
+      if (courierDetails.trackingId) updatePayload.trackingId = courierDetails.trackingId;
+
+      if (courierDetails.logNote) {
+        const existingOrder = orders.find((o) => o.id === id);
+        const prevLogs = existingOrder?.trackingHistory || [];
+        const newLog = {
+          step: updatePayload.trackingStep,
+          title: status,
+          timestamp: `${new Date().toLocaleDateString("en-IN")} ${new Date().toLocaleTimeString("en-US", { hour12: true, hour: "2-digit", minute: "2-digit" })}`,
+          note: courierDetails.logNote
+        };
+        updatePayload.trackingHistory = [...prevLogs, newLog];
+      }
+
+      await setDoc(orderRef, updatePayload, { merge: true });
       addToast(`Order ${id} status updated to ${status}`, "success");
     } catch (err) {
       console.error(err);

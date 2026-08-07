@@ -498,46 +498,81 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
             </div>
           )}
 
-          {/* Qty & Add triggers */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-5 border-t border-neutral-100">
-            {/* Group Qty & Add to Bag on mobile, but keep flex items on sm */}
-            <div className="flex flex-1 gap-3 min-w-0">
-              {/* Qty Selector */}
-              <div className="flex items-center justify-between border border-neutral-200 h-12 w-28 sm:w-32 px-2.5 shrink-0 rounded-xl bg-neutral-50/50">
-                <button
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="w-9 h-9 flex items-center justify-center rounded-full bg-white hover:bg-neutral-200 text-neutral-600 transition-colors focus:outline-none min-h-unset min-w-unset shadow-xs border border-neutral-200/40"
-                >
-                  <Minus size={11} />
-                </button>
-                <span className="text-xs font-black text-neutral-800 font-sans">{quantity}</span>
-                <button
-                  onClick={() => setQuantity((q) => Math.min(10, q + 1))}
-                  className="w-9 h-9 flex items-center justify-center rounded-full bg-white hover:bg-neutral-200 text-neutral-600 transition-colors focus:outline-none min-h-unset min-w-unset shadow-xs border border-neutral-200/40"
-                >
-                  <Plus size={11} />
-                </button>
-              </div>
+          {/* Stock Status Alert Banner */}
+          {(() => {
+            const stockCount = product?.stock !== undefined && product?.stock !== null ? Number(product.stock) : 25;
+            const isOutOfStock = stockCount === 0;
+            const isLowStock = stockCount > 0 && stockCount <= 5;
 
-              {/* Add to Bag */}
-              <button
-                onClick={handleAddToCart}
-                className="flex-grow sm:flex-1 h-12 bg-white hover:bg-neutral-900 border border-neutral-900 text-neutral-900 hover:text-white text-xs font-bold tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-2 rounded-xl cursor-pointer focus:outline-none font-display min-h-unset min-w-unset shadow-xs hover:shadow-md"
-              >
-                <ShoppingBag size={14} />
-                Add to Bag
-              </button>
-            </div>
+            return (
+              <>
+                {isOutOfStock ? (
+                  <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-xl flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-rose-600 animate-ping shrink-0" />
+                    <span>OUT OF STOCK — Currently unavailable for purchase</span>
+                  </div>
+                ) : isLowStock ? (
+                  <div className="p-3 bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold rounded-xl flex items-center gap-2">
+                    <span className="text-sm">⚡</span>
+                    <span>Hurry! Only {stockCount} left in stock — Order soon</span>
+                  </div>
+                ) : null}
 
-            {/* Buy It Now */}
-            <button
-              onClick={handleBuyNow}
-              className="w-full sm:flex-1 h-12 bg-gradient-to-r from-[#FF4D6D] to-[#FF758F] hover:from-[#FF1E46] hover:to-[#FF4D6D] text-white text-xs font-bold tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-2 rounded-xl cursor-pointer focus:outline-none font-display min-h-unset min-w-unset shadow-[0_8px_20px_rgba(255,77,109,0.25)] hover:shadow-[0_12px_28px_rgba(255,77,109,0.4)] hover:-translate-y-0.5 active:scale-[0.98]"
-            >
-              <CreditCard size={14} />
-              Buy It Now
-            </button>
-          </div>
+                {/* Qty & Add triggers */}
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-5 border-t border-neutral-100">
+                  {/* Group Qty & Add to Bag on mobile */}
+                  <div className="flex flex-1 gap-3 min-w-0">
+                    {/* Qty Selector */}
+                    <div className="flex items-center justify-between border border-neutral-200 h-12 w-28 sm:w-32 px-2.5 shrink-0 rounded-xl bg-neutral-50/50">
+                      <button
+                        onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                        disabled={isOutOfStock}
+                        className="w-9 h-9 flex items-center justify-center rounded-full bg-white hover:bg-neutral-200 text-neutral-600 transition-colors focus:outline-none min-h-unset min-w-unset shadow-xs border border-neutral-200/40 disabled:opacity-50"
+                      >
+                        <Minus size={11} />
+                      </button>
+                      <span className="text-xs font-black text-neutral-800 font-sans">{quantity}</span>
+                      <button
+                        onClick={() => setQuantity((q) => Math.min(stockCount || 10, q + 1))}
+                        disabled={isOutOfStock}
+                        className="w-9 h-9 flex items-center justify-center rounded-full bg-white hover:bg-neutral-200 text-neutral-600 transition-colors focus:outline-none min-h-unset min-w-unset shadow-xs border border-neutral-200/40 disabled:opacity-50"
+                      >
+                        <Plus size={11} />
+                      </button>
+                    </div>
+
+                    {/* Add to Bag */}
+                    <button
+                      onClick={handleAddToCart}
+                      disabled={isOutOfStock}
+                      className={`flex-grow sm:flex-1 h-12 text-xs font-bold tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-2 rounded-xl focus:outline-none font-display min-h-unset min-w-unset shadow-xs ${
+                        isOutOfStock
+                          ? "bg-neutral-200 text-neutral-400 cursor-not-allowed border border-neutral-200"
+                          : "bg-white hover:bg-neutral-900 border border-neutral-900 text-neutral-900 hover:text-white hover:shadow-md cursor-pointer"
+                      }`}
+                    >
+                      <ShoppingBag size={14} />
+                      {isOutOfStock ? "Out of Stock" : "Add to Bag"}
+                    </button>
+                  </div>
+
+                  {/* Buy It Now */}
+                  <button
+                    onClick={handleBuyNow}
+                    disabled={isOutOfStock}
+                    className={`w-full sm:flex-1 h-12 text-xs font-bold tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-2 rounded-xl focus:outline-none font-display min-h-unset min-w-unset shadow-md ${
+                      isOutOfStock
+                        ? "bg-neutral-300 text-neutral-500 cursor-not-allowed"
+                        : "bg-gradient-to-r from-[#FF4D6D] to-[#FF758F] hover:from-[#FF1E46] hover:to-[#FF4D6D] text-white shadow-[0_8px_20px_rgba(255,77,109,0.25)] hover:shadow-[0_12px_28px_rgba(255,77,109,0.4)] hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer"
+                    }`}
+                  >
+                    <CreditCard size={14} />
+                    {isOutOfStock ? "Unavailable" : "Buy It Now"}
+                  </button>
+                </div>
+              </>
+            );
+          })()}
 
           {/* Luxury Product Highlights Grid */}
           <div className="grid grid-cols-2 gap-3 pt-5 border-t border-neutral-100/80">

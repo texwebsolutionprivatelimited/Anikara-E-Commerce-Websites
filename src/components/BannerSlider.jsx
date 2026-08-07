@@ -107,7 +107,7 @@ export default function BannerSlider({ slides, navigate }) {
   return (
     <section className="w-full bg-white pt-2 sm:pt-3 pb-1 sm:pb-2 border-b border-neutral-100">
       <div className="max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="relative w-full h-[180px] min-[360px]:h-[200px] min-[400px]:h-[220px] sm:h-auto sm:banner-aspect-ratio overflow-hidden rounded-xl sm:rounded-2xl shadow-sm">
+        <div className="relative w-full h-[180px] min-[360px]:h-[200px] min-[400px]:h-[220px] sm:h-auto banner-aspect-ratio overflow-hidden rounded-xl sm:rounded-2xl shadow-sm">
           
           <Swiper
             onSwiper={(swiper) => { swiperRef.current = swiper; }}

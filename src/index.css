@@ -293,7 +293,14 @@ footer button {
   }
 }
 
-/* Custom Responsive Aspect Ratio for Banner Slider (Reduced height by additional 10-15% for immediate product visibility) */
+/* Custom Responsive Aspect Ratio for Banner Slider (Reduced height for immediate product visibility) */
+@utility banner-aspect-ratio {
+  aspect-ratio: 6400 / 1950;
+  @media (min-width: 1024px) {
+    aspect-ratio: 6788 / 1300;
+  }
+}
+
 .banner-aspect-ratio {
   aspect-ratio: 6400 / 1950;
 }
