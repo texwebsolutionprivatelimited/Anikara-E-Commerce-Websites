@@ -29,7 +29,7 @@ export default function Wishlist({ navigate }) {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 font-sans">
+    <div className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8 py-10 font-sans">
       
       {/* Breadcrumbs */}
       <div className="flex flex-wrap items-center gap-1.5 text-[10px] sm:text-xs text-neutral-400 font-medium tracking-wide uppercase mb-8">

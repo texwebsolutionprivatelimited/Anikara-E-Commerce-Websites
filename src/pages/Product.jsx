@@ -9,16 +9,16 @@ export default function Product({ navigate, currentParams = {}, goBack }) {
   const { products, productsLoading, productsError, categories = [] } = useApp();
 
   // Filter States
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(currentParams.category || "");
 
   // Sorting and Display
   const [sortBy, setSortBy] = useState("popularity");
-  const [visibleCount, setVisibleCount] = useState(8);
+  const [visibleCount, setVisibleCount] = useState(12);
   const [isLoading, setIsLoading] = useState(false);
 
   // Reset pagination when filters change
   useEffect(() => {
-    setVisibleCount(8);
+    setVisibleCount(12);
   }, [selectedCategory, currentParams.searchQuery, sortBy]);
 
   // Map incoming navigation parameter parameters
@@ -92,7 +92,7 @@ export default function Product({ navigate, currentParams = {}, goBack }) {
   const displayedProducts = sortedProducts.slice(0, visibleCount);
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-5 pb-6 sm:pt-8 sm:pb-10 font-sans">
+    <div className="max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8 pt-5 pb-6 sm:pt-8 sm:pb-10 font-sans">
       
       {/* Back Button */}
       <button
@@ -238,7 +238,7 @@ export default function Product({ navigate, currentParams = {}, goBack }) {
           </div>
         ) : displayedProducts.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 sm:gap-x-4 gap-y-6 sm:gap-y-8">
+            <div className="grid grid-cols-2 min-[480px]:grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-x-2.5 min-[375px]:gap-x-3.5 sm:gap-x-4 lg:gap-x-5 gap-y-4 sm:gap-y-8">
               {displayedProducts.map((product) => (
                 <ProductCard key={product.id} product={product} navigate={navigate} />
               ))}

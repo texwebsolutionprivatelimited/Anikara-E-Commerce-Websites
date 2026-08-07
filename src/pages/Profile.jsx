@@ -1,9 +1,41 @@
 import React, { useState } from "react";
 import { useApp } from "../context/AppContext";
-import { User, LogOut, Package, MapPin, Phone, Mail, ChevronDown, ChevronUp, PackageOpen, Check } from "lucide-react";
+import { User, LogOut, Package, MapPin, Phone, Mail, ChevronDown, ChevronUp, PackageOpen, Check, Star, X } from "lucide-react";
 
 export default function Profile({ navigate }) {
-  const { user, orders, logoutUser, updateProfile } = useApp();
+  const { user, orders, logoutUser, updateProfile, addToast, addProductReview } = useApp();
+  const [phoneError, setPhoneError] = useState("");
+
+  // Review Modal State
+  const [reviewingItem, setReviewingItem] = useState(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
+  const handleModalReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (!reviewingItem || !reviewComment.trim()) return;
+
+    setIsSubmittingReview(true);
+    const newReview = {
+      user: user?.name || user?.email || "Verified Buyer",
+      rating: parseInt(reviewRating),
+      date: new Date().toISOString().split("T")[0],
+      comment: reviewComment
+    };
+
+    const success = await addProductReview(reviewingItem.id, newReview);
+    setIsSubmittingReview(false);
+
+    if (success) {
+      if (addToast) addToast("Review posted successfully! Thank you.", "success");
+      setReviewingItem(null);
+      setReviewComment("");
+      setReviewRating(5);
+    } else {
+      if (addToast) addToast("Failed to post review. Please try again.", "error");
+    }
+  };
 
   const userOrders = orders
     .filter(
@@ -33,6 +65,40 @@ export default function Profile({ navigate }) {
   const [editCity, setEditCity] = useState(user?.address?.city || "");
   const [editState, setEditState] = useState(user?.address?.state || "");
   const [editZip, setEditZip] = useState(user?.address?.zip || "");
+  const [zipLoading, setZipLoading] = useState(false);
+  const [zipStatus, setZipStatus] = useState(null);
+
+  const handleProfileZipChange = async (val) => {
+    setEditZip(val);
+    if (val.trim().length === 6 && /^\d{6}$/.test(val.trim())) {
+      setZipLoading(true);
+      setZipStatus(null);
+      try {
+        const res = await fetch(`https://api.postalpincode.in/pincode/${val.trim()}`);
+        const data = await res.json();
+        if (data && data[0] && data[0].Status === "Success" && data[0].PostOffice?.length > 0) {
+          const po = data[0].PostOffice[0];
+          const detectedCity = po.District || po.Block || po.Name;
+          const detectedState = po.State;
+          setEditCity(detectedCity);
+          setEditState(detectedState);
+          setZipStatus({
+            valid: true,
+            msg: `✓ Verified: ${detectedCity}, ${detectedState}`
+          });
+          if (addToast) addToast(`Verified Pincode: ${detectedCity}, ${detectedState}`, "success");
+        } else {
+          setZipStatus({ valid: false, msg: "Invalid 6-digit Indian Pincode" });
+        }
+      } catch (err) {
+        setZipStatus({ valid: true, msg: "Format verified (6 digits)" });
+      } finally {
+        setZipLoading(false);
+      }
+    } else {
+      setZipStatus(null);
+    }
+  };
 
   const [expandedOrder, setExpandedOrder] = useState(null);
 
@@ -51,10 +117,22 @@ export default function Profile({ navigate }) {
 
   const handleUpdateProfile = (e) => {
     e.preventDefault();
+    setPhoneError("");
+
+    const cleanPhone = (editPhone || "").replace(/\D/g, "");
+
+    // Enforce 10-digit mobile number rule
+    if (!editPhone || cleanPhone.length !== 10) {
+      const errMsg = "Mobile number is required and must be exactly 10 digits.";
+      setPhoneError(errMsg);
+      if (addToast) addToast(errMsg, "error");
+      return;
+    }
+
     const updatedUser = {
       name: editName,
       email: user.email,
-      phone: editPhone,
+      phone: cleanPhone,
       address: {
         street: editStreet,
         city: editCity,
@@ -128,14 +206,35 @@ export default function Profile({ navigate }) {
               </div>
 
               <div>
-                <label className="block text-[9px] font-bold uppercase text-neutral-400 mb-1">Phone</label>
+                <div className="flex justify-between items-baseline mb-1">
+                  <label className="block text-[9px] font-bold uppercase text-neutral-400">
+                    Mobile Phone <span className="text-[#FF4D6D]">*</span>
+                  </label>
+                  <span className={`text-[9px] font-bold ${editPhone.length === 10 ? "text-emerald-600" : "text-neutral-400"}`}>
+                    {editPhone.length}/10 digits
+                  </span>
+                </div>
                 <input
                   type="tel"
                   required
+                  maxLength={10}
+                  pattern="[0-9]{10}"
+                  placeholder="Enter 10-digit mobile number"
                   value={editPhone}
-                  onChange={(e) => setEditPhone(e.target.value)}
-                  className="w-full text-xs bg-neutral-50 border border-neutral-200 rounded-md py-2 px-3 focus:outline-none focus:border-[#111111]"
+                  onChange={(e) => {
+                    const cleaned = e.target.value.replace(/\D/g, "").slice(0, 10);
+                    setEditPhone(cleaned);
+                    setPhoneError("");
+                  }}
+                  className={`w-full text-xs bg-neutral-50 border rounded-md py-2.5 px-3 focus:outline-none transition-all ${
+                    phoneError ? "border-rose-500 bg-rose-50/50" : "border-neutral-200 focus:border-[#111111]"
+                  }`}
                 />
+                {phoneError ? (
+                  <p className="text-[10px] text-rose-600 font-bold mt-1">{phoneError}</p>
+                ) : (
+                  <p className="text-[9.5px] text-neutral-400 mt-0.5">10-digit Indian mobile number required to save profile.</p>
+                )}
               </div>
 
               <div>
@@ -146,28 +245,54 @@ export default function Profile({ navigate }) {
                   value={editStreet}
                   onChange={(e) => setEditStreet(e.target.value)}
                   className="w-full text-xs bg-neutral-50 border border-neutral-200 rounded-md py-2 px-3 focus:outline-none focus:border-[#111111]"
+                  placeholder="Flat No., House Name, Street"
                 />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[9px] font-bold uppercase text-neutral-400">Pincode / ZIP Code</label>
+                  {zipLoading && <span className="text-[9px] text-[#FF4D6D] font-bold animate-pulse">Verifying...</span>}
+                </div>
+                <input
+                  type="text"
+                  required
+                  maxLength={6}
+                  value={editZip}
+                  onChange={(e) => handleProfileZipChange(e.target.value)}
+                  className={`w-full text-xs bg-neutral-50 border rounded-md py-2 px-3 focus:outline-none transition-all ${
+                    zipStatus ? (zipStatus.valid ? "border-emerald-500 bg-emerald-50/30" : "border-rose-500 bg-rose-50/30") : "border-neutral-200 focus:border-[#111111]"
+                  }`}
+                  placeholder="Enter 6-digit Pincode (e.g. 400054)"
+                />
+                {zipStatus && (
+                  <p className={`text-[9.5px] mt-1 font-bold ${zipStatus.valid ? "text-emerald-600" : "text-rose-600"}`}>
+                    {zipStatus.msg}
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[9px] font-bold uppercase text-neutral-400 mb-1">City</label>
+                  <label className="block text-[9px] font-bold uppercase text-neutral-400 mb-1">City / District</label>
                   <input
                     type="text"
                     required
                     value={editCity}
                     onChange={(e) => setEditCity(e.target.value)}
                     className="w-full text-xs bg-neutral-50 border border-neutral-200 rounded-md py-2 px-3 focus:outline-none focus:border-[#111111]"
+                    placeholder="Auto-detected City"
                   />
                 </div>
                 <div>
-                  <label className="block text-[9px] font-bold uppercase text-neutral-400 mb-1">ZIP Code</label>
+                  <label className="block text-[9px] font-bold uppercase text-neutral-400 mb-1">State</label>
                   <input
                     type="text"
                     required
-                    value={editZip}
-                    onChange={(e) => setEditZip(e.target.value)}
+                    value={editState}
+                    onChange={(e) => setEditState(e.target.value)}
                     className="w-full text-xs bg-neutral-50 border border-neutral-200 rounded-md py-2 px-3 focus:outline-none focus:border-[#111111]"
+                    placeholder="Auto-detected State"
                   />
                 </div>
               </div>
@@ -175,14 +300,14 @@ export default function Profile({ navigate }) {
               <div className="flex gap-2 pt-2">
                 <button
                   type="submit"
-                  className="flex-1 py-2 bg-[#111111] hover:bg-[#FF4D6D] text-white text-[10px] font-bold tracking-widest uppercase transition-colors cursor-pointer focus:outline-none"
+                  className="flex-1 py-2.5 bg-[#111111] hover:bg-[#FF4D6D] text-white text-[10px] font-bold tracking-widest uppercase transition-colors cursor-pointer focus:outline-none rounded-md"
                 >
-                  Save
+                  Save Profile
                 </button>
                 <button
                   type="button"
-                  onClick={() => setIsEditing(false)}
-                  className="flex-1 py-2 border border-neutral-200 text-neutral-700 text-[10px] font-bold tracking-widest uppercase transition-colors cursor-pointer focus:outline-none"
+                  onClick={() => { setIsEditing(false); setPhoneError(""); }}
+                  className="flex-1 py-2.5 border border-neutral-200 text-neutral-700 text-[10px] font-bold tracking-widest uppercase transition-colors cursor-pointer focus:outline-none rounded-md"
                 >
                   Cancel
                 </button>
@@ -190,13 +315,27 @@ export default function Profile({ navigate }) {
             </form>
           ) : (
             <div className="space-y-4 text-xs font-light text-neutral-600 font-sans">
+              {/* Mandatory Mobile Alert Banner if phone is missing or not 10 digits */}
+              {(!user.phone || user.phone.replace(/\D/g, "").length !== 10) && (
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-[11px] font-medium space-y-1">
+                  <p className="font-bold flex items-center gap-1.5 text-amber-900">
+                    ⚠️ Mobile Number Required
+                  </p>
+                  <p className="text-[10.5px] leading-relaxed text-amber-800">
+                    Please update your profile with a valid 10-digit mobile number to complete your profile.
+                  </p>
+                </div>
+              )}
+
               <div className="flex items-center gap-3 min-w-0">
                 <Mail size={15} className="text-neutral-400" />
                 <span className="min-w-0 break-all">{user.email}</span>
               </div>
               <div className="flex items-center gap-3">
                 <Phone size={15} className="text-neutral-400" />
-                <span>{user.phone}</span>
+                <span className={user.phone && user.phone.replace(/\D/g, "").length === 10 ? "text-neutral-900 font-medium" : "text-rose-600 font-bold"}>
+                  {user.phone && user.phone.replace(/\D/g, "").length === 10 ? user.phone : "Not provided (10 digits required)"}
+                </span>
               </div>
               <div className="flex items-start gap-3">
                 <MapPin size={15} className="text-neutral-400 mt-0.5 shrink-0" />
@@ -364,10 +503,10 @@ export default function Profile({ navigate }) {
                           </div>
                         </div>
 
-                        {/* Order items lists */}
+                        {/* Order items lists with Write Review action */}
                         <div className="space-y-4 border-t border-neutral-100 pt-4">
                           {order.items.map((item, idx) => (
-                            <div key={idx} className="flex gap-3 sm:gap-4 text-xs font-sans text-neutral-600 min-w-0">
+                            <div key={idx} className="flex items-center gap-3 sm:gap-4 text-xs font-sans text-neutral-600 min-w-0">
                               <button
                                 onClick={() => navigate("product-details", { productId: item.id })}
                                 className="w-12 aspect-[4/5] bg-neutral-50 border border-neutral-100 rounded-xs shrink-0 overflow-hidden cursor-pointer focus:outline-none"
@@ -377,7 +516,7 @@ export default function Profile({ navigate }) {
                               <div className="flex-1 min-w-0 text-left">
                                 <button
                                   onClick={() => navigate("product-details", { productId: item.id })}
-                                  className="font-semibold text-neutral-900 truncate leading-tight hover:text-[#FF4D6D] cursor-pointer focus:outline-none max-w-full"
+                                  className="font-semibold text-neutral-900 truncate leading-tight hover:text-[#FF4D6D] cursor-pointer focus:outline-none max-w-full block"
                                 >
                                   {item.name}
                                 </button>
@@ -385,9 +524,24 @@ export default function Profile({ navigate }) {
                                   Size {item.size} • Qty {item.quantity} {item.color && `• Color ${item.color}`}
                                 </p>
                               </div>
-                              <span className="font-bold text-neutral-900 shrink-0">
-                                ₹{(item.price * item.quantity).toLocaleString("en-IN")}
-                              </span>
+
+                              <div className="flex flex-col items-end gap-1.5 shrink-0">
+                                <span className="font-bold text-neutral-900">
+                                  ₹{(item.price * item.quantity).toLocaleString("en-IN")}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setReviewingItem(item);
+                                    setReviewRating(5);
+                                    setReviewComment("");
+                                  }}
+                                  className="px-2.5 py-1 bg-[#111111] hover:bg-[#FF4D6D] text-white text-[9.5px] font-extrabold tracking-wider uppercase rounded-md transition-all flex items-center gap-1 cursor-pointer shadow-xs active:scale-95"
+                                >
+                                  <Star size={10} className="fill-amber-400 text-amber-400" />
+                                  Write Review
+                                </button>
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -419,6 +573,92 @@ export default function Profile({ navigate }) {
         </div>
 
       </div>
+
+      {/* Write Review Modal for Ordered Items */}
+      {reviewingItem && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4 relative font-sans text-left border border-neutral-100">
+            <button
+              onClick={() => setReviewingItem(null)}
+              className="absolute top-4 right-4 text-neutral-400 hover:text-black cursor-pointer p-1 rounded-full hover:bg-neutral-100 transition-colors"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="flex items-center gap-3.5 border-b border-neutral-100 pb-4">
+              <img
+                src={reviewingItem.image}
+                alt={reviewingItem.name}
+                className="w-13 h-15 object-cover rounded-lg border border-neutral-100 shrink-0"
+              />
+              <div className="min-w-0 flex-1">
+                <span className="text-[9px] font-extrabold uppercase tracking-widest text-[#FF4D6D] font-display">
+                  Verified Buyer Review
+                </span>
+                <h3 className="text-sm font-bold text-neutral-900 truncate font-display">{reviewingItem.name}</h3>
+                <p className="text-[11px] text-neutral-400">Size {reviewingItem.size} • ₹{reviewingItem.price?.toLocaleString("en-IN")}</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleModalReviewSubmit} className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-bold uppercase text-neutral-500 mb-1.5 font-display">
+                  Overall Rating
+                </label>
+                <div className="flex items-center gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setReviewRating(star)}
+                      className="p-1 focus:outline-none cursor-pointer hover:scale-110 transition-transform"
+                    >
+                      <Star
+                        size={26}
+                        className={star <= reviewRating ? "text-amber-400 fill-amber-400" : "text-neutral-200"}
+                      />
+                    </button>
+                  ))}
+                  <span className="text-xs font-bold text-neutral-700 ml-2 font-display">
+                    {reviewRating} / 5 Stars
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase text-neutral-500 mb-1.5 font-display">
+                  Your Detailed Review
+                </label>
+                <textarea
+                  required
+                  rows={4}
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  placeholder="Share your experience regarding material quality, fit, color accuracy, and styling..."
+                  className="w-full bg-neutral-50 border border-neutral-200 text-xs p-3.5 rounded-xl focus:outline-none focus:border-[#FF4D6D] focus:bg-white font-light leading-relaxed resize-none transition-all"
+                />
+              </div>
+
+              <div className="flex gap-2 pt-1">
+                <button
+                  type="submit"
+                  disabled={isSubmittingReview}
+                  className="flex-1 py-3 bg-[#111111] hover:bg-[#FF4D6D] active:scale-[0.98] text-white text-xs font-bold tracking-widest uppercase transition-all duration-300 rounded-xl cursor-pointer shadow-md focus:outline-none disabled:opacity-50"
+                >
+                  {isSubmittingReview ? "Submitting Review..." : "Submit Review"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setReviewingItem(null)}
+                  className="px-4 py-3 border border-neutral-200 text-neutral-600 text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-neutral-100 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

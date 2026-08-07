@@ -60,7 +60,7 @@ export default function Cart({ navigate }) {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8 py-6 sm:py-10 font-sans">
+    <div className="max-w-[1720px] mx-auto px-0 sm:px-6 lg:px-8 py-6 sm:py-10 font-sans">
       
       {/* Breadcrumbs */}
       <div className="flex flex-wrap items-center gap-1.5 text-[10px] sm:text-xs text-neutral-400 font-medium tracking-wide uppercase mb-8 px-4 sm:px-0">
@@ -218,6 +218,20 @@ export default function Cart({ navigate }) {
 
         </div>
 
+      </div>
+
+      {/* Fixed Mobile Sticky Checkout Bar */}
+      <div className="fixed bottom-[56px] left-0 right-0 z-40 lg:hidden bg-white/95 backdrop-blur-md border-t border-neutral-200/90 px-4 py-3 shadow-[0_-8px_25px_rgba(0,0,0,0.1)] flex items-center justify-between gap-3">
+        <div>
+          <span className="text-[9.5px] uppercase font-bold tracking-wider text-neutral-400 block leading-none">Grand Total</span>
+          <span className="text-base font-extrabold text-neutral-900 font-display mt-0.5 block leading-none">₹{total.toLocaleString("en-IN")}</span>
+        </div>
+        <button
+          onClick={() => navigate("checkout")}
+          className="flex-1 h-12 bg-[#FF4D6D] hover:bg-[#FF1E46] active:scale-[0.98] text-white text-xs font-black tracking-widest uppercase rounded-xl flex items-center justify-center gap-1.5 shadow-md cursor-pointer font-sans transition-all"
+        >
+          Checkout →
+        </button>
       </div>
 
       {/* Atelier Themed Remove Confirmation Modal */}

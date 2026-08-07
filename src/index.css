@@ -293,14 +293,40 @@ footer button {
   }
 }
 
-/* Custom Responsive Aspect Ratio for Banner Slider */
+/* Custom Responsive Aspect Ratio for Banner Slider (Reduced height by additional 10-15% for immediate product visibility) */
 .banner-aspect-ratio {
-  aspect-ratio: 6400 / 2841;
+  aspect-ratio: 6400 / 1950;
 }
 @media (min-width: 1024px) {
   .banner-aspect-ratio {
-    aspect-ratio: 6788 / 1819;
+    aspect-ratio: 6788 / 1300;
   }
+}
+
+@keyframes float-badge {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes cta-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-float-badge {
+  animation: float-badge 3.5s ease-in-out infinite;
+}
+
+.animate-float-badge-delayed {
+  animation: float-badge 3.5s ease-in-out 1.75s infinite;
 }
 
 /* Custom Footer Utilities */

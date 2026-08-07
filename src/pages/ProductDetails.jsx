@@ -12,7 +12,7 @@ const isImageKitUrl = (url) => {
 
 export default function ProductDetails({ navigate, currentParams = {}, goBack }) {
   const productId = currentParams.productId;
-  const { products, addToCart, toggleWishlist, wishlist, addToast, user, addProductReview } = useApp();
+  const { products, addToCart, toggleWishlist, wishlist, addToast, user, addProductReview, orders } = useApp();
 
   const product = products.find((p) => p.id === productId);
 
@@ -28,21 +28,36 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
 
   // Reviews Mock addition
   const [reviewsList, setReviewsList] = useState([]);
-  const [newReviewName, setNewReviewName] = useState("");
+  const [newReviewName, setNewReviewName] = useState(user?.name || user?.email || "");
   const [newReviewComment, setNewReviewComment] = useState("");
   const [newReviewRating, setNewReviewRating] = useState(5);
 
   const [activeReviewSlideIndex, setActiveReviewSlideIndex] = useState(0);
 
-  // Initialize standard details only when product ID changes (avoids resetting selections when background updates trigger on snapshot)
+  // Check if current user has an order containing this product
+  const userOrders = (user && Array.isArray(orders)) ? orders.filter(
+    (order) =>
+      (order.userId && order.userId === user?.uid) ||
+      (order.customerEmail && order.customerEmail.toLowerCase() === user?.email?.toLowerCase())
+  ) : [];
+
+  const isDeliveredBuyer = userOrders.some((order) =>
+    Array.isArray(order.items) &&
+    order.items.some((item) => String(item.id) === String(product?.id))
+  );
+
+  // Initialize standard details only when product ID changes
   useEffect(() => {
     if (product) {
       setActiveImage(product.image);
       setSelectedSize(product.sizes?.[0] || "M");
       setSelectedColor(product.colors?.[0]?.name || "Default");
       setActiveReviewSlideIndex(0);
+      if (user) {
+        setNewReviewName(user.name || user.email || "");
+      }
     }
-  }, [productId]);
+  }, [productId, user]);
 
   // Keep reviewsList in sync with Firebase updates
   useEffect(() => {
@@ -196,7 +211,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
   } : null;
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-6 sm:pb-8 font-sans">
+    <div className="max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-6 sm:pb-8 font-sans">
       
       {/* Breadcrumbs Navigation (Flipkart/Amazon style) */}
       <nav className="flex items-center flex-wrap gap-1.5 text-[11px] font-sans text-neutral-600 mb-3.5 bg-neutral-50 px-3.5 py-1.5 rounded-lg border border-neutral-300/80 w-fit leading-normal shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
@@ -667,58 +682,93 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
                   </div>
                 </div>
               ) : (
-                /* Customer Reviews Tab (Dynamic interactive panel!) */
+                /* Customer Reviews Tab (Verified Delivered Buyer Protection) */
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-1">
-                  {/* Mock review forms (1 Column) */}
-                  <div className="bg-neutral-50/60 p-4 border border-neutral-300/80 rounded-xl space-y-4 flex flex-col h-full">
-                    <h3 className="text-xs font-black uppercase tracking-wider text-neutral-850 font-display">Write a Review</h3>
-                    <form onSubmit={handleReviewSubmit} className="space-y-3.5">
-                      <div>
-                        <label className="block text-[9px] font-extrabold uppercase text-neutral-450 mb-1 font-display tracking-wider">Your Name</label>
-                        <input
-                          type="text"
-                          required
-                          value={newReviewName}
-                          onChange={(e) => setNewReviewName(e.target.value)}
-                          className="w-full bg-white border border-neutral-250 text-xs px-3.5 py-2.5 rounded-lg focus:outline-none focus:border-[#FF4D6D] transition-colors leading-none"
-                          placeholder="E.g., Sneha Sharma"
-                        />
+                  {/* Review Submission Column */}
+                  <div className="bg-neutral-50/60 p-4 border border-neutral-300/80 rounded-xl space-y-4 flex flex-col h-full justify-between">
+                    <div>
+                      <div className="flex items-center justify-between mb-3 border-b border-neutral-200/60 pb-2">
+                        <h3 className="text-xs font-black uppercase tracking-wider text-neutral-850 font-display">Write a Review</h3>
+                        {isDeliveredBuyer && (
+                          <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300/60">
+                            ✓ Verified Buyer
+                          </span>
+                        )}
                       </div>
 
-                      <div>
-                        <label className="block text-[9px] font-extrabold uppercase text-neutral-450 mb-1 font-display tracking-wider">Rating</label>
-                        <select
-                          value={newReviewRating}
-                          onChange={(e) => setNewReviewRating(e.target.value)}
-                          className="w-full bg-white border border-neutral-250 text-xs px-3.5 py-2.5 rounded-lg focus:outline-none focus:border-[#FF4D6D] transition-colors font-bold text-neutral-800"
-                        >
-                          <option value={5}>5 Stars (Excellent)</option>
-                          <option value={4}>4 Stars (Very Good)</option>
-                          <option value={3}>3 Stars (Average)</option>
-                          <option value={2}>2 Stars (Poor)</option>
-                          <option value={1}>1 Star (Very Bad)</option>
-                        </select>
-                      </div>
+                      {!user ? (
+                        <div className="bg-[#FFF5F7] border border-rose-200/80 p-4 rounded-xl space-y-2 text-center my-auto">
+                          <ShieldCheck size={26} className="text-[#FF4D6D] mx-auto" />
+                          <h4 className="text-xs font-extrabold text-neutral-900">Verified Buyer Review Policy</h4>
+                          <p className="text-[11px] text-neutral-600 font-light leading-relaxed">
+                            Only verified buyers who have purchased and received this delivered item can submit a review.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => navigate("login")}
+                            className="mt-2 w-full py-2.5 bg-[#111111] hover:bg-[#FF4D6D] text-white text-[10px] font-extrabold tracking-widest uppercase rounded-lg transition-colors cursor-pointer"
+                          >
+                            Log In to Check Eligibility
+                          </button>
+                        </div>
+                      ) : !isDeliveredBuyer ? (
+                        <div className="bg-amber-50 border border-amber-200/80 p-4 rounded-xl space-y-2 text-center my-auto">
+                          <ShieldCheck size={26} className="text-amber-600 mx-auto" />
+                          <h4 className="text-xs font-extrabold text-amber-950">Verified Buyer Review Policy</h4>
+                          <p className="text-[11px] text-amber-800 font-light leading-relaxed">
+                            You can only submit a review for products that have been delivered to you in your orders (Status: Delivered).
+                          </p>
+                        </div>
+                      ) : (
+                        <form onSubmit={handleReviewSubmit} className="space-y-3.5">
+                          <div>
+                            <label className="block text-[9px] font-extrabold uppercase text-neutral-450 mb-1 font-display tracking-wider">Your Name</label>
+                            <input
+                              type="text"
+                              required
+                              value={newReviewName}
+                              onChange={(e) => setNewReviewName(e.target.value)}
+                              className="w-full bg-white border border-neutral-250 text-xs px-3.5 py-2.5 rounded-lg focus:outline-none focus:border-[#FF4D6D] transition-colors leading-none"
+                              placeholder="E.g., Sneha Sharma"
+                            />
+                          </div>
 
-                      <div>
-                        <label className="block text-[9px] font-extrabold uppercase text-neutral-450 mb-1 font-display tracking-wider">Your Comments</label>
-                        <textarea
-                          required
-                          rows={4}
-                          value={newReviewComment}
-                          onChange={(e) => setNewReviewComment(e.target.value)}
-                          className="w-full bg-white border border-neutral-250 text-xs px-3.5 py-2.5 rounded-lg focus:outline-none focus:border-[#FF4D6D] transition-colors font-light resize-none leading-relaxed"
-                          placeholder="Share your thoughts on product quality, fit, and styling..."
-                        />
-                      </div>
+                          <div>
+                            <label className="block text-[9px] font-extrabold uppercase text-neutral-450 mb-1 font-display tracking-wider">Rating</label>
+                            <select
+                              value={newReviewRating}
+                              onChange={(e) => setNewReviewRating(e.target.value)}
+                              className="w-full bg-white border border-neutral-250 text-xs px-3.5 py-2.5 rounded-lg focus:outline-none focus:border-[#FF4D6D] transition-colors font-bold text-neutral-800"
+                            >
+                              <option value={5}>5 Stars (Excellent)</option>
+                              <option value={4}>4 Stars (Very Good)</option>
+                              <option value={3}>3 Stars (Average)</option>
+                              <option value={2}>2 Stars (Poor)</option>
+                              <option value={1}>1 Star (Very Bad)</option>
+                            </select>
+                          </div>
 
-                      <button
-                        type="submit"
-                        className="w-full py-3 bg-[#111111] hover:bg-[#FF4D6D] text-white text-[10px] font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer focus:outline-none rounded-xl hover:shadow-[0_4px_12px_rgba(255,77,109,0.25)] active:scale-[0.98]"
-                      >
-                        Post Review
-                      </button>
-                    </form>
+                          <div>
+                            <label className="block text-[9px] font-extrabold uppercase text-neutral-450 mb-1 font-display tracking-wider">Your Comments</label>
+                            <textarea
+                              required
+                              rows={4}
+                              value={newReviewComment}
+                              onChange={(e) => setNewReviewComment(e.target.value)}
+                              className="w-full bg-white border border-neutral-250 text-xs px-3.5 py-2.5 rounded-lg focus:outline-none focus:border-[#FF4D6D] transition-colors font-light resize-none leading-relaxed"
+                              placeholder="Share your thoughts on product quality, fit, and styling..."
+                            />
+                          </div>
+
+                          <button
+                            type="submit"
+                            className="w-full py-3 bg-[#111111] hover:bg-[#FF4D6D] text-white text-[10px] font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer focus:outline-none rounded-xl hover:shadow-[0_4px_12px_rgba(255,77,109,0.25)] active:scale-[0.98]"
+                          >
+                            Post Review
+                          </button>
+                        </form>
+                      )}
+                    </div>
                   </div>
 
                   {/* Reviews List (Interactive sliding carousel if > 3 rows / 6 reviews) */}
@@ -801,13 +851,41 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
               You May Also Like
             </h2>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 animate-fade-in">
+          <div className="grid grid-cols-2 min-[480px]:grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2.5 min-[375px]:gap-3.5 sm:gap-4 animate-fade-in">
             {similarProducts.map((p) => (
               <ProductCard key={p.id} product={p} navigate={navigate} />
             ))}
           </div>
         </section>
       )}
+
+      {/* Fixed Mobile Sticky Action Bar (Wishlist, Add to Bag 48px, Buy Now 48px) */}
+      <div className="fixed bottom-[56px] left-0 right-0 z-40 md:hidden bg-white/95 backdrop-blur-md border-t border-neutral-200/90 p-2 sm:p-2.5 shadow-[0_-8px_25px_rgba(0,0,0,0.1)] flex items-center gap-2">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleWishlist(product);
+          }}
+          className="w-12 h-12 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-700 hover:text-[#FF4D6D] shrink-0 border border-neutral-200 active:scale-95 transition-all"
+          aria-label={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
+        >
+          <Heart size={20} className={isWishlisted ? "fill-[#FF4D6D] text-[#FF4D6D]" : ""} />
+        </button>
+        <button
+          onClick={handleAddToCart}
+          className="flex-1 h-12 bg-neutral-900 active:bg-black text-white text-[11px] font-black tracking-widest uppercase rounded-xl flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] transition-all cursor-pointer font-sans"
+        >
+          <ShoppingBag size={16} />
+          Add to Bag
+        </button>
+        <button
+          onClick={handleBuyNow}
+          className="flex-1 h-12 bg-gradient-to-r from-[#FF4D6D] to-[#FF758F] active:from-[#FF1E46] text-white text-[11px] font-black tracking-widest uppercase rounded-xl flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] transition-all cursor-pointer font-sans"
+        >
+          <CreditCard size={16} />
+          Buy Now
+        </button>
+      </div>
 
     </div>
   );

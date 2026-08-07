@@ -35,7 +35,11 @@ export default function SettingsTab() {
       gstPercent: Number(form.gstPercent),
       shippingThreshold: Number(form.shippingThreshold),
       shippingFee: Number(form.shippingFee),
-      maintenanceMode: form.maintenanceMode,
+      maintenanceMode: !!form.maintenanceMode,
+      showDealTimer: form.showDealTimer !== false,
+      showDealStockBar: form.showDealStockBar !== false,
+      dealItemsLeft: Number(form.dealItemsLeft ?? 34),
+      dealTotalStock: Number(form.dealTotalStock ?? 50),
       supportAddress: form.supportAddress?.trim() || "",
       supportPhone: form.supportPhone?.trim() || "",
       supportEmail: form.supportEmail?.trim() || "",
@@ -180,21 +184,75 @@ export default function SettingsTab() {
           </div>
         </div>
 
-        {/* Deal timer settings */}
+        {/* Deal timer & urgency settings */}
         <div className="bg-white border border-neutral-200/60 rounded-xl p-5 space-y-4 shadow-xs">
           <div className="flex items-center gap-2 border-b border-neutral-100 pb-3">
             <div className="p-1.5 bg-[#FF4D6D]/5 text-[#FF4D6D] rounded-lg"><Clock size={14} /></div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-800 font-display">Deals of the Day Timer</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-800 font-display">Deals of the Day — Timer & Urgency Controls</h3>
           </div>
+
+          <div className="flex items-center justify-between p-3.5 bg-neutral-50 rounded-lg border border-neutral-100">
+            <div>
+              <p className="text-xs font-bold text-neutral-800">Show Countdown Timer (05h 22m 10s)</p>
+              <p className="text-[9.5px] text-neutral-500 font-light mt-0.5">Displays live countdown clock in Deals section.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => set("showDealTimer", form.showDealTimer === false ? true : false)}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${form.showDealTimer !== false ? "bg-[#FF4D6D]" : "bg-neutral-200"}`}
+            >
+              <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs ring-0 transition duration-200 ease-in-out ${form.showDealTimer !== false ? "translate-x-5" : "translate-x-0"}`} />
+            </button>
+          </div>
+
           <div>
-            <label className={labelCls}>Deal Ends At</label>
+            <label className={labelCls}>Deal Expiry Date & Time</label>
             <input
               type="datetime-local"
               value={toDateTimeLocal(form.dealEndsAt)}
               onChange={(e) => set("dealEndsAt", e.target.value)}
               className={inputCls}
             />
-            <p className="text-[9px] text-neutral-400 mt-1">Controls the live countdown shown in the Deals of the Day section.</p>
+            <p className="text-[9px] text-neutral-400 mt-1">Controls the live countdown timer end date.</p>
+          </div>
+
+          <div className="flex items-center justify-between p-3.5 bg-neutral-50 rounded-lg border border-neutral-100">
+            <div>
+              <p className="text-xs font-bold text-neutral-800">Show Urgency Stock Bar (Only X items left)</p>
+              <p className="text-[9.5px] text-neutral-500 font-light mt-0.5">Displays stock progress bar and items left badge.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => set("showDealStockBar", form.showDealStockBar === false ? true : false)}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${form.showDealStockBar !== false ? "bg-[#FF4D6D]" : "bg-neutral-200"}`}
+            >
+              <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-xs ring-0 transition duration-200 ease-in-out ${form.showDealStockBar !== false ? "translate-x-5" : "translate-x-0"}`} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Items Remaining Left</label>
+              <input
+                type="number"
+                min="1"
+                value={form.dealItemsLeft ?? 34}
+                onChange={(e) => set("dealItemsLeft", e.target.value)}
+                placeholder="e.g. 34"
+                className={inputCls}
+              />
+            </div>
+            <div>
+              <label className={labelCls}>Total Deal Stock Allocated</label>
+              <input
+                type="number"
+                min="1"
+                value={form.dealTotalStock ?? 50}
+                onChange={(e) => set("dealTotalStock", e.target.value)}
+                placeholder="e.g. 50"
+                className={inputCls}
+              />
+            </div>
           </div>
         </div>
 

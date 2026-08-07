@@ -608,6 +608,10 @@ export const AppProvider = ({ children }) => {
 
   // Cart operations
   const addToCart = (product, quantity = 1, size = "M", color = null) => {
+    if (!user) {
+      addToast("Please log in to add items to your cart.", "warning");
+      return false;
+    }
     const selectedColor = color || (product.colors && product.colors[0]?.name) || "Default";
     const cartItemId = `${product.id}-${size}-${selectedColor}`;
 
@@ -637,6 +641,7 @@ export const AppProvider = ({ children }) => {
         }
       ];
     });
+    return true;
   };
 
   const removeFromCart = (cartItemId) => {
@@ -663,6 +668,10 @@ export const AppProvider = ({ children }) => {
 
   // Wishlist operations
   const toggleWishlist = (product) => {
+    if (!user) {
+      addToast("Please log in to add items to your wishlist.", "warning");
+      return false;
+    }
     setWishlist((prevWishlist) => {
       const exists = prevWishlist.some((item) => item.id === product.id);
       if (exists) {
@@ -673,6 +682,7 @@ export const AppProvider = ({ children }) => {
         return [...prevWishlist, product];
       }
     });
+    return true;
   };
 
   const moveToCart = (wishlistItem, size = "M", color = null) => {

@@ -46,14 +46,14 @@ function SingleCoupon({ coupon, navigate, addToast }) {
         className="flex flex-col items-center justify-center shrink-0 text-white"
         style={{
           background: coupon.badgeBg,
-          minWidth: "clamp(48px, 10vw, 72px)",
+          minWidth: "clamp(36px, 9vw, 72px)",
           writingMode: "vertical-rl",
           textOrientation: "mixed",
           transform: "rotate(180deg)",
           letterSpacing: "0.12em",
-          fontSize: "clamp(7px, 1.5vw, 9px)",
+          fontSize: "clamp(6.5px, 1.5vw, 9px)",
           fontWeight: "800",
-          padding: "12px 8px",
+          padding: "8px 4px",
         }}
       >
         {coupon.label}
@@ -64,9 +64,9 @@ function SingleCoupon({ coupon, navigate, addToast }) {
         {/* Left notch */}
         <div
           style={{
-            width: "10px",
-            height: "20px",
-            borderRadius: "0 10px 10px 0",
+            width: "8px",
+            height: "18px",
+            borderRadius: "0 8px 8px 0",
             background: "white",
             boxShadow: "inset -2px 0 0 rgba(0,0,0,0.06)",
             flexShrink: 0,
@@ -77,17 +77,17 @@ function SingleCoupon({ coupon, navigate, addToast }) {
           style={{
             width: "1px",
             height: "100%",
-            minHeight: "60px",
+            minHeight: "56px",
             borderLeft: "2px dashed rgba(0,0,0,0.12)",
-            margin: "0 2px",
+            margin: "0 1px",
           }}
         />
         {/* Right notch */}
         <div
           style={{
-            width: "10px",
-            height: "20px",
-            borderRadius: "10px 0 0 10px",
+            width: "8px",
+            height: "18px",
+            borderRadius: "8px 0 0 8px",
             background: "white",
             boxShadow: "inset 2px 0 0 rgba(0,0,0,0.06)",
             flexShrink: 0,
@@ -96,26 +96,26 @@ function SingleCoupon({ coupon, navigate, addToast }) {
       </div>
 
       {/* CENTER — Offer text */}
-      <div className="flex flex-col justify-center px-2 sm:px-4 py-3 flex-1 min-w-0">
-        <p className="text-[8px] sm:text-[10px] font-bold text-neutral-500 uppercase tracking-[0.15em] mb-0.5 flex items-center gap-1">
+      <div className="flex flex-col justify-center px-1.5 min-[375px]:px-2 sm:px-4 py-2.5 flex-1 min-w-0">
+        <p className="text-[7.5px] min-[375px]:text-[8px] sm:text-[10px] font-bold text-neutral-500 uppercase tracking-[0.12em] mb-0.5 flex items-center gap-1">
           <Sparkles size={8} />
           {coupon.subtext}
         </p>
         <h3
-          className="font-extrabold tracking-tight leading-none"
-          style={{ fontSize: "clamp(0.9rem, 3vw, 1.4rem)", color: coupon.accent }}
+          className="font-extrabold tracking-tight leading-none truncate"
+          style={{ fontSize: "clamp(0.82rem, 3.2vw, 1.4rem)", color: coupon.accent }}
         >
           {coupon.headline}
         </h3>
-        <p className="text-[8px] sm:text-[9px] text-neutral-600 mt-1 font-medium leading-snug">{coupon.condition}</p>
+        <p className="text-[7.5px] min-[375px]:text-[8px] sm:text-[9px] text-neutral-600 mt-1 font-medium leading-snug line-clamp-1 sm:line-clamp-none">{coupon.condition}</p>
       </div>
 
       {/* RIGHT — Code + Copy (Sleek unified pill for mobile, full stacked layout for larger screens) */}
-      <div className="flex flex-col items-center justify-center px-2 sm:px-4 py-3 shrink-0 gap-1.5">
+      <div className="flex flex-col items-center justify-center px-1.5 min-[375px]:px-2 sm:px-4 py-2.5 shrink-0 gap-1.5">
         {/* Unified Interactive Code Button for Mobile viewports */}
         <button
           onClick={handleCopy}
-          className="flex flex-col items-center justify-center border-2 border-dashed p-1.5 text-center rounded-xs transition-all duration-250 cursor-pointer focus:outline-none min-h-0 min-w-[76px] sm:hidden"
+          className="flex flex-col items-center justify-center border-2 border-dashed p-1 min-[375px]:p-1.5 text-center rounded-xs transition-all duration-250 cursor-pointer focus:outline-none min-h-0 min-w-[68px] min-[375px]:min-w-[76px] sm:hidden"
           style={{
             borderColor: copied ? "#22c55e" : coupon.accent,
             backgroundColor: copied ? "rgba(34, 197, 94, 0.05)" : "transparent",
@@ -124,9 +124,9 @@ function SingleCoupon({ coupon, navigate, addToast }) {
           <span className="text-[6px] font-bold text-neutral-400 uppercase tracking-wider mb-0.5 leading-none">
             {copied ? "Success" : "Tap to Copy"}
           </span>
-          <div className="flex items-center gap-1 leading-none">
+          <div className="flex items-center gap-0.5 min-[375px]:gap-1 leading-none">
             <span
-              className="font-black tracking-wide text-[9px] uppercase leading-none"
+              className="font-black tracking-wide text-[8.5px] min-[375px]:text-[9px] uppercase leading-none"
               style={{ color: copied ? "#22c55e" : coupon.accent }}
             >
               {copied ? "COPIED" : coupon.code}

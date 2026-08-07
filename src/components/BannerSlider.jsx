@@ -105,106 +105,151 @@ export default function BannerSlider({ slides, navigate }) {
   const swiperRef = useRef(null);
 
   return (
-    <section className="relative w-full banner-aspect-ratio min-h-[130px] sm:min-h-[200px] md:min-h-[300px] lg:min-h-[270px] overflow-hidden bg-white border-b border-neutral-100">
-      <Swiper
-        onSwiper={(swiper) => { swiperRef.current = swiper; }}
-        modules={[Autoplay, Pagination, EffectFade]}
-        effect="fade"
-        autoplay={{ delay: 5000, disableOnInteraction: false }}
-        pagination={{ clickable: true }}
-        loop={slides.length > 1}
-        className="w-full h-full"
-      >
-        {slides.map((slide) => {
-          const isFullWidth = !!slide.isFullWidth;
-          return (
-            <SwiperSlide
-              key={slide.id}
-              className={`relative w-full h-full bg-white ${isFullWidth ? "cursor-pointer" : ""}`}
-              onClick={isFullWidth ? () => navigate(slide.navigatePage, slide.navigateParams) : undefined}
-            >
-              {isFullWidth ? (
-                <>
-                  {/* Full-width Banner Image */}
-                  <div className="absolute inset-0 w-full h-full overflow-hidden">
-                    {/* Desktop/Laptop (lg and up) */}
-                    <div
-                      className="hidden lg:block w-full h-full bg-cover bg-center"
-                      style={{ backgroundImage: `url(${slide.image})` }}
-                    />
-                    {/* Mobile/Tablet (below lg) */}
-                    <div
-                      className="block lg:hidden w-full h-full bg-cover bg-center"
-                      style={{ backgroundImage: `url(${slide.mobileImage || slide.image})` }}
-                    />
-                  </div>
-                  {/* Screen reader accessibility content */}
-                  <span className="sr-only">
-                    {slide.subtitle} - {slide.title} - {slide.desc}
-                  </span>
-                </>
-              ) : (
-                <>
-                  {/* Background Image */}
-                  <div className="absolute inset-y-0 right-0 w-full lg:w-[58%] overflow-hidden">
-                    {/* Desktop/Laptop (lg and up) */}
-                    <div
-                      className="hidden lg:block w-full h-full bg-cover bg-center"
-                      style={{ backgroundImage: `url(${slide.image})` }}
-                    />
-                    {/* Mobile/Tablet (below lg) */}
-                    <div
-                      className="block lg:hidden w-full h-full bg-cover bg-center"
-                      style={{ backgroundImage: `url(${slide.mobileImage || slide.image})` }}
-                    />
-                    {/* Mobile/Tablet: strong overlay so text is readable */}
-                    <div className="lg:hidden absolute inset-0 bg-white/75 z-10" />
-                    {/* Desktop/Laptop: soft left fade */}
-                    <div className="hidden lg:block absolute inset-y-0 left-0 w-40 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
-                  </div>
+    <section className="w-full bg-white pt-2 sm:pt-3 pb-1 sm:pb-2 border-b border-neutral-100">
+      <div className="max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="relative w-full h-[180px] min-[360px]:h-[200px] min-[400px]:h-[220px] sm:h-auto sm:banner-aspect-ratio overflow-hidden rounded-xl sm:rounded-2xl shadow-sm">
+          
+          <Swiper
+            onSwiper={(swiper) => { swiperRef.current = swiper; }}
+            modules={[Autoplay, Pagination, EffectFade]}
+            effect="fade"
+            autoplay={{ delay: 5000, disableOnInteraction: false }}
+            pagination={{ clickable: true }}
+            loop={slides.length > 1}
+            className="w-full h-full"
+          >
+            {slides.map((slide) => {
+              const isFullWidth = !!slide.isFullWidth;
+              return (
+                <SwiperSlide
+                  key={slide.id}
+                  className={`relative w-full h-full bg-white ${isFullWidth ? "cursor-pointer" : ""}`}
+                  onClick={isFullWidth ? () => navigate(slide.navigatePage, slide.navigateParams) : undefined}
+                >
+                  {isFullWidth ? (
+                    <>
+                      {/* Full-width Banner Image */}
+                      <div className="absolute inset-0 w-full h-full overflow-hidden">
+                        {/* Desktop/Laptop (lg and up) */}
+                        <div
+                          className="hidden lg:block w-full h-full bg-cover bg-center"
+                          style={{ backgroundImage: `url(${slide.image})` }}
+                        />
+                        {/* Mobile/Tablet (below lg) */}
+                        <div
+                          className="block lg:hidden w-full h-full bg-cover bg-center"
+                          style={{ backgroundImage: `url(${slide.mobileImage || slide.image})` }}
+                        />
+                        {/* Subtle bottom gradient overlay for clear CTA contrast */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
+                      </div>
 
-                  {/* Slide Content */}
-                  <div className="absolute inset-0 flex items-center z-20">
-                    <div className="w-full px-5 sm:px-8 lg:px-16 max-w-7xl mx-auto">
-                      <div className="max-w-[85%] sm:max-w-[55%] md:max-w-lg text-[#111111] space-y-2 sm:space-y-3 md:space-y-4">
-                        <span className="text-[9px] sm:text-[10px] md:text-xs font-bold tracking-[0.25em] text-[#FF4D6D] uppercase font-display block">
-                          {slide.subtitle}
-                        </span>
-                        <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight text-[#111111] font-display">
-                          {slide.title}
-                        </h1>
-                        <p className="text-[10px] sm:text-xs md:text-sm text-neutral-600 font-light leading-relaxed hidden sm:block font-sans max-w-xs md:max-w-sm">
-                          {slide.desc}
-                        </p>
-                        <div className="pt-1 sm:pt-2 md:pt-4">
-                          <button
-                            onClick={() => navigate(slide.navigatePage, slide.navigateParams)}
-                            className="inline-flex items-center gap-1.5 sm:gap-2 bg-[#111111] hover:bg-[#FF4D6D] hover:text-white text-white text-[10px] sm:text-xs font-bold tracking-widest uppercase px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-3.5 transition-all duration-300 shadow-md cursor-pointer focus:outline-none font-sans"
-                          >
-                            Shop Now
-                            <ArrowRight size={12} className="sm:w-3.5 sm:h-3.5" />
-                          </button>
+                      {/* Single Primary Minimal CTA Button Overlay (43px height, 138px width, 12px border radius, soft charcoal) */}
+                      <div className="absolute bottom-4.5 left-4.5 sm:bottom-6 sm:left-8 z-20">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(slide.navigatePage, slide.navigateParams);
+                          }}
+                          className="group relative overflow-hidden inline-flex items-center justify-center gap-2 bg-[#222222]/90 hover:bg-[#FF4D6D] active:scale-[0.98] backdrop-blur-sm text-white text-[14px] font-semibold tracking-wide uppercase h-[43px] w-[138px] rounded-[12px] transition-all duration-300 shadow-xs cursor-pointer font-sans shrink-0 border border-white/10"
+                        >
+                          <span className="relative z-10">Shop Now</span>
+                          <ArrowRight size={15} className="relative z-10 group-hover:translate-x-1 transition-transform duration-300 stroke-[2]" />
+                        </button>
+                      </div>
+
+                      {/* Screen reader accessibility content */}
+                      <span className="sr-only">
+                        {slide.subtitle} - {slide.title} - {slide.desc}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      {/* Background Image */}
+                      <div className="absolute inset-y-0 right-0 w-full lg:w-[58%] overflow-hidden">
+                        {/* Desktop/Laptop (lg and up) */}
+                        <div
+                          className="hidden lg:block w-full h-full bg-cover bg-center"
+                          style={{ backgroundImage: `url(${slide.image})` }}
+                        />
+                        {/* Mobile/Tablet (below lg) */}
+                        <div
+                          className="block lg:hidden w-full h-full bg-cover bg-center"
+                          style={{ backgroundImage: `url(${slide.mobileImage || slide.image})` }}
+                        />
+                        {/* Mobile/Tablet: strong overlay so text is readable */}
+                        <div className="lg:hidden absolute inset-0 bg-white/75 z-10" />
+                        {/* Desktop/Laptop: soft left fade */}
+                        <div className="hidden lg:block absolute inset-y-0 left-0 w-40 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
+                      </div>
+
+                      {/* Slide Content */}
+                      <div className="absolute inset-0 flex items-center z-20">
+                        <div className="w-full px-5 sm:px-8 lg:px-16 max-w-7xl mx-auto">
+                          <div className="max-w-[85%] sm:max-w-[55%] md:max-w-lg text-[#111111] space-y-2 sm:space-y-3 md:space-y-4">
+                            <span className="text-[9.5px] sm:text-[10px] md:text-xs font-bold tracking-[0.25em] text-[#FF4D6D] uppercase font-display block">
+                              {slide.subtitle}
+                            </span>
+                            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight text-[#111111] font-display">
+                              {slide.title}
+                            </h1>
+                            <p className="text-[10px] sm:text-xs md:text-sm text-neutral-600 font-light leading-relaxed hidden sm:block font-sans max-w-xs md:max-w-sm">
+                              {slide.desc}
+                            </p>
+                            <div className="pt-1.5 sm:pt-2 md:pt-4">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(slide.navigatePage, slide.navigateParams);
+                                }}
+                                className="group relative overflow-hidden inline-flex items-center justify-center gap-2 bg-[#222222]/90 hover:bg-[#FF4D6D] active:scale-[0.98] backdrop-blur-sm text-white text-[14px] font-semibold tracking-wide uppercase h-[43px] w-[138px] rounded-[12px] transition-all duration-300 shadow-xs cursor-pointer focus:outline-none font-sans shrink-0 border border-white/10"
+                              >
+                                <span className="relative z-10">Shop Now</span>
+                                <ArrowRight size={15} className="relative z-10 group-hover:translate-x-1 transition-transform duration-300 stroke-[2]" />
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </SwiperSlide>
-          );
-        })}
-      </Swiper>
+                    </>
+                  )}
+                </SwiperSlide>
+              );
+            })}
+          </Swiper>
 
-      {/* Custom Navigation Buttons — hidden on mobile */}
-      <div className="hidden sm:block">
-        <NavButton
-          direction="prev"
-          onClick={() => swiperRef.current?.slidePrev()}
-        />
-        <NavButton
-          direction="next"
-          onClick={() => swiperRef.current?.slideNext()}
-        />
+          {/* Custom Navigation Buttons — hidden on mobile */}
+          <div className="hidden sm:block">
+            <NavButton
+              direction="prev"
+              onClick={() => swiperRef.current?.slidePrev()}
+            />
+            <NavButton
+              direction="next"
+              onClick={() => swiperRef.current?.slideNext()}
+            />
+          </div>
+        </div>
+
+        {/* Horizontally Scrollable Snap Pill List below Hero Banner (Generous Vertical Spacing mt-4 sm:mt-6) */}
+        <div className="flex items-center gap-2.5 mt-4 sm:mt-6 px-1 overflow-x-auto scrollbar-hide py-1.5 snap-x snap-mandatory">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-neutral-50 border border-neutral-200/90 text-[10.5px] font-bold text-neutral-800 shrink-0 snap-start shadow-xs">
+            <span className="text-[#FF4D6D]">✓</span>
+            <span className="font-sans">Free Shipping</span>
+          </div>
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-neutral-50 border border-neutral-200/90 text-[10.5px] font-bold text-neutral-800 shrink-0 snap-start shadow-xs">
+            <span className="text-[#FF4D6D]">✓</span>
+            <span className="font-sans">Easy Returns</span>
+          </div>
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-neutral-50 border border-neutral-200/90 text-[10.5px] font-bold text-neutral-800 shrink-0 snap-start shadow-xs">
+            <span className="text-[#FF4D6D]">✓</span>
+            <span className="font-sans">Premium Fabrics</span>
+          </div>
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-neutral-50 border border-neutral-200/90 text-[10.5px] font-bold text-neutral-800 shrink-0 snap-start shadow-xs">
+            <span className="text-amber-500">★</span>
+            <span className="font-sans">4.9 Rating</span>
+          </div>
+        </div>
       </div>
     </section>
   );

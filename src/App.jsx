@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { AppProvider, useApp } from "./context/AppContext";
 import AnnouncementBar from "./components/AnnouncementBar";
 import Navbar from "./components/Navbar";
+import BottomNav from "./components/BottomNav";
+import BrandStory from "./sections/BrandStory";
 import Footer from "./components/Footer";
 import Toast from "./components/Toast";
 
@@ -34,33 +36,70 @@ function AppContent() {
   const userEmail = (user?.email || "").toLowerCase().trim();
   const isAuthorizedAdmin = !!userEmail && adminEmails.includes(userEmail);
 
-  const [currentPage, setCurrentPage] = useState(() => {
+  // Initial page setup: On refresh, always open from the starting Hero/Landing page ("home")
+  const getInitialPage = () => {
     const isLocalAdmin = localStorage.getItem("isAdmin") === "true";
     return isLocalAdmin ? "admin" : "home";
-  });
+  };
+
+  const [currentPage, setCurrentPage] = useState(getInitialPage);
   const [currentParams, setCurrentParams] = useState({});
   const navCountRef = useRef(0);
 
+  const buildQueryString = (page, params = {}) => {
+    const searchParams = new URLSearchParams();
+    searchParams.set("page", page);
+    Object.keys(params).forEach((key) => {
+      if (params[key] !== undefined && params[key] !== null) {
+        searchParams.set(key, params[key]);
+      }
+    });
+    return `?${searchParams.toString()}`;
+  };
+
   useEffect(() => {
-    const isLocalAdmin = localStorage.getItem("isAdmin") === "true";
-    if (!window.history.state) {
-      window.history.replaceState({ page: isLocalAdmin ? "admin" : "home", params: {} }, "");
+    // Disable automatic browser scroll restoration so refresh never lands in middle or footer
+    if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
     }
 
+    const initial = getInitialPage();
+    const url = buildQueryString(initial, {});
+    window.history.replaceState({ page: initial, params: {} }, "", url);
+
+    // Force scroll to absolute top hero landing page
+    window.scrollTo(0, 0);
+    const scrollTimer = setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 80);
+
     const handlePopState = (event) => {
-      if (event.state) {
-        setCurrentPage(event.state.page || "home");
+      if (event.state && event.state.page) {
+        setCurrentPage(event.state.page);
         setCurrentParams(event.state.params || {});
       } else {
         setCurrentPage("home");
         setCurrentParams({});
       }
+      window.scrollTo(0, 0);
       navCountRef.current = Math.max(0, navCountRef.current - 1);
     };
 
     window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+      clearTimeout(scrollTimer);
+    };
   }, []);
+
+  // Force scroll to top hero section whenever page changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const timer = setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [currentPage]);
 
   useEffect(() => {
     if (!authLoading) {
@@ -68,13 +107,15 @@ function AppContent() {
         localStorage.setItem("isAdmin", "true");
         if (currentPage !== "admin") {
           setCurrentPage("admin");
-          window.history.replaceState({ page: "admin", params: {} }, "");
+          const url = buildQueryString("admin", {});
+          window.history.replaceState({ page: "admin", params: {} }, "", url);
         }
       } else {
         localStorage.setItem("isAdmin", "false");
         if (currentPage === "admin") {
           setCurrentPage("home");
-          window.history.replaceState({ page: "home", params: {} }, "");
+          const url = buildQueryString("home", {});
+          window.history.replaceState({ page: "home", params: {} }, "", url);
         }
       }
     }
@@ -84,10 +125,16 @@ function AppContent() {
     const targetPage = isAuthorizedAdmin ? "admin" : page;
     setCurrentPage(targetPage);
     setCurrentParams(params);
+
+    try {
+      sessionStorage.setItem("anikara_active_route", JSON.stringify({ page: targetPage, params }));
+    } catch (e) {}
+
+    const url = buildQueryString(targetPage, params);
     if (replace) {
-      window.history.replaceState({ page: targetPage, params }, "");
+      window.history.replaceState({ page: targetPage, params }, "", url);
     } else {
-      window.history.pushState({ page: targetPage, params }, "");
+      window.history.pushState({ page: targetPage, params }, "", url);
       navCountRef.current += 1;
     }
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -158,12 +205,14 @@ function AppContent() {
       {!isAdmin && !isMaintenance && <AnnouncementBar />}
       {!isAdmin && !isMaintenance && <Navbar currentPage={currentPage} navigate={navigate} currentParams={currentParams} />}
 
-      {/* Page content window with sticky margins top offset */}
-      <main className={`flex-grow ${!isAdmin && !isMaintenance ? "pt-[104px] md:pt-[116px] lg:pt-[120px]" : ""}`}>
+      {/* Page content window with sticky margins top offset and mobile bottom nav clearance */}
+      <main className={`flex-grow ${!isAdmin && !isMaintenance ? "pt-[104px] md:pt-[116px] lg:pt-[120px] pb-16 md:pb-0" : ""}`}>
         {renderPage()}
       </main>
 
+      {!isAdmin && !isMaintenance && <BrandStory navigate={navigate} />}
       {!isAdmin && !isMaintenance && <Footer navigate={navigate} />}
+      {!isAdmin && !isMaintenance && <BottomNav currentPage={currentPage} navigate={navigate} />}
       <Toast />
     </div>
   );

@@ -22,6 +22,41 @@ export default function Checkout({ navigate }) {
   const [city, setCity] = useState(user?.address?.city || "");
   const [stateName, setStateName] = useState(user?.address?.state || "");
   const [zip, setZip] = useState(user?.address?.zip || "");
+  const [pincodeLoading, setPincodeLoading] = useState(false);
+  const [pincodeStatus, setPincodeStatus] = useState(null);
+
+  const handleZipChange = async (e) => {
+    const val = e.target.value;
+    setZip(val);
+    if (val.trim().length === 6 && /^\d{6}$/.test(val.trim())) {
+      setPincodeLoading(true);
+      setPincodeStatus(null);
+      try {
+        const res = await fetch(`https://api.postalpincode.in/pincode/${val.trim()}`);
+        const data = await res.json();
+        if (data && data[0] && data[0].Status === "Success" && data[0].PostOffice?.length > 0) {
+          const po = data[0].PostOffice[0];
+          const detectedCity = po.District || po.Block || po.Name;
+          const detectedState = po.State;
+          setCity(detectedCity);
+          setStateName(detectedState);
+          setPincodeStatus({
+            valid: true,
+            msg: `✓ Verified Pincode: ${detectedCity}, ${detectedState}`
+          });
+          addToast(`Verified Pincode: ${detectedCity}, ${detectedState}`, "success");
+        } else {
+          setPincodeStatus({ valid: false, msg: "Invalid 6-digit Indian Pincode" });
+        }
+      } catch (err) {
+        setPincodeStatus({ valid: true, msg: "Format verified (6 digits)" });
+      } finally {
+        setPincodeLoading(false);
+      }
+    } else {
+      setPincodeStatus(null);
+    }
+  };
 
   // Shipping Method
   const [shippingMethod, setShippingMethod] = useState("Standard");
@@ -48,7 +83,14 @@ export default function Checkout({ navigate }) {
     e.preventDefault();
     if (step === 1) {
       if (!street || !city || !stateName || !zip || !name || !phone) {
-        alert("Please complete all shipping address fields.");
+        if (addToast) addToast("Please complete all shipping address fields.", "error");
+        else alert("Please complete all shipping address fields.");
+        return;
+      }
+      const cleanPhone = (phone || "").replace(/\D/g, "");
+      if (cleanPhone.length !== 10) {
+        if (addToast) addToast("Contact mobile number must be exactly 10 digits.", "error");
+        else alert("Contact mobile number must be exactly 10 digits.");
         return;
       }
     }
@@ -70,7 +112,7 @@ export default function Checkout({ navigate }) {
   if (cart.length === 0) return null;
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 font-sans">
+    <div className="max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 font-sans">
       
       {/* 1. PROGRESS STEP INDICATOR */}
       <div className="max-w-3xl mx-auto mb-6 md:mb-12 px-2">
@@ -159,14 +201,21 @@ export default function Checkout({ navigate }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-neutral-500 mb-1.5 font-display">Contact Phone</label>
+                  <div className="flex justify-between items-baseline mb-1.5 font-display">
+                    <label className="block text-[10px] font-bold uppercase text-neutral-500">Contact Phone *</label>
+                    <span className={`text-[9px] font-bold ${phone.replace(/\D/g, "").length === 10 ? "text-emerald-600" : "text-neutral-400"}`}>
+                      {phone.replace(/\D/g, "").length}/10 digits
+                    </span>
+                  </div>
                   <input
                     type="tel"
                     required
+                    maxLength={10}
+                    pattern="[0-9]{10}"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
                     className="w-full text-xs bg-neutral-50 border border-neutral-200 rounded-md py-3 px-4 focus:outline-none focus:border-[#111111] font-light"
-                    placeholder="+91 9876543210"
+                    placeholder="10-digit mobile number (e.g. 9876543210)"
                   />
                 </div>
               </div>
@@ -185,14 +234,36 @@ export default function Checkout({ navigate }) {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-neutral-500 mb-1.5 font-display">City</label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-[10px] font-bold uppercase text-neutral-500 font-display">Pincode / ZIP Code *</label>
+                    {pincodeLoading && <span className="text-[9px] text-[#FF4D6D] font-bold animate-pulse">Verifying...</span>}
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    maxLength={6}
+                    value={zip}
+                    onChange={handleZipChange}
+                    className={`w-full text-xs bg-neutral-50 border rounded-md py-3 px-4 focus:outline-none transition-all font-light ${
+                      pincodeStatus ? (pincodeStatus.valid ? "border-emerald-500 ring-1 ring-emerald-500/20 bg-emerald-50/20" : "border-rose-500 ring-1 ring-rose-500/20 bg-rose-50/20") : "border-neutral-200 focus:border-[#111111]"
+                    }`}
+                    placeholder="Enter 6-digit Pincode (e.g. 400054)"
+                  />
+                  {pincodeStatus && (
+                    <p className={`text-[9.5px] mt-1 font-bold ${pincodeStatus.valid ? "text-emerald-600" : "text-rose-600"}`}>
+                      {pincodeStatus.msg}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-neutral-500 mb-1.5 font-display">City / District</label>
                   <input
                     type="text"
                     required
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     className="w-full text-xs bg-neutral-50 border border-neutral-200 rounded-md py-3 px-4 focus:outline-none focus:border-[#111111] font-light"
-                    placeholder="Mumbai"
+                    placeholder="Auto-detected City"
                   />
                 </div>
                 <div>
@@ -203,18 +274,7 @@ export default function Checkout({ navigate }) {
                     value={stateName}
                     onChange={(e) => setStateName(e.target.value)}
                     className="w-full text-xs bg-neutral-50 border border-neutral-200 rounded-md py-3 px-4 focus:outline-none focus:border-[#111111] font-light"
-                    placeholder="Maharashtra"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold uppercase text-neutral-500 mb-1.5 font-display">ZIP Code</label>
-                  <input
-                    type="text"
-                    required
-                    value={zip}
-                    onChange={(e) => setZip(e.target.value)}
-                    className="w-full text-xs bg-neutral-50 border border-neutral-200 rounded-md py-3 px-4 focus:outline-none focus:border-[#111111] font-light"
-                    placeholder="400054"
+                    placeholder="Auto-detected State"
                   />
                 </div>
               </div>
@@ -279,13 +339,13 @@ export default function Checkout({ navigate }) {
               <div className="pt-6 border-t border-neutral-100 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
                 <button
                   onClick={handlePrevStep}
-                  className="justify-center px-6 h-11 border border-neutral-200 hover:border-neutral-800 text-neutral-700 text-xs font-bold tracking-widest uppercase transition-colors flex items-center gap-1.5 rounded-xs cursor-pointer focus:outline-none"
+                  className="w-full sm:w-auto justify-center px-6 h-12 min-h-[48px] border border-neutral-300 hover:border-neutral-800 text-neutral-700 text-xs font-bold tracking-widest uppercase transition-colors flex items-center gap-1.5 rounded-xl cursor-pointer focus:outline-none active:scale-[0.98]"
                 >
                   <ArrowLeft size={14} /> Back
                 </button>
                 <button
                   onClick={handleNextStep}
-                  className="justify-center px-6 sm:px-8 h-11 bg-[#111111] hover:bg-[#FF4D6D] text-white text-xs font-bold tracking-widest uppercase transition-colors duration-300 flex items-center gap-1.5 rounded-xs cursor-pointer focus:outline-none"
+                  className="w-full sm:w-auto justify-center px-6 sm:px-8 h-12 min-h-[48px] bg-[#111111] hover:bg-[#FF4D6D] text-white text-xs font-bold tracking-widest uppercase transition-colors duration-300 flex items-center gap-1.5 rounded-xl cursor-pointer focus:outline-none shadow-md active:scale-[0.98]"
                 >
                   Continue to Payment
                   <ArrowRight size={14} />

@@ -209,7 +209,7 @@ export default function OrderSuccess({ navigate, currentParams = {} }) {
                     </div>
 
                     {/* Right Column: Status Details */}
-                    <div className="flex-1 pl-8 sm:pl-4 space-y-1 min-w-0">
+                    <div className="flex-1 pl-2 sm:pl-4 space-y-1 min-w-0">
                       {/* Mobile Date/Time fallback */}
                       <div className="sm:hidden text-[9px] font-bold text-neutral-400 tracking-wider font-mono">
                         {step.dateStr} at {step.timeStr}

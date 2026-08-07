@@ -45,6 +45,8 @@ export default function AnnouncementBar() {
         <div className="flex animate-marquee-infinite shrink-0">
           {renderPass()}
           {renderPass()}
+          {renderPass()}
+          {renderPass()}
         </div>
       </div>
     </div>
