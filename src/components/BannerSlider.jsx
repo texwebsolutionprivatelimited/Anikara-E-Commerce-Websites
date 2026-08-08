@@ -144,17 +144,17 @@ export default function BannerSlider({ slides, navigate }) {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
                       </div>
 
-                      {/* Single Primary Minimal CTA Button Overlay (43px height, 138px width, 12px border radius, soft charcoal) */}
-                      <div className="absolute bottom-4.5 left-4.5 sm:bottom-6 sm:left-8 z-20">
+                      {/* Single Primary Minimal CTA Button Overlay (Soft Luxury Neutral Cream Tone, 35px height mobile / 38px desktop, rounded 7px) */}
+                      <div className="absolute bottom-3.5 left-3.5 sm:bottom-5 sm:left-7 z-20">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             navigate(slide.navigatePage, slide.navigateParams);
                           }}
-                          className="group relative overflow-hidden inline-flex items-center justify-center gap-2 bg-[#222222]/90 hover:bg-[#FF4D6D] active:scale-[0.98] backdrop-blur-sm text-white text-[14px] font-semibold tracking-wide uppercase h-[43px] w-[138px] rounded-[12px] transition-all duration-300 shadow-xs cursor-pointer font-sans shrink-0 border border-white/10"
+                          className="group relative inline-flex items-center justify-center gap-1.5 bg-[#FAF4EE] hover:bg-[#F2E6DB] active:scale-[0.98] text-[#2C221E] hover:text-[#191310] text-[11.5px] sm:text-[12.5px] font-semibold tracking-[0.1em] uppercase h-[35px] sm:h-[38px] w-[115px] sm:w-[130px] rounded-[7px] transition-all duration-300 shadow-[0_1px_3px_rgba(0,0,0,0.06)] cursor-pointer font-sans shrink-0 border border-[#E6D7CB]"
                         >
                           <span className="relative z-10">Shop Now</span>
-                          <ArrowRight size={15} className="relative z-10 group-hover:translate-x-1 transition-transform duration-300 stroke-[2]" />
+                          <ArrowRight size={13} className="relative z-10 group-hover:translate-x-1 transition-transform duration-300 stroke-[2] sm:w-[14px] sm:h-[14px]" />
                         </button>
                       </div>
 
@@ -202,10 +202,10 @@ export default function BannerSlider({ slides, navigate }) {
                                   e.stopPropagation();
                                   navigate(slide.navigatePage, slide.navigateParams);
                                 }}
-                                className="group relative overflow-hidden inline-flex items-center justify-center gap-2 bg-[#222222]/90 hover:bg-[#FF4D6D] active:scale-[0.98] backdrop-blur-sm text-white text-[14px] font-semibold tracking-wide uppercase h-[43px] w-[138px] rounded-[12px] transition-all duration-300 shadow-xs cursor-pointer focus:outline-none font-sans shrink-0 border border-white/10"
+                                className="group relative inline-flex items-center justify-center gap-1.5 bg-[#FAF4EE] hover:bg-[#F2E6DB] active:scale-[0.98] text-[#2C221E] hover:text-[#191310] text-[11.5px] sm:text-[12.5px] font-semibold tracking-[0.1em] uppercase h-[35px] sm:h-[38px] w-[115px] sm:w-[130px] rounded-[7px] transition-all duration-300 shadow-[0_1px_3px_rgba(0,0,0,0.06)] cursor-pointer focus:outline-none font-sans shrink-0 border border-[#E6D7CB]"
                               >
                                 <span className="relative z-10">Shop Now</span>
-                                <ArrowRight size={15} className="relative z-10 group-hover:translate-x-1 transition-transform duration-300 stroke-[2]" />
+                                <ArrowRight size={13} className="relative z-10 group-hover:translate-x-1 transition-transform duration-300 stroke-[2] sm:w-[14px] sm:h-[14px]" />
                               </button>
                             </div>
                           </div>

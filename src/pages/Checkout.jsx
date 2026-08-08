@@ -28,7 +28,7 @@ export default function Checkout({ navigate }) {
   const handleZipChange = async (e) => {
     const val = e.target.value;
     setZip(val);
-    if (val.trim().length === 6 && /^\d{6}$/.test(val.trim())) {
+    if (val.trim().length === 6 && /^[1-9]\d{5}$/.test(val.trim())) {
       setPincodeLoading(true);
       setPincodeStatus(null);
       try {
@@ -38,21 +38,25 @@ export default function Checkout({ navigate }) {
           const po = data[0].PostOffice[0];
           const detectedCity = po.District || po.Block || po.Name;
           const detectedState = po.State;
-          setCity(detectedCity);
-          setStateName(detectedState);
+          setCity((prev) => prev || detectedCity);
+          setStateName((prev) => prev || detectedState);
           setPincodeStatus({
             valid: true,
-            msg: `✓ Verified Pincode: ${detectedCity}, ${detectedState}`
+            msg: `✓ Verified: ${detectedCity}, ${detectedState}`
           });
-          addToast(`Verified Pincode: ${detectedCity}, ${detectedState}`, "success");
+          if (addToast) addToast(`Verified Pincode: ${detectedCity}, ${detectedState}`, "success");
         } else {
-          setPincodeStatus({ valid: false, msg: "Invalid 6-digit Indian Pincode" });
+          setPincodeStatus({ valid: true, msg: "✓ Valid 6-digit Indian Pincode" });
         }
       } catch (err) {
-        setPincodeStatus({ valid: true, msg: "Format verified (6 digits)" });
+        setPincodeStatus({ valid: true, msg: "✓ Valid 6-digit Indian Pincode" });
       } finally {
         setPincodeLoading(false);
       }
+    } else if (val.trim().length > 0 && val.trim().length < 6) {
+      setPincodeStatus({ valid: false, msg: "Pincode must be 6 digits" });
+    } else if (val.trim().length === 6 && !/^[1-9]\d{5}$/.test(val.trim())) {
+      setPincodeStatus({ valid: false, msg: "Invalid 6-digit Indian Pincode format" });
     } else {
       setPincodeStatus(null);
     }

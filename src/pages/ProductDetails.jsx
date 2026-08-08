@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
 import ProductCard from "../components/ProductCard";
-import { Star, Heart, ShoppingBag, CreditCard, ChevronRight, ChevronLeft, Plus, Minus, ArrowLeft, Package, RefreshCcw, Share2 } from "lucide-react";
+import { Star, Heart, ShoppingBag, CreditCard, ChevronRight, ChevronLeft, Plus, Minus, ArrowLeft, Package, RefreshCcw, Share2, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import ImageKitImage from "../components/ImageKitImage";
 
@@ -211,7 +211,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
   } : null;
 
   return (
-    <div className="max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-6 sm:pb-8 font-sans">
+    <div className="max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-4 pb-36 sm:pb-8 font-sans">
       
       {/* Breadcrumbs Navigation (Flipkart/Amazon style) */}
       <nav className="flex items-center flex-wrap gap-1.5 text-[11px] font-sans text-neutral-600 mb-3.5 bg-neutral-50 px-3.5 py-1.5 rounded-lg border border-neutral-300/80 w-fit leading-normal shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
@@ -895,7 +895,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
       )}
 
       {/* Fixed Mobile Sticky Action Bar (Wishlist, Add to Bag 48px, Buy Now 48px) */}
-      <div className="fixed bottom-[56px] left-0 right-0 z-40 md:hidden bg-white/95 backdrop-blur-md border-t border-neutral-200/90 p-2 sm:p-2.5 shadow-[0_-8px_25px_rgba(0,0,0,0.1)] flex items-center gap-2">
+      <div className="fixed bottom-[64px] left-0 right-0 z-40 md:hidden bg-white/95 backdrop-blur-md border-t border-neutral-200/90 p-2 sm:p-2.5 shadow-[0_-8px_25px_rgba(0,0,0,0.1)] flex items-center gap-2">
         <button
           onClick={(e) => {
             e.stopPropagation();
