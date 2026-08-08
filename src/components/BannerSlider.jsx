@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Truck, RotateCcw, Sparkles, Star } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, EffectFade } from "swiper/modules";
 
@@ -105,7 +105,7 @@ export default function BannerSlider({ slides, navigate }) {
   const swiperRef = useRef(null);
 
   return (
-    <section className="w-full bg-white pt-2 sm:pt-3 pb-1 sm:pb-2 border-b border-neutral-100">
+    <section className="w-full bg-white pt-2 sm:pt-3 pb-1 sm:pb-2">
       <div className="max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8">
         <div className="relative w-full h-[180px] min-[360px]:h-[200px] min-[400px]:h-[220px] sm:h-auto banner-aspect-ratio overflow-hidden rounded-xl sm:rounded-2xl shadow-sm">
           
@@ -132,30 +132,16 @@ export default function BannerSlider({ slides, navigate }) {
                       <div className="absolute inset-0 w-full h-full overflow-hidden">
                         {/* Desktop/Laptop (lg and up) */}
                         <div
-                          className="hidden lg:block w-full h-full bg-cover bg-center"
+                          className="hidden lg:block w-full h-full bg-cover bg-top"
                           style={{ backgroundImage: `url(${slide.image})` }}
                         />
                         {/* Mobile/Tablet (below lg) */}
                         <div
-                          className="block lg:hidden w-full h-full bg-cover bg-center"
+                          className="block lg:hidden w-full h-full bg-cover bg-top"
                           style={{ backgroundImage: `url(${slide.mobileImage || slide.image})` }}
                         />
                         {/* Subtle bottom gradient overlay for clear CTA contrast */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
-                      </div>
-
-                      {/* Single Primary Minimal CTA Button Overlay (Soft Luxury Neutral Cream Tone, 35px height mobile / 38px desktop, rounded 7px) */}
-                      <div className="absolute bottom-3.5 left-3.5 sm:bottom-5 sm:left-7 z-20">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(slide.navigatePage, slide.navigateParams);
-                          }}
-                          className="group relative inline-flex items-center justify-center gap-1.5 bg-[#FAF4EE] hover:bg-[#F2E6DB] active:scale-[0.98] text-[#2C221E] hover:text-[#191310] text-[11.5px] sm:text-[12.5px] font-semibold tracking-[0.1em] uppercase h-[35px] sm:h-[38px] w-[115px] sm:w-[130px] rounded-[7px] transition-all duration-300 shadow-[0_1px_3px_rgba(0,0,0,0.06)] cursor-pointer font-sans shrink-0 border border-[#E6D7CB]"
-                        >
-                          <span className="relative z-10">Shop Now</span>
-                          <ArrowRight size={13} className="relative z-10 group-hover:translate-x-1 transition-transform duration-300 stroke-[2] sm:w-[14px] sm:h-[14px]" />
-                        </button>
                       </div>
 
                       {/* Screen reader accessibility content */}
@@ -169,12 +155,12 @@ export default function BannerSlider({ slides, navigate }) {
                       <div className="absolute inset-y-0 right-0 w-full lg:w-[58%] overflow-hidden">
                         {/* Desktop/Laptop (lg and up) */}
                         <div
-                          className="hidden lg:block w-full h-full bg-cover bg-center"
+                          className="hidden lg:block w-full h-full bg-cover bg-top"
                           style={{ backgroundImage: `url(${slide.image})` }}
                         />
                         {/* Mobile/Tablet (below lg) */}
                         <div
-                          className="block lg:hidden w-full h-full bg-cover bg-center"
+                          className="block lg:hidden w-full h-full bg-cover bg-top"
                           style={{ backgroundImage: `url(${slide.mobileImage || slide.image})` }}
                         />
                         {/* Mobile/Tablet: strong overlay so text is readable */}
@@ -196,18 +182,6 @@ export default function BannerSlider({ slides, navigate }) {
                             <p className="text-[10px] sm:text-xs md:text-sm text-neutral-600 font-light leading-relaxed hidden sm:block font-sans max-w-xs md:max-w-sm">
                               {slide.desc}
                             </p>
-                            <div className="pt-1.5 sm:pt-2 md:pt-4">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  navigate(slide.navigatePage, slide.navigateParams);
-                                }}
-                                className="group relative inline-flex items-center justify-center gap-1.5 bg-[#FAF4EE] hover:bg-[#F2E6DB] active:scale-[0.98] text-[#2C221E] hover:text-[#191310] text-[11.5px] sm:text-[12.5px] font-semibold tracking-[0.1em] uppercase h-[35px] sm:h-[38px] w-[115px] sm:w-[130px] rounded-[7px] transition-all duration-300 shadow-[0_1px_3px_rgba(0,0,0,0.06)] cursor-pointer focus:outline-none font-sans shrink-0 border border-[#E6D7CB]"
-                              >
-                                <span className="relative z-10">Shop Now</span>
-                                <ArrowRight size={13} className="relative z-10 group-hover:translate-x-1 transition-transform duration-300 stroke-[2] sm:w-[14px] sm:h-[14px]" />
-                              </button>
-                            </div>
                           </div>
                         </div>
                       </div>
@@ -231,23 +205,70 @@ export default function BannerSlider({ slides, navigate }) {
           </div>
         </div>
 
-        {/* Horizontally Scrollable Snap Pill List below Hero Banner (Generous Vertical Spacing mt-4 sm:mt-6) */}
-        <div className="flex items-center gap-2.5 mt-4 sm:mt-6 px-1 overflow-x-auto scrollbar-hide py-1.5 snap-x snap-mandatory">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-neutral-50 border border-neutral-200/90 text-[10.5px] font-bold text-neutral-800 shrink-0 snap-start shadow-xs">
-            <span className="text-[#FF4D6D]">✓</span>
-            <span className="font-sans">Free Shipping</span>
-          </div>
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-neutral-50 border border-neutral-200/90 text-[10.5px] font-bold text-neutral-800 shrink-0 snap-start shadow-xs">
-            <span className="text-[#FF4D6D]">✓</span>
-            <span className="font-sans">Easy Returns</span>
-          </div>
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-neutral-50 border border-neutral-200/90 text-[10.5px] font-bold text-neutral-800 shrink-0 snap-start shadow-xs">
-            <span className="text-[#FF4D6D]">✓</span>
-            <span className="font-sans">Premium Fabrics</span>
-          </div>
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-neutral-50 border border-neutral-200/90 text-[10.5px] font-bold text-neutral-800 shrink-0 snap-start shadow-xs">
-            <span className="text-amber-500">★</span>
-            <span className="font-sans">4.9 Rating</span>
+        {/* Responsive Luxury Feature & Trust Bar below Hero Banner */}
+        <div className="mt-3.5 sm:mt-5 px-0.5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
+            
+            {/* Feature 1: Free Shipping */}
+            <div className="group relative flex items-center justify-center sm:justify-start gap-2.5 px-3 sm:px-4 lg:px-5 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-neutral-50/90 via-white to-neutral-50/90 border border-neutral-200/80 hover:border-[#FF4D6D]/30 hover:bg-white shadow-[0_1px_4px_rgba(0,0,0,0.02)] hover:shadow-[0_6px_20px_rgba(255,77,109,0.08)] hover:-translate-y-0.5 transition-all duration-300">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#FF4D6D]/10 text-[#FF4D6D] flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-[#FF4D6D] group-hover:text-white transition-all duration-300">
+                <Truck size={14} className="sm:w-4 sm:h-4 stroke-[2.2]" />
+              </div>
+              <div className="flex flex-col text-left">
+                <span className="text-[11.5px] sm:text-xs lg:text-[13px] font-bold text-neutral-900 tracking-wide font-sans group-hover:text-[#FF4D6D] transition-colors leading-tight">
+                  Free Shipping
+                </span>
+                <span className="text-[10px] sm:text-[11px] text-neutral-500 font-normal hidden lg:block leading-tight mt-0.5">
+                  On all orders over ₹1,500
+                </span>
+              </div>
+            </div>
+
+            {/* Feature 2: Easy Returns */}
+            <div className="group relative flex items-center justify-center sm:justify-start gap-2.5 px-3 sm:px-4 lg:px-5 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-neutral-50/90 via-white to-neutral-50/90 border border-neutral-200/80 hover:border-[#FF4D6D]/30 hover:bg-white shadow-[0_1px_4px_rgba(0,0,0,0.02)] hover:shadow-[0_6px_20px_rgba(255,77,109,0.08)] hover:-translate-y-0.5 transition-all duration-300">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#FF4D6D]/10 text-[#FF4D6D] flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-[#FF4D6D] group-hover:text-white transition-all duration-300">
+                <RotateCcw size={14} className="sm:w-4 sm:h-4 stroke-[2.2]" />
+              </div>
+              <div className="flex flex-col text-left">
+                <span className="text-[11.5px] sm:text-xs lg:text-[13px] font-bold text-neutral-900 tracking-wide font-sans group-hover:text-[#FF4D6D] transition-colors leading-tight">
+                  Easy Returns
+                </span>
+                <span className="text-[10px] sm:text-[11px] text-neutral-500 font-normal hidden lg:block leading-tight mt-0.5">
+                  15-Day hassle-free exchange
+                </span>
+              </div>
+            </div>
+
+            {/* Feature 3: Premium Fabrics */}
+            <div className="group relative flex items-center justify-center sm:justify-start gap-2.5 px-3 sm:px-4 lg:px-5 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-neutral-50/90 via-white to-neutral-50/90 border border-neutral-200/80 hover:border-[#FF4D6D]/30 hover:bg-white shadow-[0_1px_4px_rgba(0,0,0,0.02)] hover:shadow-[0_6px_20px_rgba(255,77,109,0.08)] hover:-translate-y-0.5 transition-all duration-300">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#FF4D6D]/10 text-[#FF4D6D] flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-[#FF4D6D] group-hover:text-white transition-all duration-300">
+                <Sparkles size={14} className="sm:w-4 sm:h-4 stroke-[2.2]" />
+              </div>
+              <div className="flex flex-col text-left">
+                <span className="text-[11.5px] sm:text-xs lg:text-[13px] font-bold text-neutral-900 tracking-wide font-sans group-hover:text-[#FF4D6D] transition-colors leading-tight">
+                  Premium Fabrics
+                </span>
+                <span className="text-[10px] sm:text-[11px] text-neutral-500 font-normal hidden lg:block leading-tight mt-0.5">
+                  100% Handcrafted quality
+                </span>
+              </div>
+            </div>
+
+            {/* Feature 4: 4.9 Rating */}
+            <div className="group relative flex items-center justify-center sm:justify-start gap-2.5 px-3 sm:px-4 lg:px-5 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-neutral-50/90 via-white to-neutral-50/90 border border-neutral-200/80 hover:border-amber-400/40 hover:bg-white shadow-[0_1px_4px_rgba(0,0,0,0.02)] hover:shadow-[0_6px_20px_rgba(245,158,11,0.12)] hover:-translate-y-0.5 transition-all duration-300">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-amber-500 group-hover:text-white transition-all duration-300">
+                <Star size={14} className="sm:w-4 sm:h-4 fill-amber-400 text-amber-500 group-hover:fill-white group-hover:text-white stroke-[2.2]" />
+              </div>
+              <div className="flex flex-col text-left">
+                <span className="text-[11.5px] sm:text-xs lg:text-[13px] font-bold text-neutral-900 tracking-wide font-sans group-hover:text-amber-600 transition-colors leading-tight">
+                  4.9 Rating
+                </span>
+                <span className="text-[10px] sm:text-[11px] text-neutral-500 font-normal hidden lg:block leading-tight mt-0.5">
+                  From 10,000+ happy buyers
+                </span>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>

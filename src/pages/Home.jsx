@@ -33,52 +33,52 @@ export default function Home({ navigate }) {
       {/* 2. CATEGORIES (HOT CATEGORIES) */}
       <Categories navigate={navigate} />
 
-      {/* 3. LUXURY TRUST SECTION (4 Cards: Glass, soft gradient, larger animated icon, 6-8px hover lift) */}
-      <section className="bg-[#FAF9F6] border-y border-neutral-200/50 py-7 sm:py-9 font-sans">
-        <div className="max-w-[1720px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      {/* 3. LUXURY TRUST SECTION (2 Rows / 2x2 grid on mobile, 4 columns on desktop) */}
+      <section className="bg-[#FAF9F6] py-5 sm:py-9 font-sans">
+        <div className="max-w-[1720px] mx-auto px-2.5 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 min-[360px]:gap-3 sm:gap-6">
             
             {/* Card 1: Free Shipping */}
-            <div className="group relative rounded-2xl bg-gradient-to-br from-white via-[#FFF9FA] to-[#FFF0F3] border border-[#FF4D6D]/15 p-5 sm:p-6 backdrop-blur-md shadow-[0_4px_20px_rgba(255,77,109,0.04)] hover:shadow-[0_20px_40px_rgba(255,77,109,0.15)] hover:border-[#FF4D6D]/40 hover:-translate-y-2 transition-all duration-300 flex items-center gap-4 cursor-default">
-              <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-2xl bg-gradient-to-br from-[#FF4D6D] to-[#FF1E46] text-white flex items-center justify-center shrink-0 shadow-[0_8px_20px_rgba(255,77,109,0.3)] group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                <Truck size={26} className="stroke-[2.2]" />
+            <div className="group relative rounded-xl sm:rounded-2xl bg-gradient-to-br from-white via-[#FFF9FA] to-[#FFF0F3] border border-[#FF4D6D]/15 p-3 min-[360px]:p-3.5 sm:p-6 backdrop-blur-md shadow-[0_4px_20px_rgba(255,77,109,0.04)] hover:shadow-[0_20px_40px_rgba(255,77,109,0.15)] hover:border-[#FF4D6D]/40 hover:-translate-y-1.5 transition-all duration-300 flex items-center gap-2.5 sm:gap-4 cursor-default">
+              <div className="w-9 h-9 min-[360px]:w-10 min-[360px]:h-10 sm:w-15 sm:h-15 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#FF4D6D] to-[#FF1E46] text-white flex items-center justify-center shrink-0 shadow-[0_4px_12px_rgba(255,77,109,0.25)] group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                <Truck className="w-4 h-4 min-[360px]:w-5 min-[360px]:h-5 sm:w-6.5 sm:h-6.5 stroke-[2.2]" />
               </div>
-              <div>
-                <h4 className="text-sm sm:text-base font-extrabold text-[#111111] tracking-wide font-display group-hover:text-[#FF4D6D] transition-colors">Free Shipping</h4>
-                <p className="text-xs text-neutral-500 font-light mt-0.5 leading-relaxed">On all orders above ₹1,500</p>
+              <div className="min-w-0 flex-1">
+                <h4 className="text-xs min-[360px]:text-[13px] sm:text-base font-extrabold text-[#111111] tracking-wide font-display group-hover:text-[#FF4D6D] transition-colors leading-tight truncate">Free Shipping</h4>
+                <p className="text-[9.5px] min-[360px]:text-[10.5px] sm:text-xs text-neutral-500 font-light mt-0.5 leading-tight">On all orders above ₹1,500</p>
               </div>
             </div>
 
             {/* Card 2: Secure Payment */}
-            <div className="group relative rounded-2xl bg-gradient-to-br from-white via-[#FFF9FA] to-[#FFF0F3] border border-[#FF4D6D]/15 p-5 sm:p-6 backdrop-blur-md shadow-[0_4px_20px_rgba(255,77,109,0.04)] hover:shadow-[0_20px_40px_rgba(255,77,109,0.15)] hover:border-[#FF4D6D]/40 hover:-translate-y-2 transition-all duration-300 flex items-center gap-4 cursor-default">
-              <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-2xl bg-gradient-to-br from-[#FF4D6D] to-[#FF1E46] text-white flex items-center justify-center shrink-0 shadow-[0_8px_20px_rgba(255,77,109,0.3)] group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                <ShieldCheck size={26} className="stroke-[2.2]" />
+            <div className="group relative rounded-xl sm:rounded-2xl bg-gradient-to-br from-white via-[#FFF9FA] to-[#FFF0F3] border border-[#FF4D6D]/15 p-3 min-[360px]:p-3.5 sm:p-6 backdrop-blur-md shadow-[0_4px_20px_rgba(255,77,109,0.04)] hover:shadow-[0_20px_40px_rgba(255,77,109,0.15)] hover:border-[#FF4D6D]/40 hover:-translate-y-1.5 transition-all duration-300 flex items-center gap-2.5 sm:gap-4 cursor-default">
+              <div className="w-9 h-9 min-[360px]:w-10 min-[360px]:h-10 sm:w-15 sm:h-15 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#FF4D6D] to-[#FF1E46] text-white flex items-center justify-center shrink-0 shadow-[0_4px_12px_rgba(255,77,109,0.25)] group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                <ShieldCheck className="w-4 h-4 min-[360px]:w-5 min-[360px]:h-5 sm:w-6.5 sm:h-6.5 stroke-[2.2]" />
               </div>
-              <div>
-                <h4 className="text-sm sm:text-base font-extrabold text-[#111111] tracking-wide font-display group-hover:text-[#FF4D6D] transition-colors">Secure Payment</h4>
-                <p className="text-xs text-neutral-500 font-light mt-0.5 leading-relaxed">100% encrypted & protected</p>
+              <div className="min-w-0 flex-1">
+                <h4 className="text-xs min-[360px]:text-[13px] sm:text-base font-extrabold text-[#111111] tracking-wide font-display group-hover:text-[#FF4D6D] transition-colors leading-tight truncate">Secure Payment</h4>
+                <p className="text-[9.5px] min-[360px]:text-[10.5px] sm:text-xs text-neutral-500 font-light mt-0.5 leading-tight">100% encrypted &amp; protected</p>
               </div>
             </div>
 
             {/* Card 3: Premium Quality */}
-            <div className="group relative rounded-2xl bg-gradient-to-br from-white via-[#FFF9FA] to-[#FFF0F3] border border-[#FF4D6D]/15 p-5 sm:p-6 backdrop-blur-md shadow-[0_4px_20px_rgba(255,77,109,0.04)] hover:shadow-[0_20px_40px_rgba(255,77,109,0.15)] hover:border-[#FF4D6D]/40 hover:-translate-y-2 transition-all duration-300 flex items-center gap-4 cursor-default">
-              <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-2xl bg-gradient-to-br from-[#FF4D6D] to-[#FF1E46] text-white flex items-center justify-center shrink-0 shadow-[0_8px_20px_rgba(255,77,109,0.3)] group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                <Star size={26} className="stroke-[2.2] fill-white/20" />
+            <div className="group relative rounded-xl sm:rounded-2xl bg-gradient-to-br from-white via-[#FFF9FA] to-[#FFF0F3] border border-[#FF4D6D]/15 p-3 min-[360px]:p-3.5 sm:p-6 backdrop-blur-md shadow-[0_4px_20px_rgba(255,77,109,0.04)] hover:shadow-[0_20px_40px_rgba(255,77,109,0.15)] hover:border-[#FF4D6D]/40 hover:-translate-y-1.5 transition-all duration-300 flex items-center gap-2.5 sm:gap-4 cursor-default">
+              <div className="w-9 h-9 min-[360px]:w-10 min-[360px]:h-10 sm:w-15 sm:h-15 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#FF4D6D] to-[#FF1E46] text-white flex items-center justify-center shrink-0 shadow-[0_4px_12px_rgba(255,77,109,0.25)] group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                <Star className="w-4 h-4 min-[360px]:w-5 min-[360px]:h-5 sm:w-6.5 sm:h-6.5 stroke-[2.2] fill-white/20" />
               </div>
-              <div>
-                <h4 className="text-sm sm:text-base font-extrabold text-[#111111] tracking-wide font-display group-hover:text-[#FF4D6D] transition-colors">Premium Quality</h4>
-                <p className="text-xs text-neutral-500 font-light mt-0.5 leading-relaxed">Handcrafted luxury fabrics</p>
+              <div className="min-w-0 flex-1">
+                <h4 className="text-xs min-[360px]:text-[13px] sm:text-base font-extrabold text-[#111111] tracking-wide font-display group-hover:text-[#FF4D6D] transition-colors leading-tight truncate">Premium Quality</h4>
+                <p className="text-[9.5px] min-[360px]:text-[10.5px] sm:text-xs text-neutral-500 font-light mt-0.5 leading-tight">Handcrafted luxury fabrics</p>
               </div>
             </div>
 
             {/* Card 4: Easy Returns */}
-            <div className="group relative rounded-2xl bg-gradient-to-br from-white via-[#FFF9FA] to-[#FFF0F3] border border-[#FF4D6D]/15 p-5 sm:p-6 backdrop-blur-md shadow-[0_4px_20px_rgba(255,77,109,0.04)] hover:shadow-[0_20px_40px_rgba(255,77,109,0.15)] hover:border-[#FF4D6D]/40 hover:-translate-y-2 transition-all duration-300 flex items-center gap-4 cursor-default">
-              <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-2xl bg-gradient-to-br from-[#FF4D6D] to-[#FF1E46] text-white flex items-center justify-center shrink-0 shadow-[0_8px_20px_rgba(255,77,109,0.3)] group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                <RefreshCw size={26} className="stroke-[2.2]" />
+            <div className="group relative rounded-xl sm:rounded-2xl bg-gradient-to-br from-white via-[#FFF9FA] to-[#FFF0F3] border border-[#FF4D6D]/15 p-3 min-[360px]:p-3.5 sm:p-6 backdrop-blur-md shadow-[0_4px_20px_rgba(255,77,109,0.04)] hover:shadow-[0_20px_40px_rgba(255,77,109,0.15)] hover:border-[#FF4D6D]/40 hover:-translate-y-1.5 transition-all duration-300 flex items-center gap-2.5 sm:gap-4 cursor-default">
+              <div className="w-9 h-9 min-[360px]:w-10 min-[360px]:h-10 sm:w-15 sm:h-15 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#FF4D6D] to-[#FF1E46] text-white flex items-center justify-center shrink-0 shadow-[0_4px_12px_rgba(255,77,109,0.25)] group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                <RefreshCw className="w-4 h-4 min-[360px]:w-5 min-[360px]:h-5 sm:w-6.5 sm:h-6.5 stroke-[2.2]" />
               </div>
-              <div>
-                <h4 className="text-sm sm:text-base font-extrabold text-[#111111] tracking-wide font-display group-hover:text-[#FF4D6D] transition-colors">Easy Returns</h4>
-                <p className="text-xs text-neutral-500 font-light mt-0.5 leading-relaxed">15-day doorstep exchange</p>
+              <div className="min-w-0 flex-1">
+                <h4 className="text-xs min-[360px]:text-[13px] sm:text-base font-extrabold text-[#111111] tracking-wide font-display group-hover:text-[#FF4D6D] transition-colors leading-tight truncate">Easy Returns</h4>
+                <p className="text-[9.5px] min-[360px]:text-[10.5px] sm:text-xs text-neutral-500 font-light mt-0.5 leading-tight">15-day doorstep exchange</p>
               </div>
             </div>
 
@@ -93,7 +93,7 @@ export default function Home({ navigate }) {
       <Trending navigate={navigate} />
 
       {/* 6. NEW ARRIVALS GRID (Compact spacing & 48px header hierarchy) */}
-      <section className="w-full border-t border-neutral-100 py-6 sm:py-8 md:py-10 font-sans">
+      <section className="w-full py-6 sm:py-8 md:py-10 font-sans">
         <div className="max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8">
           <div className="text-center mb-5 sm:mb-7">
             <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.2em] text-[#FF4D6D] uppercase font-display">

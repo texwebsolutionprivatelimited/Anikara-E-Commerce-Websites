@@ -19,6 +19,7 @@ import Profile from "./pages/Profile";
 import OrderSuccess from "./pages/OrderSuccess";
 import AdminPanel from "./admin panel/AdminPanel";
 import MaintenanceMode from "./admin panel/MaintenanceMode";
+import InfoPages from "./pages/InfoPages";
 
 
 function AppContent() {
@@ -176,6 +177,13 @@ function AppContent() {
         return <Profile navigate={navigate} goBack={goBack} />;
       case "order-success":
         return <OrderSuccess navigate={navigate} currentParams={currentParams} goBack={goBack} />;
+      case "info":
+      case "shipping":
+      case "returns":
+      case "privacy":
+      case "terms":
+      case "faqs":
+        return <InfoPages navigate={navigate} currentParams={currentParams} />;
       case "admin":
         {
           if (authLoading) {

@@ -93,16 +93,6 @@ export default function Product({ navigate, currentParams = {}, goBack }) {
 
   return (
     <div className="max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8 pt-5 pb-6 sm:pt-8 sm:pb-10 font-sans">
-      
-      {/* Back Button */}
-      <button
-        onClick={goBack}
-        className="inline-flex items-center gap-2 text-[10px] font-bold text-neutral-700 bg-neutral-50 border border-neutral-200 hover:bg-[#FF4D6D] hover:text-white hover:border-[#FF4D6D] px-3.5 py-2 uppercase tracking-wider transition-all duration-300 rounded-sm focus:outline-none cursor-pointer mb-3 sm:mb-5"
-      >
-        <ArrowLeft size={12} />
-        Back
-      </button>
-
       {/* Page Title & Count */}
       <div className="flex flex-col md:flex-row md:items-baseline justify-between mb-4 sm:mb-8 gap-2 sm:gap-3 border-b border-neutral-100 pb-3 sm:pb-4">
         <div>

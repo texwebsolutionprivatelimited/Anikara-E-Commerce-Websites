@@ -44,15 +44,15 @@ export default function Deals({ navigate }) {
   }, [settings?.dealEndsAt]);
 
   return (
-    <section className="bg-[#FFF9F7] py-6 sm:py-9 md:py-12 border-y border-[#FF4D6D]/10 font-sans relative overflow-hidden">
+    <section className="bg-[#FFF9F7] py-6 sm:py-9 md:py-12 font-sans relative overflow-hidden">
       {/* Ambient background glows */}
       <div className="absolute top-0 right-1/4 w-[350px] h-[350px] bg-[#FF4D6D]/5 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-0 left-1/4 w-[350px] h-[350px] bg-amber-500/5 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="max-w-[1720px] mx-auto px-3.5 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Luxury Rounded Frame Container */}
-        <div className="bg-white/90 backdrop-blur-md rounded-3xl p-5 sm:p-8 md:p-10 border border-[#FF4D6D]/15 shadow-[0_12px_45px_rgba(255,77,109,0.06)] relative overflow-hidden">
+        {/* Luxury Rounded Frame Container without harsh borders */}
+        <div className="bg-white/90 backdrop-blur-md rounded-3xl p-5 sm:p-8 md:p-10 shadow-[0_12px_45px_rgba(255,77,109,0.06)] relative overflow-hidden">
           
           {/* Top Decorative Line Frame */}
           <div className="flex items-center justify-center gap-4 mb-4">
@@ -76,19 +76,19 @@ export default function Deals({ navigate }) {
                 <span className="text-[10px] uppercase font-bold tracking-wider text-neutral-500 mr-1">ENDS IN:</span>
                 <div className="flex gap-1.5 items-center font-mono">
                   <div className="flex flex-col items-center">
-                    <span className="bg-[#111111] text-white font-extrabold text-xs sm:text-sm px-3 py-1.5 rounded-lg shadow-sm border border-neutral-800">
+                    <span className="bg-[#111111] text-white font-extrabold text-xs sm:text-sm px-3 py-1.5 rounded-lg shadow-sm">
                       {String(timeLeft.hours).padStart(2, "0")}h
                     </span>
                   </div>
                   <span className="text-neutral-800 font-bold text-xs">:</span>
                   <div className="flex flex-col items-center">
-                    <span className="bg-[#111111] text-white font-extrabold text-xs sm:text-sm px-3 py-1.5 rounded-lg shadow-sm border border-neutral-800">
+                    <span className="bg-[#111111] text-white font-extrabold text-xs sm:text-sm px-3 py-1.5 rounded-lg shadow-sm">
                       {String(timeLeft.minutes).padStart(2, "0")}m
                     </span>
                   </div>
                   <span className="text-neutral-800 font-bold text-xs">:</span>
                   <div className="flex flex-col items-center">
-                    <span className="bg-[#FF4D6D] text-white font-extrabold text-xs sm:text-sm px-3 py-1.5 rounded-lg shadow-sm border border-rose-500 shadow-[0_0_12px_rgba(255,77,109,0.4)] animate-pulse">
+                    <span className="bg-[#FF4D6D] text-white font-extrabold text-xs sm:text-sm px-3 py-1.5 rounded-lg shadow-sm shadow-[0_0_12px_rgba(255,77,109,0.4)] animate-pulse">
                       {String(timeLeft.seconds).padStart(2, "0")}s
                     </span>
                   </div>
@@ -96,9 +96,9 @@ export default function Deals({ navigate }) {
               </div>
             )}
 
-            {/* Urgency Stock Left & Progress Bar (Only 34 items left + █████████░░) */}
+            {/* Urgency Stock Left & Progress Bar */}
             {showStockBar && (
-              <div className="w-full max-w-sm sm:max-w-md mx-auto mt-2.5 px-4 py-3 bg-[#FFF5F7] border border-rose-200/80 rounded-2xl shadow-[0_4px_20px_rgba(255,77,109,0.08)] flex flex-col items-center space-y-2">
+              <div className="w-full max-w-sm sm:max-w-md mx-auto mt-2.5 px-4 py-3 bg-[#FFF5F7] rounded-2xl shadow-[0_4px_20px_rgba(255,77,109,0.08)] flex flex-col items-center space-y-2">
                 <div className="flex items-center justify-between w-full text-xs font-bold">
                   <span className="text-[#FF4D6D] flex items-center gap-1.5">
                     <span className="animate-bounce">🔥</span>
@@ -109,7 +109,7 @@ export default function Deals({ navigate }) {
                   </span>
                 </div>
                 {/* Visual Urgency Progress Bar */}
-                <div className="w-full h-2.5 bg-neutral-200/60 rounded-full overflow-hidden p-0.5 border border-neutral-300/40">
+                <div className="w-full h-2.5 bg-neutral-200/60 rounded-full overflow-hidden p-0.5">
                   <div
                     className="h-full bg-gradient-to-r from-amber-500 via-[#FF4D6D] to-[#FF1E46] rounded-full transition-all duration-1000 ease-out shadow-[0_0_8px_rgba(255,77,109,0.5)]"
                     style={{ width: `${claimedPercent}%` }}
@@ -150,8 +150,8 @@ export default function Deals({ navigate }) {
             ))}
           </div>
 
-          {/* Bottom Frame Line & View All Deals Button */}
-          <div className="text-center mt-6 sm:mt-8 pt-6 border-t border-[#FF4D6D]/10">
+          {/* View All Deals Button without top divider line */}
+          <div className="text-center mt-6 sm:mt-8 pt-4">
             <button
               onClick={() => navigate("products", { badge: "Sale" })}
               className="relative group overflow-hidden inline-flex items-center justify-center gap-2.5 px-8 sm:px-10 py-3.5 sm:py-4 bg-gradient-to-r from-[#111111] via-[#222222] to-[#111111] hover:from-[#FF4D6D] hover:to-[#FF1E46] text-white text-[13px] md:text-[15px] font-bold tracking-widest uppercase transition-all duration-500 rounded-full shadow-lg hover:shadow-[0_8px_30px_rgba(255,77,109,0.45)] hover:scale-105 cursor-pointer focus:outline-none font-sans"

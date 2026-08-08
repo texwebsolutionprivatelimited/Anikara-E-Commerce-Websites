@@ -2,13 +2,34 @@ import React from "react";
 import { Mail, Phone, MapPin, Truck, RotateCcw, Lock, Award, CheckCircle } from "lucide-react";
 import { useApp } from "../context/AppContext";
 
+const ALL_DEFAULT_CATEGORIES = [
+  "Night Suit",
+  "CO-ORDS",
+  "Suit",
+  "T-Shirt",
+  "Dress",
+  "Tops Blouse",
+  "Bottom wear",
+  "Lingerie",
+  "Denim",
+  "Sports wear",
+  "Footwear",
+  "Bags",
+  "Cosmetic",
+  "Accessories"
+];
+
 export default function Footer({ navigate }) {
   const { addToast, settings, categories = [], user } = useApp();
   const supportAddress = settings?.supportAddress || "Address not configured";
   const supportPhone = settings?.supportPhone || "+91 00000 00000";
   const supportEmail = settings?.supportEmail || "support@example.com";
   const shippingThreshold = Number(settings?.shippingThreshold) || 1500;
-  const footerCategories = categories.filter(Boolean).slice(0, 5);
+  
+  // All unique categories (live + default list)
+  const footerCategories = Array.from(
+    new Set([...(categories || []).filter(Boolean), ...ALL_DEFAULT_CATEGORIES])
+  );
 
   const rawAdminEmails =
     import.meta.env.VITE_ADMIN_EMAILS ||
@@ -181,21 +202,22 @@ export default function Footer({ navigate }) {
             </div>
           </div>
 
-          {/* Quick Links Column */}
+          {/* Quick Links Column - All Categories Grid */}
           <div className="space-y-3.5">
             <h4 className="text-xs font-bold tracking-widest uppercase text-white/90 font-display border-l-2 border-[#FF4D6D] pl-3">
               Collections
             </h4>
-            <ul className="space-y-2 text-xs font-light">
-              {footerCategories.length > 0 ? (
-                footerCategories.map((category) => (
-                  <li key={category}>
-                    <button onClick={() => navigate("products", { category })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 cursor-pointer text-left focus:outline-none text-neutral-400 inline-block">{category}</button>
-                  </li>
-                ))
-              ) : (
-                <li className="text-neutral-500">No collections found.</li>
-              )}
+            <ul className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs font-light">
+              {footerCategories.map((category) => (
+                <li key={category}>
+                  <button 
+                    onClick={() => navigate("products", { category })} 
+                    className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1 transition-all duration-300 cursor-pointer text-left focus:outline-none text-neutral-400 inline-block truncate max-w-full"
+                  >
+                    {category}
+                  </button>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -206,19 +228,19 @@ export default function Footer({ navigate }) {
             </h4>
             <ul className="space-y-2 text-xs font-light">
               <li>
-                <a href="#" className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 inline-block text-neutral-400">Shipping & Delivery</a>
+                <button onClick={() => navigate("info", { tab: "shipping" })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 inline-block text-neutral-400 cursor-pointer focus:outline-none text-left">Shipping & Delivery</button>
               </li>
               <li>
-                <a href="#" className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 inline-block text-neutral-400">15-Day Easy Returns</a>
+                <button onClick={() => navigate("info", { tab: "returns" })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 inline-block text-neutral-400 cursor-pointer focus:outline-none text-left">15-Day Easy Returns</button>
               </li>
               <li>
-                <a href="#" className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 inline-block text-neutral-400">Privacy Policy</a>
+                <button onClick={() => navigate("info", { tab: "privacy" })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 inline-block text-neutral-400 cursor-pointer focus:outline-none text-left">Privacy Policy</button>
               </li>
               <li>
-                <a href="#" className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 inline-block text-neutral-400">Terms & Conditions</a>
+                <button onClick={() => navigate("info", { tab: "terms" })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 inline-block text-neutral-400 cursor-pointer focus:outline-none text-left">Terms & Conditions</button>
               </li>
               <li>
-                <a href="#" className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 inline-block text-neutral-400">FAQs</a>
+                <button onClick={() => navigate("info", { tab: "faqs" })} className="footer-link-underline hover:text-[#FF4D6D] hover:translate-x-1.5 transition-all duration-300 inline-block text-neutral-400 cursor-pointer focus:outline-none text-left">FAQs</button>
               </li>
               {isAdminUser && (
                 <li className="pt-1 border-t border-white/5">

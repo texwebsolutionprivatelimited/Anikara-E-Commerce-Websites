@@ -21,7 +21,7 @@ export default function Trending({ navigate }) {
   const hasMore = visibleCount < trendingProducts.length;
 
   return (
-    <section className="w-full border-t border-neutral-100 py-5 sm:py-7 md:py-9 font-sans">
+    <section className="w-full py-5 sm:py-7 md:py-9 font-sans">
       <div className="max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8">
         <div className="text-center mb-5 sm:mb-7">
           <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.2em] text-[#FF4D6D] uppercase font-display">

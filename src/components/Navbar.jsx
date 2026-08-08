@@ -288,42 +288,191 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
           )}
         </AnimatePresence>
 
-        <div className="relative max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8 h-[68px] sm:h-[72px] md:h-[80px] flex items-center justify-between gap-2">
+        <div className="relative max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8 h-[68px] sm:h-[72px] md:h-[80px] flex items-center justify-between gap-2.5 sm:gap-6">
           
-          {/* Mobile Hamburger + Search Trigger (44px - 48px touch targets, tight spacing) */}
-          <div className="flex items-center gap-0 sm:gap-0.5 lg:hidden shrink-0 z-20">
+          {/* Left: Mobile Hamburger Menu + Left Brand Logo */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 z-20">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="w-11 h-11 flex items-center justify-center text-neutral-700 hover:text-black hover:bg-neutral-100/80 active:scale-95 rounded-full focus:outline-none cursor-pointer transition-all"
+              className="w-10 h-10 flex items-center justify-center text-neutral-700 hover:text-black hover:bg-neutral-100 active:scale-95 rounded-full focus:outline-none cursor-pointer transition-all lg:hidden"
               aria-label="Open Mobile Menu"
             >
               <Menu className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.8} />
             </button>
             <button
-              onClick={() => setIsMobileSearchOpen(true)}
-              className="w-11 h-11 flex items-center justify-center text-neutral-700 hover:text-black hover:bg-neutral-100/80 active:scale-95 rounded-full focus:outline-none cursor-pointer transition-all"
-              aria-label="Open Mobile Search"
-            >
-              <Search className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={1.8} />
-            </button>
-          </div>
-
-          {/* Brand Logo (10-15% size increase for mobile branding) */}
-          <div className="flex-1 lg:flex-none flex justify-center lg:justify-start min-w-0 px-1 z-10">
-            <button
               onClick={() => navigate("home")}
-              className="hover:opacity-90 transition-opacity cursor-pointer focus:outline-none py-1 flex items-center justify-center max-w-full"
+              className="hover:opacity-90 transition-opacity cursor-pointer focus:outline-none py-1 flex items-center justify-center shrink-0"
             >
               <img
                 src="/logo.png"
                 alt={`${settings?.businessName || "Anikara"} Logo`}
-                className="h-7.5 min-[360px]:h-9 min-[400px]:h-10.5 sm:h-11 md:h-13 max-w-[125px] min-[360px]:max-w-[145px] min-[400px]:max-w-none w-auto object-contain shrink"
+                className="h-7.5 min-[360px]:h-8.5 sm:h-10 md:h-12 w-auto object-contain shrink"
               />
             </button>
           </div>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center space-x-10 font-sans">
+          {/* Center: Full Horizontal Search Bar with Live Search Modal */}
+          <div ref={searchWrapperRef} className="flex-1 max-w-sm sm:max-w-md xl:max-w-xl relative mx-1 sm:mx-2">
+            <form onSubmit={handleSearchSubmit} className="relative flex items-center w-full">
+              <Search size={15} className="absolute left-3.5 text-neutral-400 pointer-events-none" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Search dresses, co-ords, nightwear…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setIsSearchFocused(true)}
+                className="w-full h-9 sm:h-10 text-xs bg-neutral-50 border border-neutral-200 rounded-full pl-9 pr-8 focus:outline-none focus:border-[#FF4D6D] focus:bg-white transition-all duration-300 font-sans placeholder:text-neutral-400 shadow-xs"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 text-neutral-400 hover:text-neutral-600 cursor-pointer focus:outline-none p-1"
+                >
+                  <X size={12} />
+                </button>
+              )}
+            </form>
+
+            {/* Amazon-Style Search Modal Dropdown */}
+            <AnimatePresence>
+              {isSearchFocused && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                  transition={{ duration: 0.18 }}
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white border border-neutral-100 shadow-[0_15px_40px_rgba(0,0,0,0.18)] z-50 rounded-2xl overflow-hidden divide-y divide-neutral-100 max-h-[80vh] overflow-y-auto scrollbar-hide w-[calc(100vw-24px)] max-w-[460px]"
+                >
+                  {/* 1. Recent Searches */}
+                  {recentSearches.length > 0 && (
+                    <div className="px-4 py-3.5 bg-neutral-50/50">
+                      <div className="flex items-center justify-between text-[10px] font-extrabold tracking-widest uppercase text-neutral-400 mb-2.5">
+                        <span className="flex items-center gap-1.5"><Clock size={12} className="text-[#FF4D6D]" /> Recent Searches</span>
+                        <button onClick={clearRecentSearches} className="text-neutral-400 hover:text-red-500 font-semibold cursor-pointer transition-colors">Clear All</button>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {recentSearches.map((term) => (
+                          <span
+                            key={term}
+                            className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white border border-neutral-200 text-xs text-neutral-800 hover:border-[#FF4D6D] hover:text-[#FF4D6D] cursor-pointer transition-all shadow-xs"
+                          >
+                            <span onClick={() => handleSearchTagClick(term)}>{term}</span>
+                            <X size={11} className="text-neutral-400 hover:text-red-500 cursor-pointer ml-0.5" onClick={(e) => { e.stopPropagation(); removeRecentSearch(term); }} />
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 2. Trending Searches */}
+                  <div className="px-4 py-3.5">
+                    <p className="text-[10px] font-extrabold tracking-widest uppercase text-neutral-400 mb-2.5 flex items-center gap-1.5">
+                      <Flame size={12} className="text-[#FF4D6D]" /> Trending Searches
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {trendingSearches.map((term) => (
+                        <button
+                          key={term}
+                          type="button"
+                          onClick={() => handleSearchTagClick(term)}
+                          className="text-xs font-medium text-neutral-700 bg-neutral-100 hover:bg-[#FF4D6D] hover:text-white px-3 py-1 rounded-full transition-all cursor-pointer focus:outline-none"
+                        >
+                          {term}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 3. Popular Categories */}
+                  <div className="px-4 py-3.5">
+                    <p className="text-[10px] font-extrabold tracking-widest uppercase text-neutral-400 mb-2.5 flex items-center gap-1.5">
+                      <Zap size={12} className="text-[#FF4D6D]" /> Popular Categories
+                    </p>
+                    <div className="grid grid-cols-5 gap-1.5">
+                      {hotCategories.map((cat) => (
+                        <button
+                          key={cat.value}
+                          type="button"
+                          onClick={() => handleHotCategoryClick(cat.value)}
+                          className="flex flex-col items-center justify-center text-center text-[10px] font-medium text-neutral-700 hover:text-[#FF4D6D] py-2 px-1 rounded-lg hover:bg-neutral-50 border border-transparent hover:border-neutral-200/80 transition-all cursor-pointer focus:outline-none gap-1"
+                        >
+                          <cat.icon size={16} strokeWidth={1.8} />
+                          <span className="leading-tight">{cat.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 4. Products Preview (Amazon Style) */}
+                  <div className="px-4 py-3.5 bg-neutral-50/30">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-[10px] font-extrabold tracking-widest uppercase text-neutral-400 flex items-center gap-1.5">
+                        <ShoppingBag size={12} className="text-[#FF4D6D]" /> Matching Products Preview
+                      </p>
+                      <button
+                        onClick={() => { navigate("products", { searchQuery }); setIsSearchFocused(false); }}
+                        className="text-[10px] font-bold text-[#FF4D6D] hover:underline uppercase flex items-center gap-1"
+                      >
+                        View All ({matchingProducts.length}) <ArrowRight size={11} />
+                      </button>
+                    </div>
+
+                    {matchingProducts.length > 0 ? (
+                      <div className="space-y-2">
+                        {matchingProducts.slice(0, 4).map((product) => (
+                          <div
+                            key={product.id}
+                            onClick={() => handleProductPreviewClick(product.id)}
+                            className="group flex items-center gap-3 p-2 rounded-xl bg-white border border-neutral-100 hover:border-[#FF4D6D]/30 hover:shadow-md transition-all cursor-pointer"
+                          >
+                            <img
+                              src={product.image || product.imageUrl || "/1.jpeg"}
+                              alt={product.name}
+                              className="w-12 h-12 object-cover rounded-lg group-hover:scale-105 transition-transform duration-300 shrink-0"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-xs font-bold text-neutral-900 truncate group-hover:text-[#FF4D6D] transition-colors">
+                                {product.name}
+                              </h4>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <span className="text-[9px] font-bold uppercase tracking-wider text-neutral-500 bg-neutral-100 px-1.5 py-0.5 rounded">
+                                  {product.category || "Apparel"}
+                                </span>
+                                {product.originalPrice > product.price && (
+                                  <span className="text-[9px] text-emerald-600 font-bold">
+                                    {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <span className="text-xs font-black text-[#111111] font-display block">
+                                ₹{(product.price || 0).toLocaleString("en-IN")}
+                              </span>
+                              {product.originalPrice > product.price && (
+                                <span className="text-[10px] text-neutral-400 line-through">
+                                  ₹{product.originalPrice.toLocaleString("en-IN")}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="py-4 text-center text-xs text-neutral-400">
+                        No products found matching "{searchQuery}".
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Right: Desktop Navigation Links (Clean & spacious, icons removed as requested) */}
+          <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8 font-sans shrink-0">
             <button
               onClick={() => navigate("home")}
               className={`text-xs font-semibold tracking-wider uppercase transition-colors cursor-pointer focus:outline-none ${
@@ -353,8 +502,8 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
                     transition={{ duration: 0.18 }}
-                    className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white border border-neutral-100 shadow-2xl z-50 rounded-xl overflow-hidden"
-                    style={{ width: '700px' }}
+                    className="absolute top-full right-0 mt-2 bg-white border border-neutral-100 shadow-2xl z-50 rounded-xl overflow-hidden"
+                    style={{ width: '680px' }}
                   >
                     {/* Header strip */}
                     <div className="px-5 py-3 border-b border-neutral-100 flex items-center justify-between">
@@ -419,214 +568,6 @@ export default function Navbar({ currentPage, navigate, currentParams = {} }) {
             </button>
           </nav>
 
-          {/* Action Icons + Persistent Amazon-Style Search Bar */}
-          <div className="flex items-center gap-1 min-[360px]:gap-1.5 sm:gap-3 xl:gap-4 shrink-0">
-
-            {/* Persistent Visible Search Bar (desktop only) */}
-            <div ref={searchWrapperRef} className="relative hidden lg:flex items-center">
-              <form onSubmit={handleSearchSubmit} className="relative flex items-center">
-                <Search size={15} className="absolute left-3.5 text-neutral-400 pointer-events-none" />
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  placeholder="Search dresses, co-ords, nightwear…"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setIsSearchFocused(true)}
-                  className="w-[240px] xl:w-[320px] h-10 text-xs bg-neutral-50 border border-neutral-200 rounded-full pl-9 pr-8 focus:outline-none focus:border-[#FF4D6D] focus:bg-white transition-all duration-300 font-sans placeholder:text-neutral-400"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-3 text-neutral-400 hover:text-neutral-600 cursor-pointer focus:outline-none"
-                  >
-                    <X size={12} />
-                  </button>
-                )}
-              </form>
-
-              {/* Amazon-Style Search Modal Dropdown */}
-              <AnimatePresence>
-                {isSearchFocused && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                    transition={{ duration: 0.18 }}
-                    className="absolute top-full left-0 mt-2 bg-white border border-neutral-100 shadow-[0_15px_40px_rgba(0,0,0,0.18)] z-50 rounded-2xl overflow-hidden divide-y divide-neutral-100 max-h-[80vh] overflow-y-auto scrollbar-hide"
-                    style={{ width: "440px" }}
-                  >
-                    {/* 1. Recent Searches */}
-                    {recentSearches.length > 0 && (
-                      <div className="px-4 py-3.5 bg-neutral-50/50">
-                        <div className="flex items-center justify-between text-[10px] font-extrabold tracking-widest uppercase text-neutral-400 mb-2.5">
-                          <span className="flex items-center gap-1.5"><Clock size={12} className="text-[#FF4D6D]" /> Recent Searches</span>
-                          <button onClick={clearRecentSearches} className="text-neutral-400 hover:text-red-500 font-semibold cursor-pointer transition-colors">Clear All</button>
-                        </div>
-                        <div className="flex flex-wrap gap-1.5">
-                          {recentSearches.map((term) => (
-                            <span
-                              key={term}
-                              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white border border-neutral-200 text-xs text-neutral-800 hover:border-[#FF4D6D] hover:text-[#FF4D6D] cursor-pointer transition-all shadow-xs"
-                            >
-                              <span onClick={() => handleSearchTagClick(term)}>{term}</span>
-                              <X size={11} className="text-neutral-400 hover:text-red-500 cursor-pointer ml-0.5" onClick={(e) => { e.stopPropagation(); removeRecentSearch(term); }} />
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* 2. Trending Searches */}
-                    <div className="px-4 py-3.5">
-                      <p className="text-[10px] font-extrabold tracking-widest uppercase text-neutral-400 mb-2.5 flex items-center gap-1.5">
-                        <Flame size={12} className="text-[#FF4D6D]" /> Trending Searches
-                      </p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {trendingSearches.map((term) => (
-                          <button
-                            key={term}
-                            type="button"
-                            onClick={() => handleSearchTagClick(term)}
-                            className="text-xs font-medium text-neutral-700 bg-neutral-100 hover:bg-[#FF4D6D] hover:text-white px-3 py-1 rounded-full transition-all cursor-pointer focus:outline-none"
-                          >
-                            {term}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* 3. Popular Categories */}
-                    <div className="px-4 py-3.5">
-                      <p className="text-[10px] font-extrabold tracking-widest uppercase text-neutral-400 mb-2.5 flex items-center gap-1.5">
-                        <Zap size={12} className="text-[#FF4D6D]" /> Popular Categories
-                      </p>
-                      <div className="grid grid-cols-5 gap-1.5">
-                        {hotCategories.map((cat) => (
-                          <button
-                            key={cat.value}
-                            type="button"
-                            onClick={() => handleHotCategoryClick(cat.value)}
-                            className="flex flex-col items-center justify-center text-center text-[10px] font-medium text-neutral-700 hover:text-[#FF4D6D] py-2 px-1 rounded-lg hover:bg-neutral-50 border border-transparent hover:border-neutral-200/80 transition-all cursor-pointer focus:outline-none gap-1"
-                          >
-                            <cat.icon size={16} strokeWidth={1.8} />
-                            <span className="leading-tight">{cat.label}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* 4. Products Preview (Amazon Style) */}
-                    <div className="px-4 py-3.5 bg-neutral-50/30">
-                      <div className="flex items-center justify-between mb-3">
-                        <p className="text-[10px] font-extrabold tracking-widest uppercase text-neutral-400 flex items-center gap-1.5">
-                          <ShoppingBag size={12} className="text-[#FF4D6D]" /> Matching Products Preview
-                        </p>
-                        <button
-                          onClick={() => { navigate("products", { searchQuery }); setIsSearchFocused(false); }}
-                          className="text-[10px] font-bold text-[#FF4D6D] hover:underline uppercase flex items-center gap-1"
-                        >
-                          View All ({matchingProducts.length}) <ArrowRight size={11} />
-                        </button>
-                      </div>
-
-                      {matchingProducts.length > 0 ? (
-                        <div className="space-y-2">
-                          {matchingProducts.slice(0, 4).map((product) => (
-                            <div
-                              key={product.id}
-                              onClick={() => handleProductPreviewClick(product.id)}
-                              className="group flex items-center gap-3 p-2 rounded-xl bg-white border border-neutral-100 hover:border-[#FF4D6D]/30 hover:shadow-md transition-all cursor-pointer"
-                            >
-                              <img
-                                src={product.image || product.imageUrl || "/1.jpeg"}
-                                alt={product.name}
-                                className="w-12 h-12 object-cover rounded-lg group-hover:scale-105 transition-transform duration-300 shrink-0"
-                              />
-                              <div className="flex-1 min-w-0">
-                                <h4 className="text-xs font-bold text-neutral-900 truncate group-hover:text-[#FF4D6D] transition-colors">
-                                  {product.name}
-                                </h4>
-                                <div className="flex items-center gap-2 mt-0.5">
-                                  <span className="text-[9px] font-bold uppercase tracking-wider text-neutral-500 bg-neutral-100 px-1.5 py-0.5 rounded">
-                                    {product.category || "Apparel"}
-                                  </span>
-                                  {product.originalPrice > product.price && (
-                                    <span className="text-[9px] text-emerald-600 font-bold">
-                                      {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="text-right shrink-0">
-                                <span className="text-xs font-black text-[#111111] font-display block">
-                                  ₹{(product.price || 0).toLocaleString("en-IN")}
-                                </span>
-                                {product.originalPrice > product.price && (
-                                  <span className="text-[10px] text-neutral-400 line-through">
-                                    ₹{product.originalPrice.toLocaleString("en-IN")}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="py-4 text-center text-xs text-neutral-400">
-                          No products found matching "{searchQuery}".
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Wishlist Button */}
-            <button
-              onClick={() => navigate("wishlist")}
-              className={`relative w-11 h-11 flex items-center justify-center rounded-full transition-all active:scale-95 cursor-pointer focus:outline-none hover:bg-neutral-100/80 lg:hover:bg-transparent lg:w-auto lg:h-auto lg:p-1.5 ${
-                currentPage === "wishlist" ? "text-[#FF4D6D]" : "text-neutral-700 hover:text-[#FF4D6D]"
-              }`}
-              aria-label="View Wishlist"
-            >
-              <Heart className="w-5 h-5 sm:w-[20px] sm:h-[20px]" strokeWidth={1.8} />
-              {wishlist.length > 0 && (
-                <span className="absolute top-1.5 right-1.5 bg-[#FF4D6D] text-white text-[8.5px] font-bold h-4 w-4 rounded-full flex items-center justify-center border border-white lg:top-0 lg:right-0 lg:translate-x-1/3 lg:-translate-y-1/3 animate-pulse">
-                  {wishlist.length}
-                </span>
-              )}
-            </button>
-
-            {/* Cart Button */}
-            <button
-              onClick={() => navigate("cart")}
-              className={`relative w-11 h-11 flex items-center justify-center rounded-full transition-all active:scale-95 cursor-pointer focus:outline-none hover:bg-neutral-100/80 lg:hover:bg-transparent lg:w-auto lg:h-auto lg:p-1.5 ${
-                currentPage === "cart" ? "text-[#FF4D6D]" : "text-neutral-700 hover:text-[#FF4D6D]"
-              }`}
-              aria-label="View Cart"
-            >
-              <ShoppingBag className="w-5 h-5 sm:w-[20px] sm:h-[20px]" strokeWidth={1.8} />
-              {totalCartItems > 0 && (
-                <span className="absolute top-1.5 right-1.5 bg-[#111111] text-white text-[8.5px] font-bold h-4 w-4 rounded-full flex items-center justify-center border border-white lg:top-0 lg:right-0 lg:translate-x-1/3 lg:-translate-y-1/3">
-                  {totalCartItems}
-                </span>
-              )}
-            </button>
-
-            {/* Profile Button */}
-            <button
-              onClick={() => navigate(user ? "profile" : "login")}
-              className={`w-11 h-11 flex items-center justify-center rounded-full transition-all active:scale-95 cursor-pointer focus:outline-none hover:bg-neutral-100/80 lg:hover:bg-transparent lg:w-auto lg:h-auto lg:p-1.5 ${
-                currentPage === "profile" || currentPage === "login" ? "text-[#FF4D6D]" : "text-neutral-700 hover:text-[#FF4D6D]"
-              }`}
-              aria-label="View Profile"
-            >
-              <User className="w-5 h-5 sm:w-[20px] sm:h-[20px]" strokeWidth={1.8} />
-            </button>
-
-          </div>
         </div>
       </header>
 

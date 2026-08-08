@@ -97,37 +97,37 @@ export default function Categories({ navigate }) {
           ))}
         </motion.div>
 
-        {/* Featured Collection Banners for Cosmetic & Accessories */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-6 max-w-[1720px] mx-auto mt-8 sm:mt-12 px-1 sm:px-4">
+        {/* Featured Collection Banners for Cosmetic & Accessories (Side-by-side in 1 row on mobile) */}
+        <div className="grid grid-cols-2 gap-2 min-[360px]:gap-2.5 sm:gap-6 max-w-[1720px] mx-auto mt-6 sm:mt-12 px-0.5 sm:px-4">
           {/* Cosmetic Banner */}
           <button 
             onClick={() => navigate("products", { category: "Cosmetic" })}
-            className="group relative h-[80px] sm:h-[88px] rounded-3xl overflow-hidden border border-neutral-200/80 shadow-md hover:shadow-xl hover:shadow-rose-500/15 transition-all duration-500 ease-out text-left cursor-pointer focus:outline-none min-h-unset min-w-unset w-full active:scale-[0.98]"
+            className="group relative h-[72px] min-[360px]:h-[78px] sm:h-[88px] rounded-2xl sm:rounded-3xl overflow-hidden border border-neutral-200/80 shadow-md hover:shadow-xl hover:shadow-rose-500/15 transition-all duration-500 ease-out text-left cursor-pointer focus:outline-none min-h-unset min-w-unset w-full active:scale-[0.98]"
           >
             <div 
               className="absolute inset-0 bg-cover bg-center transition-transform duration-[1200ms] ease-out group-hover:scale-110"
               style={{ backgroundImage: `url(${cosmeticsImage})` }}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent" />
-            <div className="absolute inset-2 rounded-2xl border border-white/15 group-hover:border-white/40 transition-colors duration-500 pointer-events-none" />
+            <div className="absolute inset-1.5 sm:inset-2 rounded-xl sm:rounded-2xl border border-white/15 group-hover:border-white/40 transition-colors duration-500 pointer-events-none" />
 
-            <div className="absolute inset-0 flex items-center justify-between px-4 sm:px-6 relative z-10">
-              <div className="flex items-center gap-3.5 sm:gap-4">
-                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white group-hover:bg-white group-hover:text-black transition-all duration-300 shadow-inner shrink-0">
-                  <Sparkles size={20} className="sm:size-[22px]" />
+            <div className="absolute inset-0 flex items-center justify-between px-2.5 min-[360px]:px-3 sm:px-6 relative z-10">
+              <div className="flex items-center gap-2 min-[360px]:gap-2.5 sm:gap-4 min-w-0">
+                <div className="w-8 h-8 min-[360px]:w-9.5 min-[360px]:h-9.5 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/15 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white group-hover:bg-white group-hover:text-black transition-all duration-300 shadow-inner shrink-0">
+                  <Sparkles size={15} className="min-[360px]:size-[17px] sm:size-[22px]" />
                 </div>
-                <div>
-                  <h3 className="font-black text-sm sm:text-base md:text-lg text-white tracking-[0.05em] uppercase font-display leading-none">
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-black text-[11px] min-[360px]:text-xs sm:text-base md:text-lg text-white tracking-[0.03em] sm:tracking-[0.05em] uppercase font-display leading-none truncate">
                     Cosmetic
                   </h3>
-                  <p className="text-[9.5px] sm:text-[10px] text-neutral-300 font-bold mt-1 tracking-[0.08em] uppercase leading-none font-sans">
+                  <p className="text-[8px] min-[360px]:text-[9px] sm:text-[10px] text-neutral-300 font-bold mt-1 tracking-[0.04em] sm:tracking-[0.08em] uppercase leading-none font-sans truncate">
                     Beauty &amp; Skincare
                   </p>
                 </div>
               </div>
               
-              <div className="flex w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/20 hover:bg-white text-white hover:text-black items-center justify-center border border-white/30 group-hover:translate-x-2 transition-all duration-300 shadow-md shrink-0">
-                <ArrowRight size={16} className="sm:size-[18px]" />
+              <div className="flex w-6 h-6 min-[360px]:w-7 min-[360px]:h-7 sm:w-10 sm:h-10 rounded-full bg-white/20 hover:bg-white text-white hover:text-black items-center justify-center border border-white/30 group-hover:translate-x-1 sm:group-hover:translate-x-2 transition-all duration-300 shadow-md shrink-0 ml-1">
+                <ArrowRight size={13} className="min-[360px]:size-[14px] sm:size-[18px]" />
               </div>
             </div>
           </button>
@@ -135,32 +135,32 @@ export default function Categories({ navigate }) {
           {/* Accessories Banner */}
           <button 
             onClick={() => navigate("products", { category: "Accessories" })}
-            className="group relative h-[80px] sm:h-[88px] rounded-3xl overflow-hidden border border-neutral-200/80 shadow-md hover:shadow-xl hover:shadow-rose-500/15 transition-all duration-500 ease-out text-left cursor-pointer focus:outline-none min-h-unset min-w-unset w-full active:scale-[0.98]"
+            className="group relative h-[72px] min-[360px]:h-[78px] sm:h-[88px] rounded-2xl sm:rounded-3xl overflow-hidden border border-neutral-200/80 shadow-md hover:shadow-xl hover:shadow-rose-500/15 transition-all duration-500 ease-out text-left cursor-pointer focus:outline-none min-h-unset min-w-unset w-full active:scale-[0.98]"
           >
             <div 
               className="absolute inset-0 bg-cover bg-center transition-transform duration-[1200ms] ease-out group-hover:scale-110"
               style={{ backgroundImage: `url(${accessoriesImage})` }}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent" />
-            <div className="absolute inset-2 rounded-2xl border border-white/15 group-hover:border-white/40 transition-colors duration-500 pointer-events-none" />
+            <div className="absolute inset-1.5 sm:inset-2 rounded-xl sm:rounded-2xl border border-white/15 group-hover:border-white/40 transition-colors duration-500 pointer-events-none" />
 
-            <div className="absolute inset-0 flex items-center justify-between px-4 sm:px-6 relative z-10">
-              <div className="flex items-center gap-3.5 sm:gap-4">
-                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white group-hover:bg-white group-hover:text-black transition-all duration-300 shadow-inner shrink-0">
-                  <ShoppingBag size={20} className="sm:size-[22px]" />
+            <div className="absolute inset-0 flex items-center justify-between px-2.5 min-[360px]:px-3 sm:px-6 relative z-10">
+              <div className="flex items-center gap-2 min-[360px]:gap-2.5 sm:gap-4 min-w-0">
+                <div className="w-8 h-8 min-[360px]:w-9.5 min-[360px]:h-9.5 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/15 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white group-hover:bg-white group-hover:text-black transition-all duration-300 shadow-inner shrink-0">
+                  <ShoppingBag size={15} className="min-[360px]:size-[17px] sm:size-[22px]" />
                 </div>
-                <div>
-                  <h3 className="font-black text-sm sm:text-base md:text-lg text-white tracking-[0.05em] uppercase font-display leading-none">
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-black text-[11px] min-[360px]:text-xs sm:text-base md:text-lg text-white tracking-[0.03em] sm:tracking-[0.05em] uppercase font-display leading-none truncate">
                     Accessories
                   </h3>
-                  <p className="text-[9.5px] sm:text-[10px] text-neutral-300 font-bold mt-1 tracking-[0.08em] uppercase leading-none font-sans">
+                  <p className="text-[8px] min-[360px]:text-[9px] sm:text-[10px] text-neutral-300 font-bold mt-1 tracking-[0.04em] sm:tracking-[0.08em] uppercase leading-none font-sans truncate">
                     Jewelry &amp; Essentials
                   </p>
                 </div>
               </div>
               
-              <div className="flex w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/20 hover:bg-white text-white hover:text-black items-center justify-center border border-white/30 group-hover:translate-x-2 transition-all duration-300 shadow-md shrink-0">
-                <ArrowRight size={16} className="sm:size-[18px]" />
+              <div className="flex w-6 h-6 min-[360px]:w-7 min-[360px]:h-7 sm:w-10 sm:h-10 rounded-full bg-white/20 hover:bg-white text-white hover:text-black items-center justify-center border border-white/30 group-hover:translate-x-1 sm:group-hover:translate-x-2 transition-all duration-300 shadow-md shrink-0 ml-1">
+                <ArrowRight size={13} className="min-[360px]:size-[14px] sm:size-[18px]" />
               </div>
             </div>
           </button>

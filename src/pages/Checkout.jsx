@@ -340,13 +340,7 @@ export default function Checkout({ navigate }) {
                 </label>
               </div>
 
-              <div className="pt-6 border-t border-neutral-100 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
-                <button
-                  onClick={handlePrevStep}
-                  className="w-full sm:w-auto justify-center px-6 h-12 min-h-[48px] border border-neutral-300 hover:border-neutral-800 text-neutral-700 text-xs font-bold tracking-widest uppercase transition-colors flex items-center gap-1.5 rounded-xl cursor-pointer focus:outline-none active:scale-[0.98]"
-                >
-                  <ArrowLeft size={14} /> Back
-                </button>
+              <div className="pt-6 border-t border-neutral-100 flex justify-end gap-3">
                 <button
                   onClick={handleNextStep}
                   className="w-full sm:w-auto justify-center px-6 sm:px-8 h-12 min-h-[48px] bg-[#111111] hover:bg-[#FF4D6D] text-white text-xs font-bold tracking-widest uppercase transition-colors duration-300 flex items-center gap-1.5 rounded-xl cursor-pointer focus:outline-none shadow-md active:scale-[0.98]"
@@ -546,13 +540,7 @@ export default function Checkout({ navigate }) {
                 </div>
               </div>
 
-              <div className="pt-6 border-t border-neutral-100 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
-                <button
-                  onClick={handlePrevStep}
-                  className="justify-center px-6 h-11 border border-neutral-200 hover:border-neutral-800 text-neutral-700 text-xs font-bold tracking-widest uppercase transition-colors flex items-center gap-1.5 rounded-xs cursor-pointer focus:outline-none"
-                >
-                  <ArrowLeft size={14} /> Back
-                </button>
+              <div className="pt-6 border-t border-neutral-100 flex justify-end gap-3">
                 <button
                   onClick={handleNextStep}
                   className="justify-center px-6 sm:px-8 h-11 bg-[#111111] hover:bg-[#FF4D6D] text-white text-xs font-bold tracking-widest uppercase transition-colors duration-300 flex items-center gap-1.5 rounded-xs cursor-pointer focus:outline-none"
@@ -596,13 +584,7 @@ export default function Checkout({ navigate }) {
                 </div>
               </div>
 
-              <div className="pt-6 border-t border-neutral-100 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
-                <button
-                  onClick={handlePrevStep}
-                  className="justify-center px-6 h-11 border border-neutral-200 hover:border-neutral-800 text-neutral-700 text-xs font-bold tracking-widest uppercase transition-colors flex items-center gap-1.5 rounded-xs cursor-pointer focus:outline-none"
-                >
-                  <ArrowLeft size={14} /> Back
-                </button>
+              <div className="pt-6 border-t border-neutral-100 flex justify-end gap-3">
                 <button
                   onClick={handleFinalCheckout}
                   className="justify-center px-6 sm:px-8 h-11 bg-[#FF4D6D] hover:bg-[#111111] text-white text-xs font-bold tracking-widest uppercase transition-all duration-300 flex items-center gap-1.5 rounded-xs shadow-md cursor-pointer focus:outline-none font-display"

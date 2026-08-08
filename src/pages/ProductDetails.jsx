@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
 import ProductCard from "../components/ProductCard";
-import { Star, Heart, ShoppingBag, CreditCard, ChevronRight, ChevronLeft, Plus, Minus, ArrowLeft, Package, RefreshCcw, Share2, ShieldCheck } from "lucide-react";
+import { Star, Heart, ShoppingBag, CreditCard, ChevronRight, ChevronLeft, ChevronDown, ChevronUp, Plus, Minus, ArrowLeft, Package, RefreshCcw, Share2, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import ImageKitImage from "../components/ImageKitImage";
 
@@ -22,6 +22,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   // Zoom Style Coordinates
   const [zoomStyle, setZoomStyle] = useState({ display: "none" });
@@ -82,10 +83,10 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
         <h2 className="text-xl font-bold uppercase tracking-wider text-neutral-800 mb-2">Product Not Found</h2>
         <p className="text-xs text-neutral-400 mb-6 font-light">The item you are looking for does not exist or has been removed.</p>
         <button
-          onClick={goBack}
+          onClick={() => navigate("products")}
           className="inline-flex items-center gap-1.5 px-6 py-3 bg-[#111111] hover:bg-[#FF4D6D] text-white text-xs font-bold tracking-widest uppercase transition-colors cursor-pointer focus:outline-none"
         >
-          <ArrowLeft size={14} /> Back
+          Browse Catalog
         </button>
       </div>
     );
@@ -352,8 +353,8 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
 
 
         {/* Product Information */}
-        <div className="space-y-5">
-          <div className="space-y-3">
+        <div className="space-y-3.5 sm:space-y-4">
+          <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-neutral-100 text-[9px] font-extrabold text-[#FF4D6D] tracking-widest uppercase border border-[#FF4D6D]/15">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#FF4D6D] animate-pulse-slow"></span>
@@ -368,9 +369,9 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
               {product.name}
             </h1>
 
-            {/* Live Ticker / Interactive Activity Urgency Ticker - Highly Responsive & Dynamic */}
+            {/* Live Ticker / Interactive Activity Urgency Ticker - Compact & Dynamic */}
             {stockCount === 0 ? (
-              <div className="flex items-start gap-2.5 bg-neutral-50 border border-neutral-200 rounded-xl p-3 text-[11px] text-neutral-500 font-sans">
+              <div className="flex items-start gap-2 bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2 text-[11px] text-neutral-500 font-sans">
                 <span className="relative flex h-2 w-2 mt-0.5 shrink-0">
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-neutral-300"></span>
                 </span>
@@ -379,7 +380,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
                 </p>
               </div>
             ) : stockCount <= 10 ? (
-              <div className="flex items-start gap-2.5 bg-rose-50/50 border border-rose-100/60 rounded-xl p-3 text-[11px] text-rose-800 font-sans shadow-[0_2px_10px_rgba(255,77,109,0.02)]">
+              <div className="flex items-start gap-2 bg-rose-50/50 border border-rose-100/60 rounded-xl px-3 py-2 text-[11px] text-rose-800 font-sans shadow-[0_2px_10px_rgba(255,77,109,0.02)]">
                 <span className="relative flex h-2 w-2 mt-0.5 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF4D6D] opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF4D6D]"></span>
@@ -389,7 +390,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
                 </p>
               </div>
             ) : (
-              <div className="flex items-start gap-2.5 bg-emerald-50/40 border border-emerald-100/60 rounded-xl p-3 text-[11px] text-emerald-800 font-sans shadow-[0_2px_10px_rgba(16,185,129,0.02)]">
+              <div className="flex items-start gap-2 bg-emerald-50/40 border border-emerald-100/60 rounded-xl px-3 py-2 text-[11px] text-emerald-800 font-sans shadow-[0_2px_10px_rgba(16,185,129,0.02)]">
                 <span className="relative flex h-2 w-2 mt-0.5 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
@@ -401,7 +402,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
             )}
             
             {hasRating && (
-              <div className="flex items-center gap-2.5 pt-1.5">
+              <div className="flex items-center gap-2 pt-0.5">
                 <div className="flex items-center text-amber-400 gap-0.5 bg-amber-50/50 border border-amber-200/30 px-2 py-0.5 rounded-full">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
@@ -419,7 +420,7 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 py-3 border-y border-neutral-100">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 py-2 border-y border-neutral-100">
             <span className="text-xl sm:text-2xl font-black text-neutral-900 tracking-tight">
               ₹{product.price.toLocaleString("en-IN")}
             </span>
@@ -428,16 +429,43 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
                 <span className="text-sm text-neutral-400 line-through font-light">
                   ₹{product.oldPrice.toLocaleString("en-IN")}
                 </span>
-                <span className="text-[10px] font-extrabold text-white tracking-widest uppercase bg-gradient-to-r from-[#FF4D6D] to-[#FF758F] px-2.5 py-1 rounded-full shadow-[0_4px_12px_rgba(255,77,109,0.18)] border border-white/10 animate-pulse-slow">
+                <span className="text-[10px] font-extrabold text-white tracking-widest uppercase bg-gradient-to-r from-[#FF4D6D] to-[#FF758F] px-2.5 py-0.5 rounded-full shadow-[0_4px_12px_rgba(255,77,109,0.18)] border border-white/10 animate-pulse-slow">
                   Save ₹{(product.oldPrice - product.price).toLocaleString("en-IN")}
                 </span>
               </>
             )}
           </div>
 
-          <p className="text-[12.5px] text-neutral-600 leading-relaxed font-light font-sans">
-            {product.description}
-          </p>
+          {/* Truncated Product Description with View More */}
+          {product.description && (
+            <div className="space-y-1">
+              <p
+                className={`text-[12.5px] text-neutral-600 leading-relaxed font-light font-sans transition-all duration-300 ${
+                  !isDescriptionExpanded ? "line-clamp-2" : ""
+                }`}
+              >
+                {product.description}
+              </p>
+              {product.description.length > 80 && (
+                <button
+                  onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                  className="text-[11px] font-bold text-[#FF4D6D] hover:text-[#FF1E46] transition-colors focus:outline-none cursor-pointer flex items-center gap-1 font-sans underline underline-offset-2 decoration-[#FF4D6D]/40 mt-1"
+                >
+                  {isDescriptionExpanded ? (
+                    <>
+                      <span>View Less</span>
+                      <ChevronUp size={12} />
+                    </>
+                  ) : (
+                    <>
+                      <span>View More</span>
+                      <ChevronDown size={12} />
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Color selects */}
           {product.colors && product.colors.length > 0 && (
@@ -893,34 +921,6 @@ export default function ProductDetails({ navigate, currentParams = {}, goBack })
           </div>
         </section>
       )}
-
-      {/* Fixed Mobile Sticky Action Bar (Wishlist, Add to Bag 48px, Buy Now 48px) */}
-      <div className="fixed bottom-[64px] left-0 right-0 z-40 md:hidden bg-white/95 backdrop-blur-md border-t border-neutral-200/90 p-2 sm:p-2.5 shadow-[0_-8px_25px_rgba(0,0,0,0.1)] flex items-center gap-2">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleWishlist(product);
-          }}
-          className="w-12 h-12 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-700 hover:text-[#FF4D6D] shrink-0 border border-neutral-200 active:scale-95 transition-all"
-          aria-label={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
-        >
-          <Heart size={20} className={isWishlisted ? "fill-[#FF4D6D] text-[#FF4D6D]" : ""} />
-        </button>
-        <button
-          onClick={handleAddToCart}
-          className="flex-1 h-12 bg-neutral-900 active:bg-black text-white text-[11px] font-black tracking-widest uppercase rounded-xl flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] transition-all cursor-pointer font-sans"
-        >
-          <ShoppingBag size={16} />
-          Add to Bag
-        </button>
-        <button
-          onClick={handleBuyNow}
-          className="flex-1 h-12 bg-gradient-to-r from-[#FF4D6D] to-[#FF758F] active:from-[#FF1E46] text-white text-[11px] font-black tracking-widest uppercase rounded-xl flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.98] transition-all cursor-pointer font-sans"
-        >
-          <CreditCard size={16} />
-          Buy Now
-        </button>
-      </div>
 
     </div>
   );
